@@ -1,17 +1,21 @@
-import './App.css'
-import { BgImage } from './components/BgImage'
-import { NarrativeBox } from './components/NarrativeBox'
+import { useState } from 'react';
+import './App.css';
+import { BgImage } from './components/BgImage';
+import { NarrativeBox } from './components/NarrativeBox';
+import { MainMenu } from './components/MainMenu';
 
 function App() {
+    const [directoryHandle, setDirectoryHandle] = useState<FileSystemDirectoryHandle | null>(null);
+    const [isMainMenuOpen, setIsMainMenuOpen] = useState<boolean>(false);
 
     return (
-        <div className="w-screen h-screen grid grid-rows-[3fr_1fr]">
-			<BgImage location='heaven'/>
-            <div></div>
-            <NarrativeBox>
-                Hello world loremipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-            </NarrativeBox>
-        </div>
+        isMainMenuOpen ?
+            <MainMenu setDirectoryHandle={setDirectoryHandle}></MainMenu> :
+            <div className="w-screen h-screen grid grid-rows-[3fr_1fr]">
+                <BgImage location='heaven' />
+                <div></div>
+                <NarrativeBox isNameBoxLeft={true} />
+            </div>
     )
 }
 
