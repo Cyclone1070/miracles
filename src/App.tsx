@@ -10,7 +10,7 @@ function App() {
     return (
         isMainMenuOpen ?
             <MainMenu directoryHandle={directoryHandle} setDirectoryHandle={setDirectoryHandle} setIsMainMenuOpen={setIsMainMenuOpen}></MainMenu> :
-            <div className="w-screen h-screen flex flex-col p-6">
+            <div className="w-screen h-dvh flex flex-col p-6">
                 <BgImage location='heaven' />
                 <div className='grow'></div>
                 <div><NarrativeBox isNameBoxLeft={true}/></div>

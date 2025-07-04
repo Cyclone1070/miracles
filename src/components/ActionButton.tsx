@@ -29,6 +29,12 @@ export function ActionButton({...props}: Props) {
 				if (props.onMouseLeave) props.onMouseLeave(e);
 			}}
 			onMouseEnter={props.onMouseEnter}
+			onTouchStart={() => {
+				setIsActive(true);
+			}}
+			onTouchEnd={() => {
+				setIsActive(false);
+			}}
             onClick={props.onClick}
             className={mergeClasses("cursor-pointer relative bg-(--accent) text-white rounded-md", props.className,)}
         >
