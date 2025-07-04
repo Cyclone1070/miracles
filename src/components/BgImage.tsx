@@ -5,8 +5,8 @@ interface Props {
 
 export function BgImage({ ...props }: Props) {
     return (
-        <div className={`absolute w-full h-full ${props.classsName || ''}`}>
-            {props.location === "heaven" ? <img className='w-full h-full object-cover' src="../public/heaven.png" alt="a heaven courtyard" /> : null}
+        <div className={`@container absolute inset-0 flex justify-center items-center ${props.classsName || ''}`}>
+            {props.location === "heaven" ? <img className='adaptive-size' src="/heaven.png" alt="a heaven courtyard" /> : null}
         </div>
     );
 }

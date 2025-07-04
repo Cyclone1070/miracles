@@ -1,20 +1,19 @@
 import { useState } from 'react';
-import './App.css';
 import { BgImage } from './components/BgImage';
-import { NarrativeBox } from './components/NarrativeBox';
 import { MainMenu } from './components/MainMenu';
+import { NarrativeBox } from './components/NarrativeBox';
 
 function App() {
-    const [directoryHandle, setDirectoryHandle] = useState<FileSystemDirectoryHandle | null>(null);
-    const [isMainMenuOpen, setIsMainMenuOpen] = useState<boolean>(false);
+    const [directoryHandle, setDirectoryHandle] = useState<FileSystemDirectoryHandle>();
+    const [isMainMenuOpen, setIsMainMenuOpen] = useState<boolean>(true);
 
     return (
         isMainMenuOpen ?
-            <MainMenu setDirectoryHandle={setDirectoryHandle}></MainMenu> :
-            <div className="w-screen h-screen grid grid-rows-[3fr_1fr]">
+            <MainMenu directoryHandle={directoryHandle} setDirectoryHandle={setDirectoryHandle} setIsMainMenuOpen={setIsMainMenuOpen}></MainMenu> :
+            <div className="w-screen h-screen flex flex-col p-6">
                 <BgImage location='heaven' />
-                <div></div>
-                <NarrativeBox isNameBoxLeft={true} />
+                <div className='grow'></div>
+                <div><NarrativeBox isNameBoxLeft={true}/></div>
             </div>
     )
 }
