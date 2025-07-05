@@ -36,7 +36,7 @@ export function ActionButton({...props}: Props) {
 				setIsActive(false);
 			}}
             onClick={props.onClick}
-            className={mergeClasses("cursor-pointer relative bg-(--accent) text-white rounded-md", props.className,)}
+            className={mergeClasses("cursor-pointer p-2 relative bg-(--accent-under-text) text-white rounded-md", props.className,)}
         >
             {/* darken background overlay */}
             <motion.div

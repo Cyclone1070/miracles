@@ -1,5 +1,7 @@
+import { mergeClasses } from "../utils/tailwindMerge";
+
 interface Props {
-    classsName?: string;
+    className?: string;
     children?: React.ReactNode;
     isNameBoxLeft: boolean;
 }
@@ -8,9 +10,9 @@ export function NarrativeBox({ ...props }: Props) {
     let bgColor = props.children ? "bg-black/85 ring-black/85" : "bg-black/70 ring-black/70";
     return (
         <div
-            className={`
+            className={mergeClasses(`
 			relative h-50 p4 text-white border-2 border-(--accent) rounded-xl ring-5 border-t-0 
-			${bgColor} ${props.classsName || ''}`}
+			${bgColor}`, props.className)}
         >
             <div className="absolute top-0 -left-[2px] -right-[2px] flex">
                 <div className={`border-t-2 border-(--accent) ${props.isNameBoxLeft ? "border-l-2 rounded-tl-xl w-8" : "border-l-2 rounded-tl-xl grow"}`}></div>
