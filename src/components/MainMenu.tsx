@@ -55,7 +55,7 @@ export function MainMenu({ ...props }: Props) {
                         transition={{ ease: "easeInOut" }}
                         className={`absolute w-screen h-dvh bg-black/70 flex justify-center items-center`}
                         onClick={() => { setIsHelpVisible(false) }}>
-                        <div className={`bg-(--bg) w-70 p-4 border-2 border-(--accent) rounded-md text-(--text)`}>You can obtain a free Gemini API key by visiting <a className={`text-blue-500 underline`} href="https://aistudio.google.com/apikey" target="_blank">this website</a>. Log in to your account and click "create API key" on the top right.</div>
+                        <div className={`bg-(--theme-bg) w-70 p-4 border-2 border-(--accent) rounded-md text-(--text)`}>You can obtain a free Gemini API key by visiting <a className={`text-blue-500 underline`} href="https://aistudio.google.com/apikey" target="_blank">this website</a>. Log in to your account and click "create API key" on the top right.</div>
                     </motion.div>
                 )}
             </AnimatePresence>

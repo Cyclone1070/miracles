@@ -7,7 +7,7 @@ interface Props {
 }
 
 export function NarrativeBox({ ...props }: Props) {
-    let bgColor = props.children ? "bg-black/85 ring-black/85" : "bg-black/70 ring-black/70";
+    let bgColor = props.children ? "bg-(--bg) ring-[var(--bg)]" : "bg-(--bg-without-text) ring-[var(--bg-without-text)]";
     return (
         <div
             className={mergeClasses(`
