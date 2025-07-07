@@ -27,7 +27,7 @@ export function MainMenu({ ...props }: Props) {
                 }>
                 <h1 className={`font-bold text-6xl md:text-8xl`}>Miracles</h1>
                 <ActionButton className={
-                    `rounded-xl m-auto
+                    `rounded-xl m-auto bg-(--accent-under-text)
 					text-2xl p-3 px-5
 					md:text-3xl md:p-3 md:px-6`
                 } onClick={() => {
@@ -37,13 +37,13 @@ export function MainMenu({ ...props }: Props) {
                 <div className={`relative flex items-center`}>
                     <input className="border border-(--accent) rounded-sm p-1 px-2 outline-0" placeholder="Enter your API key" type="text" />
                     <ActionButton
-                        className={`absolute -right-10 w-7 h-7 flex items-center justify-center rounded-full`}
+                        className={`absolute -right-10 w-7 h-7 flex items-center justify-center rounded-full bg-(--accent-under-text)`}
                         onClick={() => {
                             setIsHelpVisible(true);
                         }}
                     >?</ActionButton>
                 </div>
-                <ActionButton className={`p-1.5`}>Clear Data</ActionButton>
+                <ActionButton className={`bg-(--accent-under-text) p-1.5`}>Clear Data</ActionButton>
             </motion.div>
             <div className="absolute right-0 bottom-0 text-sm pr-1">Art is AI cause I suck at it</div>
             <AnimatePresence>
