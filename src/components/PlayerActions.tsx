@@ -1,11 +1,11 @@
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { mergeClasses } from "../utils/tailwindMerge";
 import { ActionButton } from "./ActionButton";
 import actionSvgURL from "/action.svg?url";
-import saySvgURL from "/say.svg?url";
-import miracleSvgURL from "/miracle.svg?url";
 import closeSvgURL from "/close.svg?url";
+import miracleSvgURL from "/miracle.svg?url";
+import saySvgURL from "/say.svg?url";
 
 interface Props {
     className?: string;
@@ -51,7 +51,7 @@ export function PlayerActions({ ...props }: Props) {
                         animate={isActionExpanded ? "visible" : "hidden"}
                         className={`absolute h-7`} src={closeSvgURL} alt="close icon" />
                 </ActionButton>
-                <motion.div variants={{ visible: { visibility: "visible", opacity: 1, y: -3 }, hidden: { visibility: "hidden", opacity: 0, y: 0 } }} animate={isActionExpanded ? "visible" : "hidden"} className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-1 md:mb-2 flex flex-col gap-2`}>
+                <motion.div variants={{ visible: { visibility: "visible", opacity: 1, y: -3, transition: {ease: "easeInOut"}}, hidden: { visibility: "hidden", opacity: 0, y: 0, transition: {ease: "easeInOut"}} }} animate={isActionExpanded ? "visible" : "hidden"} className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-1 md:mb-2 flex flex-col gap-2`}>
                     <ActionButton className={`flex gap-2 items-center`}>
                         <div className={`h-5 w-5`}><img className={`h-full w-full`} src={actionSvgURL} alt="action icon" /></div>
                         <span>Do</span>
