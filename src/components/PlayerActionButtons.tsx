@@ -52,9 +52,6 @@ export function PlayerActionButtons({ ...props }: Props) {
 			className={`flex justify-center -right-[2px] -left-[2px] absolute top-full -translate-y-1/2`}
 		>
 			<div className={`relative text-white`}>
-				<div
-					className={`absolute -z-1 -inset-[5px] rounded-full [clip-path:inset(calc(50%+0.25rem+2px)_0_0_0)] bg-(--bg)`}
-				></div>
 				<ActionButton
 					data-none-close-click
 					data-textbox-none-close-click
