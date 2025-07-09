@@ -1,45 +1,48 @@
-import { motion } from 'motion/react';
-import React from 'react';
-import { useTheme } from '../context/ThemeContext';
-import { mergeClasses } from '../utils/tailwindMerge';
+import { motion } from "motion/react";
+import React from "react";
+import { useTheme } from "../context/ThemeContext";
+import { mergeClasses } from "../utils/tailwindMerge";
 
 interface Props {
-    className?: string;
-    children: React.ReactNode;
-    onClick?: React.MouseEventHandler<HTMLButtonElement>;
-    onMouseEnter?: React.MouseEventHandler<HTMLButtonElement>;
-    onMouseLeave?: React.MouseEventHandler<HTMLButtonElement>;
+	className?: string;
+	children: React.ReactNode;
+	onClick?: React.MouseEventHandler<HTMLButtonElement>;
+	onMouseEnter?: React.MouseEventHandler<HTMLButtonElement>;
+	onMouseLeave?: React.MouseEventHandler<HTMLButtonElement>;
 }
 
 export function ActionButton({ ...props }: Props) {
-    const [isActive, setIsActive] = React.useState(false);
-    const { darkMode } = useTheme();
+	const [isActive, setIsActive] = React.useState(false);
+	const { darkMode } = useTheme();
 
-    return (
-        <button
+	return (
+		<button
 			{...props}
-            /* set to active on click */
-            onMouseDown={() => {
-                setIsActive(true);
-            }}
-            onMouseUp={() => {
-                setIsActive(false);
-            }}
-            onMouseLeave={(e) => {
-                setIsActive(false);
-                if (props.onMouseLeave) props.onMouseLeave(e);
-            }}
-            onTouchStart={() => {
-                setIsActive(true);
-            }}
-            onTouchEnd={() => {
-                setIsActive(false);
-            }}
-            onClick={props.onClick}
-            className={mergeClasses("cursor-pointer p-2 relative bg-(--accent) text-white rounded-md shadow-md/25", props.className,)}
-        >
-            {/* darken background overlay */}
-            {props.children}
+			/* set to active on click */
+			onMouseDown={() => {
+				setIsActive(true);
+			}}
+			onMouseUp={() => {
+				setIsActive(false);
+			}}
+			onMouseLeave={(e) => {
+				setIsActive(false);
+				if (props.onMouseLeave) props.onMouseLeave(e);
+			}}
+			onTouchStart={() => {
+				setIsActive(true);
+			}}
+			onTouchEnd={() => {
+				setIsActive(false);
+			}}
+			onClick={props.onClick}
+			className={mergeClasses(
+				"cursor-pointer p-2 relative bg-(--accent) text-white rounded-md shadow-md/25",
+				props.className,
+			)}
+		>
+			{/* darken background overlay */}
+			{props.children}
 			<motion.div
 				variants={{
 					default: { opacity: 0 },
@@ -47,11 +50,11 @@ export function ActionButton({ ...props }: Props) {
 					active: { opacity: 0.22 },
 				}}
 				initial="default"
-				whileHover={isActive ? 'active' : 'hover'}
-				animate={isActive ? 'active' : 'default'}
+				whileHover={isActive ? "active" : "hover"}
+				animate={isActive ? "active" : "default"}
 				transition={{ duration: 0.2 }}
-				className={`absolute inset-0 rounded-[inherit] ${darkMode ? 'bg-white' : 'bg-black'}`}
+				className={`absolute inset-0 rounded-[inherit] ${darkMode ? "bg-white" : "bg-black"}`}
 			></motion.div>
-        </button>
-    );
+		</button>
+	);
 }
