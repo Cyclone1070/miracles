@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from "uuid";
 interface Props {
 	className?: string;
 	setActions: React.Dispatch<React.SetStateAction<Action[]>>;
+	ref: React.Ref<HTMLDivElement>;
 }
 
 export function PlayerActionButtons({ ...props }: Props) {
@@ -49,6 +50,7 @@ export function PlayerActionButtons({ ...props }: Props) {
 	}, [isActionExpanded]);
 	return (
 		<div
+			ref={props.ref}
 			className={`flex justify-center -right-[2px] -left-[2px] absolute top-full -translate-y-1/2`}
 		>
 			<div className={`relative text-white`}>

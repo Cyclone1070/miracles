@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ActionButton } from "./components/ActionButton";
 import { BgImage } from "./components/BgImage";
 import { MainMenu } from "./components/MainMenu";
@@ -27,6 +27,7 @@ function App() {
 			transition: { delay: 0.7, duration: 1, ease: "easeInOut" as const },
 		},
 	};
+	const actionButtonRef = useRef<HTMLDivElement>(null);
 
 	return (
 		<>
@@ -57,8 +58,8 @@ function App() {
 
 				<div className="grow"></div>
 
-				<NarrativeBox className={`w-full`} isNameBoxLeft={true}>
-					<PlayerActionButtons setActions={setActions} />
+				<NarrativeBox className={`w-full`} isNameBoxLeft={true} actionButtonRef={actionButtonRef}>
+					<PlayerActionButtons setActions={setActions} ref={actionButtonRef}/>
 
 					<PlayerActionTextArea
 						setActions={setActions}

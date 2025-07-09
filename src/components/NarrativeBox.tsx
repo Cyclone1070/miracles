@@ -1,17 +1,21 @@
+import { useRef } from "react";
 import { mergeClasses } from "../utils/tailwindMerge";
 
 interface Props {
 	className?: string;
 	children?: React.ReactNode;
 	isNameBoxLeft: boolean;
+	actionButtonRef: React.RefObject<HTMLDivElement>;
 }
 
 export function NarrativeBox({ ...props }: Props) {
+	const nameBoxRef = useRef<HTMLDivElement>(null);
 	return (
 		<div
 			className={mergeClasses(
 				`relative h-50 max-w-200 border-2 border-t-0 border-(--accent) rounded-xl text-white`,
 				props.className,
+				calculateClipPath(),
 			)}
 		>
 			<div className={`absolute -inset-8 bg-(--bg) -z-1`}></div>
@@ -22,7 +26,7 @@ export function NarrativeBox({ ...props }: Props) {
 				/>
 
 				{/* name box */}
-				<div className={`relative -translate-y-1/2 text-white `}>
+				<div ref={nameBoxRef} className={`relative -translate-y-1/2 text-white `}>
 					<div className="relative border-2 border-(--accent) rounded-xl p-2 text-center">
 						Jesus The Almighty
 					</div>
@@ -36,4 +40,5 @@ export function NarrativeBox({ ...props }: Props) {
 			{props.children}
 		</div>
 	);
+	function calculateClipPath() { return ""}
 }
