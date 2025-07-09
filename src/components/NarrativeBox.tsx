@@ -10,8 +10,10 @@ interface Props {
 
 export function NarrativeBox({ ...props }: Props) {
 	const nameBoxRef = useRef<HTMLDivElement>(null);
+	const narrativeBoxRef = useRef<HTMLDivElement>(null);
 	return (
 		<div
+			ref={narrativeBoxRef}
 			className={mergeClasses(
 				`relative h-50 max-w-200 border-2 border-t-0 border-(--accent) rounded-xl text-white`,
 				props.className,
