@@ -17,10 +17,9 @@ export function NarrativeBox({ ...props }: Props) {
 			className={mergeClasses(
 				`relative h-50 max-w-200 border-2 border-t-0 border-(--accent) rounded-xl text-white`,
 				props.className,
-				calculateClipPath(),
 			)}
 		>
-			<div className={`absolute -inset-8 bg-(--bg) -z-1`}></div>
+			<div className={`absolute -inset-8 bg-(--bg) -z-1 ${calculateClipPath()}`} id="outerDiv"></div>
 			<div className="absolute top-0 -left-[2px] -right-[2px] flex">
 				{/* border */}
 				<div
