@@ -27,7 +27,7 @@ function App() {
 			transition: { delay: 0.7, duration: 1, ease: "easeInOut" as const },
 		},
 	};
-	const actionButtonRef = useRef<HTMLDivElement>(null);
+	const actionButtonRef = useRef<HTMLButtonElement>(null);
 
 	return (
 		<>
@@ -58,8 +58,15 @@ function App() {
 
 				<div className="grow"></div>
 
-				<NarrativeBox className={`w-full`} isNameBoxLeft={true} actionButtonRef={actionButtonRef}>
-					<PlayerActionButtons setActions={setActions} ref={actionButtonRef}/>
+				<NarrativeBox
+					className={`w-full`}
+					isNameBoxLeft={true}
+					actionButtonRef={actionButtonRef}
+				>
+					<PlayerActionButtons
+						setActions={setActions}
+						ref={actionButtonRef}
+					/>
 
 					<PlayerActionTextArea
 						setActions={setActions}

@@ -9,6 +9,7 @@ interface Props {
 	onClick?: React.MouseEventHandler<HTMLButtonElement>;
 	onMouseEnter?: React.MouseEventHandler<HTMLButtonElement>;
 	onMouseLeave?: React.MouseEventHandler<HTMLButtonElement>;
+	ref?: React.Ref<HTMLButtonElement>;
 }
 
 export function ActionButton({ ...props }: Props) {
@@ -18,6 +19,7 @@ export function ActionButton({ ...props }: Props) {
 	return (
 		<button
 			{...props}
+			ref={props.ref}
 			/* set to active on click */
 			onMouseDown={() => {
 				setIsActive(true);
