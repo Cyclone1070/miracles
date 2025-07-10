@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useRef, useState } from "react";
-import { ActionButton } from "./components/ActionButton";
+import { HighlightButton } from "./components/HighlightButton";
 import { BgImage } from "./components/BgImage";
 import { MainMenu } from "./components/MainMenu";
 import { NarrativeBox } from "./components/NarrativeBox";
@@ -77,14 +77,14 @@ function App() {
 				</NarrativeBox>
 
 				{/* back button */}
-				<ActionButton
+				<HighlightButton
 					className={`absolute top-0 left-0 m-4 rounded-full w-10 h-10 text-center`}
 					onClick={() => {
 						setIsMainMenuOpen(true);
 					}}
 				>
 					&lt;
-				</ActionButton>
+				</HighlightButton>
 			</motion.div>
 		</>
 	);

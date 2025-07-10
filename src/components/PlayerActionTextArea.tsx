@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { Fragment, useEffect, useState } from "react";
 import type { Action } from "../type";
 import { mergeClasses } from "../utils/tailwindMerge";
-import { ActionButton } from "./ActionButton";
+import { HighlightButton } from "./HighlightButton";
 import actionSvgURL from "/action.svg?url";
 import saySvgURL from "/say.svg?url";
 import miracleSvgURL from "/miracle.svg?url";
@@ -84,7 +84,7 @@ export function PlayerActionTextArea({ ...props }: Props) {
 									className={`relative w-full flex items-center gap-2`}
 								>
 									{/* action icon */}
-									<ActionButton
+									<HighlightButton
 										className={`w-8 h-8 p-1 shadow-none bg-transparent flex gap-2`}
 										onClick={() => {
 											setActiveId(null);
@@ -129,7 +129,7 @@ export function PlayerActionTextArea({ ...props }: Props) {
 												className={`will-change-transform w-full h-full`}
 											/>
 										)}
-									</ActionButton>
+									</HighlightButton>
 									<span className={`grow`}>
 										{action.type === "do"
 											? "Do something"
@@ -139,7 +139,7 @@ export function PlayerActionTextArea({ ...props }: Props) {
 									</span>
 
 									{/* delete button */}
-									<ActionButton
+									<HighlightButton
 										className={`h-8 w-8 p-1 bg-transparent shadow-none`}
 										onClick={() => {
 											props.setActions((prev) =>
@@ -155,7 +155,7 @@ export function PlayerActionTextArea({ ...props }: Props) {
 											alt=""
 											className={`w-full h-full`}
 										/>
-									</ActionButton>
+									</HighlightButton>
 								</div>
 
 								{/* content */}
@@ -247,7 +247,7 @@ export function PlayerActionTextArea({ ...props }: Props) {
 									}}
 									className={`w-full h-full will-change-transform ${activeId === action.id ? "invisible" : ""}`}
 								>
-									<ActionButton
+									<HighlightButton
 										onClick={() => {
 											handleActionChange(action.id);
 										}}
@@ -293,7 +293,7 @@ export function PlayerActionTextArea({ ...props }: Props) {
 												className={`will-change-transform w-full h-full`}
 											/>
 										)}
-									</ActionButton>
+									</HighlightButton>
 								</motion.div>
 							)}
 						</motion.div>

@@ -12,7 +12,7 @@ interface Props {
 	ref?: React.Ref<HTMLButtonElement>;
 }
 
-export function ActionButton({ ...props }: Props) {
+export function HighlightButton({ ...props }: Props) {
 	const [isActive, setIsActive] = React.useState(false);
 	const { darkMode } = useTheme();
 

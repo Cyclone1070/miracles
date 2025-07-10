@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
-import { ActionButton } from "./ActionButton";
+import { HighlightButton } from "./HighlightButton";
 
 interface Props {
     directoryHandle?: FileSystemDirectoryHandle;
@@ -26,24 +26,24 @@ export function MainMenu({ ...props }: Props) {
 				md:max-w-160 md:max-h-130`
                 }>
                 <h1 className={`font-bold text-6xl md:text-8xl`}>Miracles</h1>
-                <ActionButton className={
+                <HighlightButton className={
                     `rounded-xl m-auto bg-(--accent-under-text)
 					text-2xl p-3 px-5
 					md:text-3xl md:p-3 md:px-6`
                 } onClick={() => {
                     props.setIsMainMenuOpen(false);
-                }}>Play!</ActionButton>
+                }}>Play!</HighlightButton>
                 <div>The game is stored almost entirely on your machine! With your own API key I won't be able to see any of your sketchy text so go wild! <br />(Google can see them though, ofc)</div>
                 <div className={`relative flex items-center`}>
                     <input className="border border-(--accent) rounded-sm p-1 px-2 outline-0" placeholder="Enter your API key" type="text" />
-                    <ActionButton
+                    <HighlightButton
                         className={`absolute -right-10 w-7 h-7 flex items-center justify-center rounded-full bg-(--accent-under-text)`}
                         onClick={() => {
                             setIsHelpVisible(true);
                         }}
-                    >?</ActionButton>
+                    >?</HighlightButton>
                 </div>
-                <ActionButton className={`bg-(--accent-under-text) p-1.5`}>Clear Data</ActionButton>
+                <HighlightButton className={`bg-(--accent-under-text) p-1.5`}>Clear Data</HighlightButton>
             </motion.div>
             <div className="absolute right-0 bottom-0 text-sm pr-1">Art is AI cause I suck at it</div>
             <AnimatePresence>

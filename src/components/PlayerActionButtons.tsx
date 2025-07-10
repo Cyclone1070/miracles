@@ -1,7 +1,7 @@
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import type { Action } from "../type";
-import { ActionButton } from "./ActionButton";
+import { HighlightButton } from "./HighlightButton";
 import actionSvgURL from "/action.svg?url";
 import closeSvgURL from "/close.svg?url";
 import miracleSvgURL from "/miracle.svg?url";
@@ -52,7 +52,7 @@ export function PlayerActionButtons({ ...props }: Props) {
 		<div
 			className={`flex justify-center items-center gap-8 -right-[2px] -left-[2px] absolute top-full -translate-y-1/2`}
 		>
-			<ActionButton
+			<HighlightButton
 				data-none-close-click
 				data-textbox-none-close-click
 				ref={props.actionButtonRef}
@@ -75,7 +75,9 @@ export function PlayerActionButtons({ ...props }: Props) {
 					src={closeSvgURL}
 					alt="close icon"
 				/>
-			</ActionButton>
+			</HighlightButton>
+
+			{/* create action buttons popup */}
 			<motion.div
 				data-textbox-none-close-click
 				variants={{
@@ -95,7 +97,7 @@ export function PlayerActionButtons({ ...props }: Props) {
 				animate={isActionExpanded ? "visible" : "hidden"}
 				className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-1 md:mb-2 flex flex-col gap-2`}
 			>
-				<ActionButton
+				<HighlightButton
 					onClick={addDoAction}
 					className={`flex gap-2 items-center`}
 				>
@@ -107,8 +109,8 @@ export function PlayerActionButtons({ ...props }: Props) {
 						/>
 					</div>
 					<span>Do</span>
-				</ActionButton>
-				<ActionButton
+				</HighlightButton>
+				<HighlightButton
 					onClick={addSayAction}
 					className={`flex gap-2 items-center`}
 				>
@@ -120,8 +122,8 @@ export function PlayerActionButtons({ ...props }: Props) {
 						/>
 					</div>
 					<span>Say</span>
-				</ActionButton>
-				<ActionButton
+				</HighlightButton>
+				<HighlightButton
 					onClick={addMiracleAction}
 					className={`flex gap-2 items-center`}
 				>
@@ -133,7 +135,7 @@ export function PlayerActionButtons({ ...props }: Props) {
 						/>
 					</div>
 					<span>Miracle</span>
-				</ActionButton>
+				</HighlightButton>
 			</motion.div>
 		</div>
 	);

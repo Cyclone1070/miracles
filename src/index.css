@@ -27,7 +27,6 @@
 }
 
 body {
-	overflow: hidden;
 	font-family: "ComicShannsMono", monospace;
 	background-color: var(--bg);
 }
