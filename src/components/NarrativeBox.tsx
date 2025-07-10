@@ -20,27 +20,31 @@ export function NarrativeBox({ ...props }: Props) {
 
 		// Resize observer on all relevant elements
 		const resizeObserver = new ResizeObserver(run);
+		const mutationObserver = new MutationObserver(run);
 		if (
 			narrativeBgRef.current &&
 			narrativeBoxRef.current &&
 			nameBoxRef.current &&
 			props.actionButtonRef.current
 		) {
-			resizeObserver.observe(narrativeBgRef.current);
 			resizeObserver.observe(narrativeBoxRef.current);
 			resizeObserver.observe(nameBoxRef.current);
-			resizeObserver.observe(props.actionButtonRef.current);
+			mutationObserver.observe(nameBoxRef.current, {
+				attributes: true,
+				attributeFilter: ["style", "class"],
+			});
 		}
 		run(); // Initial run to set the clip path
 		return () => {
 			resizeObserver.disconnect();
 		};
 	}, []);
+
 	return (
 		<div
 			ref={narrativeBoxRef}
 			className={mergeClasses(
-				`relative h-50 max-w-200 border-2 border-t-0 border-(--accent) rounded-xl text-white`,
+				`relative h-55 max-w-200 border-2 border-t-0 border-(--accent) rounded-xl text-white`,
 				props.className,
 			)}
 		>
@@ -85,7 +89,8 @@ export function NarrativeBox({ ...props }: Props) {
 		}
 
 		const remToPx = (rem: number) =>
-			rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
+			rem *
+			parseFloat(getComputedStyle(document.documentElement).fontSize);
 
 		const outset = remToPx(0.5);
 		const cornerRadius = remToPx(0.75);
@@ -142,7 +147,8 @@ export function NarrativeBox({ ...props }: Props) {
 			const actionButtonRadius = actionRect.width / 2 + outset;
 			const abL = actionRect.left - narrativeBgRect.left;
 			const abCenterX = abL + actionRect.width / 2;
-			const abCenterY = actionRect.top + actionRect.height / 2 - narrativeBgRect.top;
+			const abCenterY =
+				actionRect.top + actionRect.height / 2 - narrativeBgRect.top;
 
 			const yOffset = abCenterY - (nbB + outset);
 			const angle = Math.acos(yOffset / actionButtonRadius);

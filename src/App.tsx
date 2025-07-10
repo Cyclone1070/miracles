@@ -43,6 +43,7 @@ function App() {
 			video.src = videoSrc;
 			video.oncanplaythrough = resolve;
 			video.onerror = resolve;
+			video.load();
 		});
 		loadVideo.then(() => {
 			setAssetsLoaded(true);
@@ -118,16 +119,6 @@ function App() {
 						className={`absolute mb-10 bottom-full inset-x-0`}
 					/>
 				</NarrativeBox>
-
-				{/* back button */}
-				<HighlightButton
-					className={`absolute top-0 left-0 m-4 rounded-full w-10 h-10 text-center`}
-					onClick={() => {
-						setIsMainMenuOpen(true);
-					}}
-				>
-					&lt;
-				</HighlightButton>
 			</motion.div>
 		</>
 	);
