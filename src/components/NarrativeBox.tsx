@@ -140,7 +140,7 @@ export function NarrativeBox({ ...props }: Props) {
 		if (actionButton) {
 			const actionRect = actionButton.getBoundingClientRect();
 			const actionButtonRadius = actionRect.width / 2 + outset;
-			const [abL, abR] = [actionRect.left - narrativeBgRect.left, actionRect.right - narrativeBgRect.left];
+			const abL = actionRect.left - narrativeBgRect.left;
 			const abCenterX = abL + actionRect.width / 2;
 			const abCenterY = actionRect.top + actionRect.height / 2 - narrativeBgRect.top;
 
