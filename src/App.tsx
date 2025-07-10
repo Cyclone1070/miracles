@@ -27,6 +27,7 @@ function App() {
 			transition: { delay: 0.7, duration: 1, ease: "easeInOut" as const },
 		},
 	};
+	// Refs for narrativeBg calculation
 	const actionButtonRef = useRef<HTMLButtonElement>(null);
 
 	return (
@@ -65,7 +66,7 @@ function App() {
 				>
 					<PlayerActionButtons
 						setActions={setActions}
-						ref={actionButtonRef}
+						actionButtonRef={actionButtonRef}
 					/>
 
 					<PlayerActionTextArea

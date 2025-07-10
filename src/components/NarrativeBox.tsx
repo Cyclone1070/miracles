@@ -11,7 +11,7 @@ interface Props {
 export function NarrativeBox({ ...props }: Props) {
 	const nameBoxRef = useRef<HTMLDivElement>(null);
 	const narrativeBoxRef = useRef<HTMLDivElement>(null);
-	const outerDivRef = useRef<HTMLDivElement>(null);
+	const narrativeBgRef = useRef<HTMLDivElement>(null);
 	const [clipPath, setClipPath] = useState({});
 	useLayoutEffect(() => {
 		const run = () => {
@@ -21,12 +21,12 @@ export function NarrativeBox({ ...props }: Props) {
 		// Resize observer on all relevant elements
 		const resizeObserver = new ResizeObserver(run);
 		if (
-			outerDivRef.current &&
+			narrativeBgRef.current &&
 			narrativeBoxRef.current &&
 			nameBoxRef.current &&
-			props.actionButtonRef?.current
+			props.actionButtonRef.current
 		) {
-			resizeObserver.observe(outerDivRef.current);
+			resizeObserver.observe(narrativeBgRef.current);
 			resizeObserver.observe(narrativeBoxRef.current);
 			resizeObserver.observe(nameBoxRef.current);
 			resizeObserver.observe(props.actionButtonRef.current);
@@ -45,7 +45,7 @@ export function NarrativeBox({ ...props }: Props) {
 			)}
 		>
 			<div
-				ref={outerDivRef}
+				ref={narrativeBgRef}
 				className={`absolute -inset-y-8 -inset-x-4 bg-(--bg) -z-1`}
 				style={clipPath}
 			></div>
@@ -77,26 +77,21 @@ export function NarrativeBox({ ...props }: Props) {
 	function calculateClipPath(): React.CSSProperties {
 		const narrativeBox = narrativeBoxRef.current;
 		const nameBox = nameBoxRef.current;
+		const narrativeBg = narrativeBgRef.current;
 		const actionButton = props.actionButtonRef.current;
-		const outerDiv = outerDivRef.current;
 
-		if (!narrativeBox || !nameBox || !actionButton || !outerDiv) {
+		if (!narrativeBox || !narrativeBg) {
 			return { clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)" };
 		}
 
 		const remToPx = (rem: number) =>
-			rem *
-			parseFloat(getComputedStyle(document.documentElement).fontSize);
+			rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
 
 		const outset = remToPx(0.5);
-		const cornerRadius = remToPx(0.75); // For narrative box and nameplate
+		const cornerRadius = remToPx(0.75);
 
-		const outerRect = outerDiv.getBoundingClientRect();
+		const narrativeBgRect = narrativeBg.getBoundingClientRect();
 		const narrativeRect = narrativeBox.getBoundingClientRect();
-		const nameRect = nameBox.getBoundingClientRect();
-		const actionRect = actionButton.getBoundingClientRect();
-
-		const actionButtonRadius = actionRect.width / 2 + outset;
 
 		const relative = (
 			parentRect: DOMRect,
@@ -109,58 +104,67 @@ export function NarrativeBox({ ...props }: Props) {
 			return [left, top, right, bottom];
 		};
 
-		const [nbL, nbT, nbR, nbB] = relative(outerRect, narrativeRect);
-		const [nmL, nmT, nmR] = relative(outerRect, nameRect);
-		const [abL, abR] = [
-			actionRect.left - outerRect.left,
-			actionRect.right - outerRect.left,
-		];
-		const abCenterX = abL + actionRect.width / 2;
-		const abCenterY =
-			actionRect.top + actionRect.height / 2 - outerRect.top;
+		const [nbL, nbT, nbR, nbB] = relative(narrativeBgRect, narrativeRect);
+		const pathData: (string | number)[] = [];
 
-		// Calculate the tangent points for a smooth connection
-		const yOffset = abCenterY - (nbB + outset);
-		const angle = Math.acos(yOffset / actionButtonRadius);
-		const xOffset = Math.sin(angle) * actionButtonRadius;
+		// Start path at top-left
+		pathData.push(`M ${nbL - outset + cornerRadius},${nbT - outset}`);
 
-		const tangentX1 = abCenterX + xOffset;
-		const tangentX2 = abCenterX - xOffset;
+		// Draw nameplate notch if nameBox exists
+		if (nameBox) {
+			const nameRect = nameBox.getBoundingClientRect();
+			const [nmL, nmT, nmR] = relative(narrativeBgRect, nameRect);
+			pathData.push(
+				`L ${nmL - outset},${nbT - outset}`,
+				`L ${nmL - outset},${nmT - outset + cornerRadius}`,
+				`A ${cornerRadius},${cornerRadius} 0 0 1 ${nmL - outset + cornerRadius},${nmT - outset}`,
+				`L ${nmR + outset - cornerRadius},${nmT - outset}`,
+				`A ${cornerRadius},${cornerRadius} 0 0 1 ${nmR + outset},${nmT - outset + cornerRadius}`,
+				`L ${nmR + outset},${nbT - outset}`,
+			);
+		}
 
-		const pathData = [
-			// Start at top-left corner, move right
-			`M ${nbL - outset + cornerRadius},${nbT - outset}`,
-			// Top edge before nameplate (sharp corner)
-			`L ${nmL - outset},${nbT - outset}`,
-			// Nameplate notch (sharp bottom corners, rounded top)
-			`L ${nmL - outset},${nmT - outset + cornerRadius}`,
-			`A ${cornerRadius},${cornerRadius} 0 0 1 ${nmL - outset + cornerRadius},${nmT - outset}`,
-			`L ${nmR + outset - cornerRadius},${nmT - outset}`,
-			`A ${cornerRadius},${cornerRadius} 0 0 1 ${nmR + outset},${nmT - outset + cornerRadius}`,
-			`L ${nmR + outset},${nbT - outset}`,
-			// Top edge after nameplate
+		// Top edge and top-right corner
+		pathData.push(
 			`L ${nbR + outset - cornerRadius},${nbT - outset}`,
-			// Top-right corner
 			`A ${cornerRadius},${cornerRadius} 0 0 1 ${nbR + outset},${nbT - outset + cornerRadius}`,
-			// Right edge
+		);
+
+		// Right edge and bottom-right corner
+		pathData.push(
 			`L ${nbR + outset},${nbB + outset - cornerRadius}`,
-			// Bottom-right corner
 			`A ${cornerRadius},${cornerRadius} 0 0 1 ${nbR + outset - cornerRadius},${nbB + outset}`,
-			// Bottom edge before action button
-			`L ${tangentX1},${nbB + outset}`,
-			// Action button circular notch (traces the bottom)
-			`A ${actionButtonRadius},${actionButtonRadius} 0 0 1 ${tangentX2},${nbB + outset}`,
-			// Bottom edge after action button
+		);
+
+		// Draw notch for the action button if it exists
+		if (actionButton) {
+			const actionRect = actionButton.getBoundingClientRect();
+			const actionButtonRadius = actionRect.width / 2 + outset;
+			const [abL, abR] = [actionRect.left - narrativeBgRect.left, actionRect.right - narrativeBgRect.left];
+			const abCenterX = abL + actionRect.width / 2;
+			const abCenterY = actionRect.top + actionRect.height / 2 - narrativeBgRect.top;
+
+			const yOffset = abCenterY - (nbB + outset);
+			const angle = Math.acos(yOffset / actionButtonRadius);
+			const xOffset = Math.sin(angle) * actionButtonRadius;
+			const tangentX1 = abCenterX + xOffset;
+			const tangentX2 = abCenterX - xOffset;
+
+			pathData.push(
+				`L ${tangentX1},${nbB + outset}`,
+				`A ${actionButtonRadius},${actionButtonRadius} 0 0 1 ${tangentX2},${nbB + outset}`,
+			);
+		}
+
+		// Bottom edge, bottom-left corner, left edge, and close path
+		pathData.push(
 			`L ${nbL - outset + cornerRadius},${nbB + outset}`,
-			// Bottom-left corner
 			`A ${cornerRadius},${cornerRadius} 0 0 1 ${nbL - outset},${nbB + outset - cornerRadius}`,
-			// Left edge
 			`L ${nbL - outset},${nbT - outset + cornerRadius}`,
-			// Close path back to top-left corner
 			`A ${cornerRadius},${cornerRadius} 0 0 1 ${nbL - outset + cornerRadius},${nbT - outset}`,
 			`Z`,
-		].join(" ");
+		);
 
-		return { clipPath: `path('${pathData}')` };
+		return { clipPath: `path('${pathData.join(" ")}')` };
 	}
 }
