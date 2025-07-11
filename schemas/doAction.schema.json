@@ -1,0 +1,35 @@
+{
+	"type": "object",
+	"description": "Defines a single, physical action. A core principle of this schema is that the 'action', 'target', and 'with' fields are decomposed parts of a complete command. When conceptually reassembled, they must form a logical and coherent English sentence describing the full intent of the action. All objects that are interacted with MUST be identified and placed as elements in either the 'targets' or 'using' arrays.",
+	"properties": {
+		"expression": {
+			"type": "string",
+			"enum": ["neutral", "happy", "annoyed"],
+			"description": "Represents the emotional state of the character performing the action. This value should be consistent with the overall intent of the command. If no specific emotion is relevant, 'neutral' is the appropriate default."
+		},
+		"type": {
+			"type": "string",
+			"enum": ["do"],
+			"description": "A mandatory field that specifies the category of the action. For any physical interaction, task, or command, the value must be 'do'."
+		},
+		"action": {
+			"type": "string",
+			"description": "Defines the core activity or command, serving as the verb/predicate of the reassembled sentence. This field can be as short as a single verb or as long and complex as a detailed instruction. A critical rule is that this field MUST be isolated from the nouns that belong in the 'target' and 'with' fields. Its value must not contain the name of the target or the instrument being used. For example, for a command like 'hit the zombie with a stick', the correct value for 'action' is 'hit powerfully'. For a complex command like 'write down 'hello world' in latin for your future self', the value is 'write down 'hello world' in latin for my future self'."
+		},
+		"targets": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			},
+			"description": "Optional. An array of primary nouns (objects, persons, or locations) ON WHICH the 'action' is performed. This field serves as the direct object(s) of the reassembled sentence. This specifies WHAT is being affected by the action. Any object being directly acted upon must be included as a string element in this array. For example, for a command like 'hit the zombie with a stick', the `target` array is ['zombie']. For 'place the book and the scroll on the table', the `target` array is ['table']."
+		},
+		"using": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			},
+			"description": "Optional. An array of secondary nouns; the instruments or tools USED to perform the 'action' on the 'target'. This field answers the question 'with/using what?' in the reassembled sentence. Any instrument used must be included as a string element in this array. For example, for a command like 'hit the zombie with a stick', the `with` array is ['stick']. For 'unlock the chest with the old key and a rusty lockpick', the `with` array is ['old key', 'rusty lockpick']."
+		}
+	},
+	"required": ["expression", "type", "action"]
+}

@@ -9,6 +9,7 @@ import saySvgURL from "/say.svg?url";
 import historySvgURL from "/history.svg?url";
 import submitSvgURL from "/submit.svg?url";
 import { v4 as uuidv4 } from "uuid";
+import { callGeminiApi } from "../utils/gemini";
 
 interface Props {
 	className?: string;
@@ -92,7 +93,9 @@ export function PlayerActionButtons({ ...props }: Props) {
 						transition={{ ease: "easeInOut" }}
 						animate={isActionExpanded ? "visible" : "hidden"}
 					>
-						<HighlightButton className={`rounded-full w-10 h-10 flex justify-center items-center`}>
+						<HighlightButton
+							className={`rounded-full w-10 h-10 flex justify-center items-center`}
+						>
 							<img
 								className={`w-5 h-5`}
 								src={historySvgURL}
@@ -116,7 +119,16 @@ export function PlayerActionButtons({ ...props }: Props) {
 						transition={{ ease: "easeInOut" }}
 						animate={isActionExpanded ? "visible" : "hidden"}
 					>
-						<HighlightButton className={`rounded-full w-10 h-10 flex justify-center items-center`}>
+						<HighlightButton
+							onClick={() => {
+								callGeminiApi(
+									"give me a say action with a target and an expression",
+								).then((response) => {
+									console.log("Gemini response:", response);
+								})
+							}}
+							className={`rounded-full w-10 h-10 flex justify-center items-center`}
+						>
 							<img
 								className={`w-5 h-5`}
 								src={submitSvgURL}
@@ -125,7 +137,7 @@ export function PlayerActionButtons({ ...props }: Props) {
 						</HighlightButton>
 					</motion.div>
 				</div>
-				
+
 				<HighlightButton
 					onClick={addDoAction}
 					className={`flex items-center gap-2 h-10`}
