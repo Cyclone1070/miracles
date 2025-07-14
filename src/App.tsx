@@ -12,7 +12,7 @@ import miracleSvgURL from "/miracle.svg?url";
 function App() {
 	const [directoryHandle, setDirectoryHandle] =
 		useState<FileSystemDirectoryHandle>();
-	const [isMainMenuOpen, setIsMainMenuOpen] = useState<boolean>(false);
+	const [isMainMenuOpen, setIsMainMenuOpen] = useState<boolean>(true);
 	const [actions, setActions] = useState<Action[]>([
 		{ id: "1", expression: "neutral", type: "do", action: "test" },
 	]);
@@ -109,6 +109,7 @@ function App() {
 					addActionButtonRef={addActionButtonRef}
 				>
 					<AddPlayerActionButtons
+						setIsMainMenuOpen={setIsMainMenuOpen}
 						setActions={setActions}
 						addActionButtonRef={addActionButtonRef}
 					/>
