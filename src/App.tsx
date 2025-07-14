@@ -120,7 +120,7 @@ function App() {
 						className={`absolute mb-10 bottom-full inset-x-0`}
 					/>
 				</NarrativeBox>
-				<BottomBar addActionButtonRef={addActionButtonRef}></BottomBar>
+				<BottomBar></BottomBar>
 			</motion.div>
 		</>
 	);
