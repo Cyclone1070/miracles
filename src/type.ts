@@ -4,13 +4,13 @@ export interface BaseAction {
 }
 export interface DoAction extends BaseAction {
 	type: "do";
-	description: string;
+	action: string;
 	using?: string[];
 	target?: string[];
 }
 export interface SayAction extends BaseAction {
 	type: "say";
-	description: string;
+	dialog: string;
 	target: string[];
 }
 export interface MiracleAction extends BaseAction {

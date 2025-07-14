@@ -5,7 +5,7 @@ interface Props {
 	className?: string;
 	children?: React.ReactNode;
 	isNameBoxLeft: boolean;
-	actionButtonRef: React.RefObject<HTMLButtonElement | null>;
+	addActionButtonRef: React.RefObject<HTMLButtonElement | null>;
 }
 
 export function NarrativeBox({ ...props }: Props) {
@@ -25,7 +25,7 @@ export function NarrativeBox({ ...props }: Props) {
 			narrativeBgRef.current &&
 			narrativeBoxRef.current &&
 			nameBoxRef.current &&
-			props.actionButtonRef.current
+			props.addActionButtonRef.current
 		) {
 			resizeObserver.observe(narrativeBoxRef.current);
 			resizeObserver.observe(nameBoxRef.current);
@@ -50,7 +50,7 @@ export function NarrativeBox({ ...props }: Props) {
 		>
 			<div
 				ref={narrativeBgRef}
-				className={`absolute -inset-y-8 -inset-x-4 bg-(--bg) -z-1`}
+				className={`absolute -inset-y-12 -inset-x-4 bg-(--bg) -z-1`}
 				style={clipPath}
 			></div>
 			<div className="absolute top-0 -left-[2px] -right-[2px] flex">
@@ -82,7 +82,7 @@ export function NarrativeBox({ ...props }: Props) {
 		const narrativeBox = narrativeBoxRef.current;
 		const nameBox = nameBoxRef.current;
 		const narrativeBg = narrativeBgRef.current;
-		const actionButton = props.actionButtonRef.current;
+		const actionButton = props.addActionButtonRef.current;
 
 		if (!narrativeBox || !narrativeBg) {
 			return { clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)" };

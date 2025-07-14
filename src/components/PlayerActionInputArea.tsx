@@ -14,7 +14,7 @@ interface Props {
 	setActions: React.Dispatch<React.SetStateAction<Action[]>>;
 }
 
-export function PlayerActionTextArea({ ...props }: Props) {
+export function PlayerActionInputArea({ ...props }: Props) {
 	const ANIMATION_DURATION_MS = 150;
 	const [activeId, setActiveId] = useState<string | null>(null);
 

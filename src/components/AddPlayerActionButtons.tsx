@@ -1,23 +1,20 @@
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import type { Action } from "../type";
 import { HighlightButton } from "./HighlightButton";
 import actionSvgURL from "/action.svg?url";
 import closeSvgURL from "/close.svg?url";
 import miracleSvgURL from "/miracle.svg?url";
 import saySvgURL from "/say.svg?url";
-import historySvgURL from "/history.svg?url";
-import submitSvgURL from "/submit.svg?url";
-import { v4 as uuidv4 } from "uuid";
-import { callGeminiApi } from "../utils/gemini";
 
 interface Props {
 	className?: string;
 	setActions: React.Dispatch<React.SetStateAction<Action[]>>;
-	actionButtonRef: React.Ref<HTMLButtonElement>;
+	addActionButtonRef: React.Ref<HTMLButtonElement>;
 }
 
-export function PlayerActionButtons({ ...props }: Props) {
+export function AddPlayerActionButtons({ ...props }: Props) {
 	const [isActionExpanded, setIsActionExpanded] = useState(false);
 	const iconVariants = {
 		visible: {
@@ -73,71 +70,6 @@ export function PlayerActionButtons({ ...props }: Props) {
 				animate={isActionExpanded ? "visible" : "hidden"}
 				className={`absolute bottom-full mb-2 md:mb-3 left-1/2 -translate-x-1/2 flex flex-col gap-2`}
 			>
-				{/* history and submit buttons */}
-				<div
-					data-textbox-none-close-click
-					className={`absolute bottom-0 -inset-x-13 justify-between flex`}
-				>
-					<motion.div
-						variants={{
-							visible: {
-								opacity: 1,
-								visibility: "visible",
-							},
-							hidden: {
-								opacity: 0,
-								visibility: "hidden",
-								x: 5,
-							},
-						}}
-						transition={{ ease: "easeInOut" }}
-						animate={isActionExpanded ? "visible" : "hidden"}
-					>
-						<HighlightButton
-							className={`rounded-full w-10 h-10 flex justify-center items-center`}
-						>
-							<img
-								className={`w-5 h-5`}
-								src={historySvgURL}
-								alt="history icon"
-							/>
-						</HighlightButton>
-					</motion.div>
-
-					<motion.div
-						variants={{
-							visible: {
-								opacity: 1,
-								visibility: "visible",
-							},
-							hidden: {
-								opacity: 0,
-								visibility: "hidden",
-								x: -5,
-							},
-						}}
-						transition={{ ease: "easeInOut" }}
-						animate={isActionExpanded ? "visible" : "hidden"}
-					>
-						<HighlightButton
-							onClick={() => {
-								callGeminiApi(
-									"give me a say action with a target and an expression",
-								).then((response) => {
-									console.log("Gemini response:", response);
-								})
-							}}
-							className={`rounded-full w-10 h-10 flex justify-center items-center`}
-						>
-							<img
-								className={`w-5 h-5`}
-								src={submitSvgURL}
-								alt="submit icon"
-							/>
-						</HighlightButton>
-					</motion.div>
-				</div>
-
 				<HighlightButton
 					onClick={addDoAction}
 					className={`flex items-center gap-2 h-10`}
@@ -173,11 +105,11 @@ export function PlayerActionButtons({ ...props }: Props) {
 			<HighlightButton
 				data-none-close-click
 				data-textbox-none-close-click
-				ref={props.actionButtonRef}
+				ref={props.addActionButtonRef}
 				onClick={() => {
 					setIsActionExpanded((prev) => !prev);
 				}}
-				className={`w-12 h-12 rounded-full flex justify-center items-center`}
+				className={`w-14 h-14 rounded-full flex justify-center items-center`}
 			>
 				<motion.img
 					variants={iconVariants}
@@ -224,8 +156,8 @@ export function PlayerActionButtons({ ...props }: Props) {
 					id: uuidv4(),
 					expression: "neutral",
 					type: "say",
-					action: "test",
-					target: "test target",
+					dialog: "test",
+					target: ["test target"],
 				},
 			];
 		});

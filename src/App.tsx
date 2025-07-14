@@ -1,11 +1,11 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { BgImage } from "./components/BgImage";
-import { HighlightButton } from "./components/HighlightButton";
+import { BottomBar } from "./components/BottomBar";
 import { MainMenu } from "./components/MainMenu";
 import { NarrativeBox } from "./components/NarrativeBox";
-import { PlayerActionButtons } from "./components/PlayerActionButtons";
-import { PlayerActionTextArea } from "./components/PlayerActionTextArea";
+import { AddPlayerActionButtons } from "./components/AddPlayerActionButtons";
+import { PlayerActionInputArea } from "./components/PlayerActionInputArea";
 import type { Action } from "./type";
 import miracleSvgURL from "/miracle.svg?url";
 
@@ -29,7 +29,7 @@ function App() {
 		},
 	};
 	// Refs for narrativeBg calculation
-	const actionButtonRef = useRef<HTMLButtonElement>(null);
+	const addActionButtonRef = useRef<HTMLButtonElement>(null);
 
 	// Assets loading screen
 	const [assetsLoaded, setAssetsLoaded] = useState(false);
@@ -97,7 +97,7 @@ function App() {
 				variants={variants}
 				initial="hidden"
 				animate={isMainMenuOpen ? "hidden" : "visible"}
-				className="absolute left-0 top-0 w-screen h-dvh flex flex-col p-6 pb-10 items-center"
+				className="absolute left-0 top-0 w-screen h-dvh flex flex-col p-6 pb-0 items-center gap-2"
 			>
 				<BgImage location="heaven" className={`-z-1`} />
 
@@ -106,19 +106,20 @@ function App() {
 				<NarrativeBox
 					className={`w-full`}
 					isNameBoxLeft={true}
-					actionButtonRef={actionButtonRef}
+					addActionButtonRef={addActionButtonRef}
 				>
-					<PlayerActionButtons
+					<AddPlayerActionButtons
 						setActions={setActions}
-						actionButtonRef={actionButtonRef}
+						addActionButtonRef={addActionButtonRef}
 					/>
 
-					<PlayerActionTextArea
+					<PlayerActionInputArea
 						setActions={setActions}
 						actions={actions}
 						className={`absolute mb-10 bottom-full inset-x-0`}
 					/>
 				</NarrativeBox>
+				<BottomBar addActionButtonRef={addActionButtonRef}></BottomBar>
 			</motion.div>
 		</>
 	);
