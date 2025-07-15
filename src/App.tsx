@@ -4,11 +4,10 @@ import { BgImage } from "./components/BgImage";
 import { BottomBar } from "./components/BottomBar";
 import { MainMenu } from "./components/MainMenu";
 import { NarrativeBox } from "./components/NarrativeBox";
-import { AddPlayerActionButtons } from "./components/AddPlayerActionButtons";
 import { PlayerActionInputArea } from "./components/PlayerActionInputArea";
+import { initialiseGame } from "./game/gameManager";
 import type { Action } from "./type";
 import miracleSvgURL from "/miracle.svg?url";
-import { initialiseGame } from "./game/gameManager";
 
 function App() {
 	const [directoryHandle, setDirectoryHandle] =
@@ -111,15 +110,10 @@ function App() {
 				<NarrativeBox
 					className={`w-full`}
 					isNameBoxLeft={true}
-					addActionButtonRef={addActionButtonRef}
-				>
-					<AddPlayerActionButtons
-						setIsMainMenuOpen={setIsMainMenuOpen}
-						setActions={setActions}
-						addActionButtonRef={addActionButtonRef}
-					/>
-				</NarrativeBox>
-				<BottomBar></BottomBar>
+					setIsMainMenuOpen={setIsMainMenuOpen}
+					setActions={setActions}
+				/>
+				<BottomBar />
 			</motion.div>
 		</>
 	);

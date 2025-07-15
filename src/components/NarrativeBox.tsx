@@ -1,20 +1,28 @@
+import { motion } from "motion/react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { loadScene, loadState } from "../game/storage";
+import type { Action } from "../type";
 import { mergeClasses } from "../utils/tailwindMerge";
+import { AddPlayerActionButtons } from "./AddPlayerActionButtons";
 
 interface Props {
 	className?: string;
 	children?: React.ReactNode;
 	isNameBoxLeft: boolean;
-	addActionButtonRef: React.RefObject<HTMLButtonElement | null>;
+	setIsMainMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
+	setActions: React.Dispatch<React.SetStateAction<Action[]>>;
 }
 
 export function NarrativeBox({ ...props }: Props) {
+	// Refs for narrativeBg calculation
 	const nameBoxRef = useRef<HTMLDivElement>(null);
 	const narrativeBoxRef = useRef<HTMLDivElement>(null);
 	const narrativeBgRef = useRef<HTMLDivElement>(null);
+	const addActionButtonRef = useRef<HTMLButtonElement>(null);
 	const [clipPath, setClipPath] = useState({});
+
 	const [text, setText] = useState<string>("");
+	const [isActionExpanded, setIsActionExpanded] = useState(false);
 
 	useEffect(() => {
 		const saveState = loadState();
@@ -43,7 +51,7 @@ export function NarrativeBox({ ...props }: Props) {
 			narrativeBgRef.current &&
 			narrativeBoxRef.current &&
 			nameBoxRef.current &&
-			props.addActionButtonRef.current
+			addActionButtonRef.current
 		) {
 			resizeObserver.observe(narrativeBoxRef.current);
 			resizeObserver.observe(nameBoxRef.current);
@@ -74,6 +82,7 @@ export function NarrativeBox({ ...props }: Props) {
 				className={`absolute -inset-y-12 -inset-x-4 bg-(--bg) -z-1`}
 				style={clipPath}
 			></div>
+
 			<div className="absolute top-0 -left-[2px] -right-[2px] flex">
 				{/* border */}
 				<div
@@ -95,7 +104,26 @@ export function NarrativeBox({ ...props }: Props) {
 					className={`border-t-2 border-(--accent) ${props.isNameBoxLeft ? "border-r-2 rounded-tr-xl grow" : "border-r-2 rounded-tr-xl w-6 md:w-8"}`}
 				/>
 			</div>
-			{text}
+
+			<motion.div
+				variants={{
+					visible: { opacity: 1  },
+					faded: { opacity: 0.15 },
+				}}
+				animate={isActionExpanded ? "faded" : "visible"}
+				className={`w-full h-full`}
+			>
+				{text}
+			</motion.div>
+
+			<AddPlayerActionButtons
+				setIsMainMenuOpen={props.setIsMainMenuOpen}
+				setActions={props.setActions}
+				addActionButtonRef={addActionButtonRef}
+				isActionExpanded={isActionExpanded}
+				setIsActionExpanded={setIsActionExpanded}
+			/>
+
 			{props.children}
 		</div>
 	);
@@ -104,7 +132,7 @@ export function NarrativeBox({ ...props }: Props) {
 		const narrativeBox = narrativeBoxRef.current;
 		const nameBox = nameBoxRef.current;
 		const narrativeBg = narrativeBgRef.current;
-		const actionButton = props.addActionButtonRef.current;
+		const actionButton = addActionButtonRef.current;
 
 		if (!narrativeBox || !narrativeBg) {
 			return { clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)" };

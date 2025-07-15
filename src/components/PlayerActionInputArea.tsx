@@ -208,7 +208,7 @@ export function PlayerActionInputArea({ ...props }: Props) {
 									y: -10,
 									transition: { duration: 0.3 },
 								}}
-								className={`fixed top-20 w-80 max-w-[95vw] h-50 bg-(--bg) rounded-lg p-2 flex flex-col gap-4 will-change-transform z-10
+								className={`fixed top-10 w-80 max-w-[95vw] h-50 bg-(--bg) rounded-lg p-2 flex flex-col gap-4 will-change-transform z-10
 								md:absolute md:bottom-full md:mb-10 md:top-auto
 								${activeId === action.id ? "" : "invisible"}`}
 							>
