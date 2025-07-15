@@ -5,13 +5,14 @@ import { BottomBar } from "./components/BottomBar";
 import { MainMenu } from "./components/MainMenu";
 import { NarrativeBox } from "./components/NarrativeBox";
 import { PlayerActionInputArea } from "./components/PlayerActionInputArea";
-import { initialiseGame } from "./game/gameManager";
+import { useGameManager } from "./game/gameManager";
 import type { Action } from "./type";
 import miracleSvgURL from "/miracle.svg?url";
 
 function App() {
 	const [isMainMenuOpen, setIsMainMenuOpen] = useState<boolean>(false);
 	const [actions, setActions] = useState<Action[]>([]);
+	const { isInitLoading } = useGameManager();
 	const variants = {
 		hidden: {
 			opacity: 0,
@@ -39,12 +40,12 @@ function App() {
 			video.onerror = resolve;
 			video.load();
 		});
-		Promise.all([loadVideo, initialiseGame()]).then(() => {
+		Promise.all([loadVideo]).then(() => {
 			setAssetsLoaded(true);
 		});
 	}, []);
 
-	if (!assetsLoaded) {
+	if (!assetsLoaded || isInitLoading) {
 		return (
 			<div className="w-screen h-screen flex flex-col gap-5 items-center justify-center text-white">
 				<motion.img

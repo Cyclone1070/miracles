@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useGameManager } from "../game/gameManager";
 import type { Action } from "../type";
 import { mergeClasses } from "../utils/tailwindMerge";
@@ -21,8 +21,32 @@ export function NarrativeBox({ ...props }: Props) {
 	const addActionButtonRef = useRef<HTMLButtonElement>(null);
 	const [clipPath, setClipPath] = useState({});
 
+	// State for management
+	const [isScrollEndSeen, setIsScrollEndSeen] = useState(false);
+	const textContainerRef = useRef<HTMLDivElement>(null);
+
 	const [isActionExpanded, setIsActionExpanded] = useState(false);
-	const { currentStep, isLoading, advanceStory } = useGameManager();
+	const { currentStep, isFetchingResponse, advanceStory } = useGameManager();
+
+	useEffect(() => {
+		const element = textContainerRef.current;
+		if (!element) return;
+
+		const handleScroll = () => {
+			const isAtEnd =
+				element.scrollHeight -
+					element.scrollTop -
+					element.clientHeight <
+				1;
+			if (isAtEnd) {
+				setIsScrollEndSeen(true);
+			}
+		};
+		element.addEventListener("scroll", handleScroll);
+		return () => {
+			element.removeEventListener("scroll", handleScroll);
+		};
+	}, []);
 
 	useLayoutEffect(() => {
 		const run = () => {
@@ -55,12 +79,36 @@ export function NarrativeBox({ ...props }: Props) {
 		<div
 			ref={narrativeBoxRef}
 			className={mergeClasses(
-				`relative h-55 max-w-200 border-2 border-t-0 border-(--accent) rounded-xl text-white p-2 pt-8`,
+				`relative h-54 max-w-200 border-2 border-t-0 border-(--accent) rounded-xl text-white p-2 pt-8 pb-10`,
 				props.className,
 			)}
-			onClick={async () => {
-				console.log("narrative box clicked");
-				advanceStory();
+			onClick={() => {
+				const element = textContainerRef.current;
+				if (!element) return;
+
+				if (isScrollEndSeen) {
+					setIsScrollEndSeen(false);
+					advanceStory();
+					return;
+				}
+
+				const remainingScroll =
+					element.scrollHeight -
+					element.scrollTop -
+					element.clientHeight;
+
+				// 2. Determine the distance for this scroll action.
+				// It's either a full page, or the remaining distance if that's smaller.
+				const distanceToScroll = Math.min(
+					element.clientHeight,
+					remainingScroll,
+				);
+
+				// 3. Perform the perfectly calculated, "smart" scroll.
+				element.scrollBy({
+					top: distanceToScroll,
+					behavior: "smooth",
+				});
 			}}
 		>
 			<div
@@ -91,24 +139,56 @@ export function NarrativeBox({ ...props }: Props) {
 				/>
 			</div>
 
-			<AnimatePresence mode="wait">
-				<motion.div
-					variants={{
-						visible: { opacity: 1, y: 0, visibility: "visible" },
-						faded: { opacity: 0.15, y: 0, visibility: "visible" },
-						hidden: { y: -8, opacity: 0, visibility: "hidden" },
-						initial: { opacity: 0, y: 8, visibility: "hidden" },
-					}}
-					animate={isActionExpanded ? "faded" : "visible"}
-					exit="hidden"
-					initial="initial"
-					transition={{ ease: "easeInOut", duration: 0.3 }}
-					className={`w-full h-full`}
-					key={currentStep?.id}
-				>
-					{currentStep?.displayText}
-				</motion.div>
-			</AnimatePresence>
+			<motion.div
+				ref={textContainerRef}
+				variants={{
+					visible: {
+						opacity: 1,
+						y: 0,
+						visibility: "visible",
+					},
+					faded: {
+						opacity: 0.15,
+						y: 0,
+						visibility: "visible",
+					},
+				}}
+				animate={isActionExpanded ? "faded" : "visible"}
+				transition={{ ease: "easeInOut", duration: 0.3 }}
+				className={`h-full w-full overflow-auto`}
+			>
+				<AnimatePresence mode="wait">
+					<motion.div
+						key={currentStep?.id}
+						variants={{
+							visible: {
+								opacity: 1,
+								y: 0,
+								visibility: "visible",
+							},
+							hidden: { y: -8, opacity: 0, visibility: "hidden" },
+							initial: { opacity: 0, y: 8, visibility: "hidden" },
+						}}
+						animate="visible"
+						exit="hidden"
+						initial="initial"
+						transition={{ ease: "easeInOut", duration: 0.3 }}
+						onAnimationComplete={(latest) => {
+							if (latest !== "visible") return;
+							const element = textContainerRef.current;
+							if (!element) return;
+
+							if (element.scrollHeight <= element.clientHeight) {
+								setIsScrollEndSeen(true);
+								return;
+							}
+							setIsScrollEndSeen(false);
+						}}
+					>
+						{currentStep?.displayText}
+					</motion.div>
+				</AnimatePresence>
+			</motion.div>
 
 			<AddPlayerActionButtons
 				setIsMainMenuOpen={props.setIsMainMenuOpen}
