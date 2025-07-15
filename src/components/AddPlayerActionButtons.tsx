@@ -51,24 +51,31 @@ export function AddPlayerActionButtons({ ...props }: Props) {
 	}, [isActionExpanded]);
 	return (
 		<>
-			<motion.div 
+			<motion.div
 				variants={{
 					visible: { opacity: 1, y: 0, x: 0, visibility: "visible" },
-					hidden: { opacity: 0, y: -5, x: -5 , visibility: "hidden"}, 
+					hidden: { opacity: 0, y: -5, x: -5, visibility: "hidden" },
 				}}
 				animate={isActionExpanded ? "visible" : "hidden"}
 				transition={{ ease: "easeInOut", duration: 0.3 }}
-				className={`fixed top-4 left-4`}>
-				<HighlightButton className={`w-10 h-10 rounded-full`} onClick={() => {
-					props.setIsMainMenuOpen(true);
-				}}>
+				className={`fixed top-4 left-4`}
+			>
+				<HighlightButton
+					className={`w-10 h-10 rounded-full`}
+					onClick={() => {
+						props.setIsMainMenuOpen(true);
+					}}
+				>
 					&lt;
 				</HighlightButton>
 			</motion.div>
 			<div
 				className={`flex justify-center items-center gap-8 -right-[2px] -left-[2px] absolute top-full -translate-y-1/2`}
+				onClick={(e) => {
+					e.stopPropagation();
+				}}
 			>
-				{/* create action buttons popup */}
+				{/* add action buttons popup */}
 				<motion.div
 					data-textbox-none-close-click
 					variants={{
@@ -178,7 +185,7 @@ export function AddPlayerActionButtons({ ...props }: Props) {
 					expression: "neutral",
 					type: "say",
 					dialog: "test",
-					target: ["test target"],
+					target: "test target",
 				},
 			];
 		});

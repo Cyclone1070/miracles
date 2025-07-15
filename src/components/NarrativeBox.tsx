@@ -1,4 +1,5 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { loadScene, loadState } from "../game/storage";
 import { mergeClasses } from "../utils/tailwindMerge";
 
 interface Props {
@@ -13,6 +14,23 @@ export function NarrativeBox({ ...props }: Props) {
 	const narrativeBoxRef = useRef<HTMLDivElement>(null);
 	const narrativeBgRef = useRef<HTMLDivElement>(null);
 	const [clipPath, setClipPath] = useState({});
+	const [text, setText] = useState<string>("");
+
+	useEffect(() => {
+		const saveState = loadState();
+		if (!saveState) {
+			alert("Game not initialised. Please refresh the page.");
+			return;
+		}
+		loadScene(saveState.currentSceneId)
+			.then((scene) => {
+				const currentStep = scene.steps[saveState.currentStepIndex];
+				setText(currentStep.displayText);
+			})
+			.catch((error) => {
+				alert("Error loading scene: " + error);
+			});
+	}, []);
 	useLayoutEffect(() => {
 		const run = () => {
 			setClipPath(calculateClipPath());
@@ -44,9 +62,12 @@ export function NarrativeBox({ ...props }: Props) {
 		<div
 			ref={narrativeBoxRef}
 			className={mergeClasses(
-				`relative h-55 max-w-200 border-2 border-t-0 border-(--accent) rounded-xl text-white`,
+				`relative h-55 max-w-200 border-2 border-t-0 border-(--accent) rounded-xl text-white p-2 pt-8`,
 				props.className,
 			)}
+			onClick={(e) => {
+				console.log("narrative box clicked");
+			}}
 		>
 			<div
 				ref={narrativeBgRef}
@@ -74,6 +95,7 @@ export function NarrativeBox({ ...props }: Props) {
 					className={`border-t-2 border-(--accent) ${props.isNameBoxLeft ? "border-r-2 rounded-tr-xl grow" : "border-r-2 rounded-tr-xl w-6 md:w-8"}`}
 				/>
 			</div>
+			{text}
 			{props.children}
 		</div>
 	);

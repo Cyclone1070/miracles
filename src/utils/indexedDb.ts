@@ -1,5 +1,3 @@
-// src/utils/indexedDb.ts
-
 const DB_NAME = 'MiraclesDB';
 const DB_VERSION = 1;
 const STORE_NAME = 'appObjects'; // A generic store for various application objects

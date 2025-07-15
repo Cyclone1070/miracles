@@ -17,11 +17,8 @@
 			"description": "The verbatim content of the speech. This field must contain the exact line or lines the character will say out loud. It should be treated as a complete and final script for the character's utterance. For example: 'I will not allow you to pass!' or 'Perhaps the answer lies within this bloody scarf.'"
 		},
 		"target": {
-			"type": "array",
-			"items": {
-				"type": "string"
-			},
-			"description": "Optional. An array of primary nouns (persons, groups, or objects) to whom the 'dialog' is directed. Any intended listener or recipient of the message must be included as a string element in this array. This clarifies the audience of the communication. For example, if speaking to the player and a nearby guard, the `target` array would be ['player', 'guard']. If speaking to oneself, a good value would be ['self']."
+			"type": "string",
+			"description": "Optional. A single, primary noun (person, group, or object) to whom the 'dialog' is directed. This clarifies the main audience of the communication. If the dialogue is directed at multiple entities, this field should identify the most important one. For example, if speaking to the player, the `target` would be 'player'. If speaking to oneself, a good value would be 'self'."
 		}
 	},
 	"required": ["expression", "type", "dialog"]

@@ -43,7 +43,7 @@ export function BottomBar({ ...props }: Props) {
 					src={submitSvgURL}
 					alt="submit icon"
 				/>
-				<span>Go!</span>
+				<span>Submit</span>
 			</HighlightButton>
 		</div>
 	);

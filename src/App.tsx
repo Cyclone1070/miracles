@@ -8,14 +8,13 @@ import { AddPlayerActionButtons } from "./components/AddPlayerActionButtons";
 import { PlayerActionInputArea } from "./components/PlayerActionInputArea";
 import type { Action } from "./type";
 import miracleSvgURL from "/miracle.svg?url";
+import { initialiseGame } from "./game/gameManager";
 
 function App() {
 	const [directoryHandle, setDirectoryHandle] =
 		useState<FileSystemDirectoryHandle>();
-	const [isMainMenuOpen, setIsMainMenuOpen] = useState<boolean>(true);
-	const [actions, setActions] = useState<Action[]>([
-		{ id: "1", expression: "neutral", type: "do", action: "test" },
-	]);
+	const [isMainMenuOpen, setIsMainMenuOpen] = useState<boolean>(false);
+	const [actions, setActions] = useState<Action[]>([]);
 	const variants = {
 		hidden: {
 			opacity: 0,
@@ -45,7 +44,7 @@ function App() {
 			video.onerror = resolve;
 			video.load();
 		});
-		loadVideo.then(() => {
+		Promise.all([loadVideo, initialiseGame()]).then(() => {
 			setAssetsLoaded(true);
 		});
 	}, []);
@@ -101,7 +100,13 @@ function App() {
 			>
 				<BgImage location="heaven" className={`-z-1`} />
 
-				<div className="grow"></div>
+				<div className="w-full relative grow">
+					<PlayerActionInputArea
+						setActions={setActions}
+						actions={actions}
+						className={`absolute mb-10 inset-x-0 bottom-0`}
+					/>
+				</div>
 
 				<NarrativeBox
 					className={`w-full`}
@@ -112,12 +117,6 @@ function App() {
 						setIsMainMenuOpen={setIsMainMenuOpen}
 						setActions={setActions}
 						addActionButtonRef={addActionButtonRef}
-					/>
-
-					<PlayerActionInputArea
-						setActions={setActions}
-						actions={actions}
-						className={`absolute mb-10 bottom-full inset-x-0`}
 					/>
 				</NarrativeBox>
 				<BottomBar></BottomBar>
