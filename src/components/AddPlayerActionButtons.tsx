@@ -64,7 +64,8 @@ export function AddPlayerActionButtons({ ...props }: Props) {
 			>
 				<HighlightButton
 					className={`w-10 h-10 rounded-full`}
-					onClick={() => {
+					onClick={(e) => {
+						e.stopPropagation();
 						props.setIsMainMenuOpen(true);
 					}}
 				>
@@ -74,9 +75,6 @@ export function AddPlayerActionButtons({ ...props }: Props) {
 
 			<div
 				className={`flex justify-center items-center gap-8 -right-[2px] -left-[2px] absolute top-full -translate-y-1/2`}
-				onClick={(e) => {
-					e.stopPropagation();
-				}}
 			>
 				{/* add action buttons popup */}
 				<motion.div
@@ -95,6 +93,9 @@ export function AddPlayerActionButtons({ ...props }: Props) {
 					transition={{ ease: "easeInOut", duration: 0.3 }}
 					animate={props.isActionExpanded ? "visible" : "hidden"}
 					className={`absolute bottom-full mb-2 md:mb-3 left-1/2 -translate-x-1/2 flex flex-col gap-2`}
+					onClick={(e) => {
+						e.stopPropagation();
+					}}
 				>
 					<HighlightButton
 						onClick={addDoAction}
@@ -136,7 +137,8 @@ export function AddPlayerActionButtons({ ...props }: Props) {
 					data-none-close-click
 					data-textbox-none-close-click
 					ref={props.addActionButtonRef}
-					onClick={() => {
+					onClick={(e) => {
+						e.stopPropagation();
 						props.setIsActionExpanded((prev) => !prev);
 					}}
 					className={`w-14 h-14 rounded-full flex justify-center items-center`}

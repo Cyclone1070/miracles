@@ -1,6 +1,6 @@
-import { motion } from "motion/react";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { loadScene, loadState } from "../game/storage";
+import { AnimatePresence, motion } from "motion/react";
+import { useLayoutEffect, useRef, useState } from "react";
+import { useGameManager } from "../game/gameManager";
 import type { Action } from "../type";
 import { mergeClasses } from "../utils/tailwindMerge";
 import { AddPlayerActionButtons } from "./AddPlayerActionButtons";
@@ -21,24 +21,9 @@ export function NarrativeBox({ ...props }: Props) {
 	const addActionButtonRef = useRef<HTMLButtonElement>(null);
 	const [clipPath, setClipPath] = useState({});
 
-	const [text, setText] = useState<string>("");
 	const [isActionExpanded, setIsActionExpanded] = useState(false);
+	const { currentStep, isLoading, advanceStory } = useGameManager();
 
-	useEffect(() => {
-		const saveState = loadState();
-		if (!saveState) {
-			alert("Game not initialised. Please refresh the page.");
-			return;
-		}
-		loadScene(saveState.currentSceneId)
-			.then((scene) => {
-				const currentStep = scene.steps[saveState.currentStepIndex];
-				setText(currentStep.displayText);
-			})
-			.catch((error) => {
-				alert("Error loading scene: " + error);
-			});
-	}, []);
 	useLayoutEffect(() => {
 		const run = () => {
 			setClipPath(calculateClipPath());
@@ -73,8 +58,9 @@ export function NarrativeBox({ ...props }: Props) {
 				`relative h-55 max-w-200 border-2 border-t-0 border-(--accent) rounded-xl text-white p-2 pt-8`,
 				props.className,
 			)}
-			onClick={(e) => {
+			onClick={async () => {
 				console.log("narrative box clicked");
+				advanceStory();
 			}}
 		>
 			<div
@@ -105,16 +91,24 @@ export function NarrativeBox({ ...props }: Props) {
 				/>
 			</div>
 
-			<motion.div
-				variants={{
-					visible: { opacity: 1  },
-					faded: { opacity: 0.15 },
-				}}
-				animate={isActionExpanded ? "faded" : "visible"}
-				className={`w-full h-full`}
-			>
-				{text}
-			</motion.div>
+			<AnimatePresence mode="wait">
+				<motion.div
+					variants={{
+						visible: { opacity: 1, y: 0, visibility: "visible" },
+						faded: { opacity: 0.15, y: 0, visibility: "visible" },
+						hidden: { y: -8, opacity: 0, visibility: "hidden" },
+						initial: { opacity: 0, y: 8, visibility: "hidden" },
+					}}
+					animate={isActionExpanded ? "faded" : "visible"}
+					exit="hidden"
+					initial="initial"
+					transition={{ ease: "easeInOut", duration: 0.3 }}
+					className={`w-full h-full`}
+					key={currentStep?.id}
+				>
+					{currentStep?.displayText}
+				</motion.div>
+			</AnimatePresence>
 
 			<AddPlayerActionButtons
 				setIsMainMenuOpen={props.setIsMainMenuOpen}

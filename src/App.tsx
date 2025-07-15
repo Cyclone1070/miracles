@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { BgImage } from "./components/BgImage";
 import { BottomBar } from "./components/BottomBar";
 import { MainMenu } from "./components/MainMenu";
@@ -10,8 +10,6 @@ import type { Action } from "./type";
 import miracleSvgURL from "/miracle.svg?url";
 
 function App() {
-	const [directoryHandle, setDirectoryHandle] =
-		useState<FileSystemDirectoryHandle>();
 	const [isMainMenuOpen, setIsMainMenuOpen] = useState<boolean>(false);
 	const [actions, setActions] = useState<Action[]>([]);
 	const variants = {
@@ -26,8 +24,6 @@ function App() {
 			transition: { delay: 0.7, duration: 1, ease: "easeInOut" as const },
 		},
 	};
-	// Refs for narrativeBg calculation
-	const addActionButtonRef = useRef<HTMLButtonElement>(null);
 
 	// Assets loading screen
 	const [assetsLoaded, setAssetsLoaded] = useState(false);
@@ -74,23 +70,6 @@ function App() {
 
 	return (
 		<>
-			<AnimatePresence>
-				{isMainMenuOpen && (
-					<motion.div
-						variants={variants}
-						initial={"hidden"}
-						animate={"visible"}
-						exit={"hidden"}
-					>
-						<MainMenu
-							directoryHandle={directoryHandle}
-							setDirectoryHandle={setDirectoryHandle}
-							setIsMainMenuOpen={setIsMainMenuOpen}
-						></MainMenu>
-					</motion.div>
-				)}
-			</AnimatePresence>
-
 			<motion.div
 				variants={variants}
 				initial="hidden"
@@ -115,6 +94,21 @@ function App() {
 				/>
 				<BottomBar />
 			</motion.div>
+
+			<AnimatePresence>
+				{isMainMenuOpen && (
+					<motion.div
+						variants={variants}
+						initial={"hidden"}
+						animate={"visible"}
+						exit={"hidden"}
+					>
+						<MainMenu
+							setIsMainMenuOpen={setIsMainMenuOpen}
+						></MainMenu>
+					</motion.div>
+				)}
+			</AnimatePresence>
 		</>
 	);
 }

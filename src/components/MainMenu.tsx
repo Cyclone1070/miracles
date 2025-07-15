@@ -4,10 +4,6 @@ import { HighlightButton } from "./HighlightButton";
 import { clearStore } from "../utils/indexedDb";
 
 interface Props {
-	directoryHandle?: FileSystemDirectoryHandle;
-	setDirectoryHandle: React.Dispatch<
-		React.SetStateAction<FileSystemDirectoryHandle | undefined>
-	>;
 	setIsMainMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -92,6 +88,7 @@ export function MainMenu({ ...props }: Props) {
 					onClick={() => {
 						localStorage.clear();
 						clearStore();
+						window.location.reload();
 					}}
 					className={`bg-(--accent) p-1.5`}
 				>
