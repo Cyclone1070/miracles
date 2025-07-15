@@ -57,7 +57,7 @@ export function PlayerActionInputArea({ ...props }: Props) {
 				props.className,
 			)}
 		>
-			<AnimatePresence mode="wait">
+			<AnimatePresence>
 				{props.actions.map((action, index) => (
 					<Fragment key={action.id}>
 						{/* arrow between actions */}
