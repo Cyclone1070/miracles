@@ -5,6 +5,7 @@ import type { Action } from "../type";
 import { mergeClasses } from "../utils/tailwindMerge";
 import { AddPlayerActionButtons } from "./AddPlayerActionButtons";
 import { HighlightButton } from "./HighlightButton";
+import { saveState } from "../game/storage";
 
 interface Props {
 	className?: string;
@@ -32,6 +33,7 @@ export function NarrativeBox({ ...props }: Props) {
 		currentStep,
 		isFetchingResponse,
 		advanceStory,
+		setCurrentSaveState,
 	} = useGameManager();
 	let currentName = null;
 	if (currentStep?.type === "dialog") {
@@ -68,7 +70,6 @@ export function NarrativeBox({ ...props }: Props) {
 		if (
 			narrativeBgRef.current &&
 			narrativeBoxRef.current &&
-			nameBoxRef.current &&
 			nameBoxContainerRef.current &&
 			addActionButtonRef.current
 		) {
@@ -77,11 +78,6 @@ export function NarrativeBox({ ...props }: Props) {
 				attributes: true,
 				attributeFilter: ["style", "class"],
 				childList: true,
-			});
-			resizeObserver.observe(nameBoxRef.current);
-			mutationObserver.observe(nameBoxRef.current, {
-				attributes: true,
-				attributeFilter: ["style", "class"],
 			});
 			resizeObserver.observe(nameBoxContainerRef.current);
 			mutationObserver.observe(nameBoxContainerRef.current, {
@@ -127,6 +123,7 @@ export function NarrativeBox({ ...props }: Props) {
 				onClick={() => {
 					const element = textContainerRef.current;
 					if (!element) return;
+					if (currentStep?.type === "choice") return;
 
 					if (isScrollEndSeen) {
 						setIsScrollEndSeen(false);
@@ -245,7 +242,31 @@ export function NarrativeBox({ ...props }: Props) {
 								setIsScrollEndSeen(false);
 							}}
 						>
-							{currentStep?.displayText}
+							{currentStep?.type === "choice" ? (
+								<div className={`flex flex-col items-center w-full`}>
+									{currentStep.options.map((option) => {
+										return (
+											<HighlightButton
+												key={option.nextSceneId}
+												className="text-left"
+												onClick={() => {
+													const newSave = {
+														currentSceneId:
+															option.nextSceneId,
+														currentStepIndex: 0,
+													}
+													setCurrentSaveState(newSave);
+													saveState(newSave)
+												}}
+											>
+												{option.text}
+											</HighlightButton>
+										);
+									})}
+								</div>
+							) : (
+								<span>{currentStep?.text}</span>
+							)}
 						</motion.div>
 					</AnimatePresence>
 				</motion.div>

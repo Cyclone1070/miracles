@@ -21,56 +21,66 @@ export type Action = DoAction | SayAction | MiracleAction;
 
 // story display interfaces
 export interface DialogStep {
-	type: "dialog";
+    type: "dialog";
     id: string;
-	displayText: string;
+    text: string;
     speakerId: string;
     speakerExpression: "neutral" | "happy" | "annoyed";
     listenerId?: string;
     listenerExpression?: "neutral" | "happy" | "annoyed";
 }
 export interface ActionStep {
-	type: "action";
+    type: "action";
     id: string;
-    displayText: string;
+    text: string;
     actorId: string;
     actorExpression: "neutral" | "happy" | "annoyed";
     targetId?: string;
     targetExpression?: "neutral" | "happy" | "annoyed";
 }
 export interface NarrationStep {
-	type: "narration";
+    type: "narration";
     id: string;
-    displayText: string;
+    text: string;
 }
-export type Step = DialogStep | ActionStep | NarrationStep;
+export interface ChoiceOption {
+    text: string;
+    nextSceneId: string;
+}
+
+export interface ChoiceStep {
+    type: "choice";
+    id: string;
+    options: ChoiceOption[];
+}
+export type Step = DialogStep | ActionStep | NarrationStep | ChoiceStep;
 
 export interface Scene {
     id: string;
     steps: Step[];
 }
 export interface SaveState {
-	currentSceneId: string;
-	currentStepIndex: number;
+    currentSceneId: string;
+    currentStepIndex: number;
 }
 
 // game data interfaces
 export interface Item {
-	id: string;
-	name: string;
-	description?: string;
-	state?: string;
+    id: string;
+    name: string;
+    description?: string;
+    state?: string;
 }
 export interface Character {
-	id: string;
-	description?: string;
-	inventory?: Item[];
+    id: string;
+    description?: string;
+    inventory?: Item[];
 }
 export interface Room {
-	id: string;
-	description?: string;
-	connectedRooms?: string[];
-	inViewRooms?: string[];
-	items?: Item[];
-	characters?: Character[];
+    id: string;
+    description?: string;
+    connectedRooms?: string[];
+    inViewRooms?: string[];
+    items?: Item[];
+    characters?: Character[];
 }
