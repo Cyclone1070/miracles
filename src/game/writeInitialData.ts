@@ -1,13 +1,13 @@
 import type { Scene } from "../type";
-import { loadState, saveScene, saveState } from "./storage";
+import { saveScene, saveState } from "./storage";
 
 export async function writeInitialData(): Promise<void> {
-    const currentSaveState = loadState();
-    if (currentSaveState) {
-        return
-    }
     const intro: Scene = {
         id: "intro", steps: [
+            {
+                type: "music",
+                value: "/everyday1.mp3",
+            },
             {
                 type: "narration",
                 id: "intro_1",

@@ -7,25 +7,49 @@ import {
 	type ReactNode,
 } from "react";
 import type { SaveState, Scene } from "../type";
-import { loadScene, loadState, saveScene, saveState } from "./storage";
+import {
+	loadMusic,
+	loadScene,
+	loadState,
+	saveMusic,
+	saveScene,
+	saveState,
+} from "./storage";
 import { writeInitialData } from "./writeInitialData";
 
 // main game logic, private helper hook
 function useGameHelper() {
+	// states to manage the game state
 	const [isFetchingResponse, setIsFetchingResponse] = useState(false);
 	const [isGameInitiating, setIsGameInitLoading] = useState(true);
 	const [currentSaveState, setCurrentSaveState] = useState<SaveState | null>(
 		null,
 	);
 	const [currentScene, setCurrentScene] = useState<Scene | null>(null);
+	// states to determine side to render the acting character in the action
 	const [isActingCharacterLeft, setIsActingCharacterLeft] = useState(false);
 	const prevSpeaker = useRef<string | null>(null);
+	// convenience derived variables
+	const currentStep =
+		currentScene &&
+		currentSaveState &&
+		currentSaveState.currentSceneId === currentScene.id
+			? currentScene.steps[currentSaveState.currentStepIndex]
+			: null;
+	const currentSpeakerId =
+		currentStep?.type === "dialog" ? currentStep?.speakerId : null;
+	// music related
+	const musicPlayer = useRef(new Audio());
 
 	// start the game and load the initial game state info
 	useEffect(() => {
 		async function init() {
 			try {
-				await writeInitialData();
+				// If no save state exists, create an initial one.
+				if (!loadState()) {
+					await writeInitialData();
+				}
+
 				const currentSaveState = loadState();
 				if (!currentSaveState) {
 					alert(
@@ -38,6 +62,13 @@ function useGameHelper() {
 					currentSaveState.currentSceneId,
 				);
 				setCurrentScene(currentScene);
+				// load music
+				const currentMusicTrack = loadMusic();
+				if (currentMusicTrack) {
+					musicPlayer.current.loop = true;
+					musicPlayer.current.src = currentMusicTrack;
+					musicPlayer.current.play();
+				}
 				setIsGameInitLoading(false);
 			} catch (error) {
 				alert("Error initialising game: " + error);
@@ -45,8 +76,15 @@ function useGameHelper() {
 			}
 		}
 		init();
+		return () => {
+			// Cleanup: stop any music that might be playing when the component unmounts.
+			if (musicPlayer.current) {
+				musicPlayer.current.pause();
+			}
+		};
 	}, []);
 
+	// Load the correct scene accroding to currentSaveState
 	useEffect(() => {
 		// Don't do anything if the save state hasn't been loaded yet.
 		if (!currentSaveState) return;
@@ -68,6 +106,27 @@ function useGameHelper() {
 		// This effect depends on currentSaveState. It runs whenever it changes.
 	}, [currentSaveState]);
 
+	// handle music player
+	useEffect(() => {
+		if (currentStep?.type === "music") {
+			const newTrack = currentStep.value;
+
+			// If a new music file is specified in 'value', play it.
+			if (newTrack && newTrack !== musicPlayer.current.src) {
+				console.log(currentScene);
+				console.log(currentStep);
+				console.log(currentSaveState);
+				musicPlayer.current.pause();
+				musicPlayer.current.src = newTrack;
+				musicPlayer.current.play();
+				saveMusic(newTrack);
+			}
+
+			// A music step is instant. After processing it, advance the story.
+			advanceStory();
+		}
+	}, [currentStep, advanceStory]);
+
 	function advanceStory() {
 		if (!currentSaveState || !currentScene) return;
 
@@ -81,7 +140,10 @@ function useGameHelper() {
 			setCurrentSaveState(newSaveState);
 			saveState(newSaveState);
 		} else {
-			const newSaveState = { currentSceneId: "intro", currentStepIndex: 0 };
+			const newSaveState = {
+				currentSceneId: "intro",
+				currentStepIndex: 0,
+			};
 			setCurrentSaveState(newSaveState);
 			saveState(newSaveState);
 		}
@@ -118,13 +180,7 @@ function useGameHelper() {
 		setIsFetchingResponse(false);
 	}
 
-	const currentStep =
-		currentScene && currentSaveState
-			? currentScene.steps[currentSaveState.currentStepIndex]
-			: null;
-	const currentSpeakerId =
-		currentStep?.type === "dialog" ? currentStep?.speakerId : null;
-
+	// handle character images position changes
 	useEffect(() => {
 		if (
 			currentStep?.type === "dialog" &&

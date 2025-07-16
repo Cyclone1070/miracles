@@ -1,11 +1,11 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useGameManager } from "../game/gameManager";
-import type { Action } from "../type";
+import { saveState } from "../game/storage";
+import type { Action, ChoiceOption } from "../type";
 import { mergeClasses } from "../utils/tailwindMerge";
 import { AddPlayerActionButtons } from "./AddPlayerActionButtons";
 import { HighlightButton } from "./HighlightButton";
-import { saveState } from "../game/storage";
 
 interface Props {
 	className?: string;
@@ -23,11 +23,13 @@ export function NarrativeBox({ ...props }: Props) {
 	const addActionButtonRef = useRef<HTMLButtonElement>(null);
 	const [clipPath, setClipPath] = useState({});
 
-	// State for management
+	// State for scroll management
 	const [isScrollEndSeen, setIsScrollEndSeen] = useState(false);
 	const textContainerRef = useRef<HTMLDivElement>(null);
 
 	const [isActionExpanded, setIsActionExpanded] = useState(false);
+
+	// Game manager hooks
 	const {
 		isActingCharacterLeft,
 		currentStep,
@@ -39,6 +41,7 @@ export function NarrativeBox({ ...props }: Props) {
 	if (currentStep?.type === "dialog") {
 		currentName = currentStep.speakerId;
 	}
+
 	useEffect(() => {
 		const element = textContainerRef.current;
 		if (!element) return;
@@ -243,26 +246,32 @@ export function NarrativeBox({ ...props }: Props) {
 							}}
 						>
 							{currentStep?.type === "choice" ? (
-								<div className={`flex flex-col items-center w-full`}>
-									{currentStep.options.map((option) => {
-										return (
-											<HighlightButton
-												key={option.nextSceneId}
-												className="text-left"
-												onClick={() => {
-													const newSave = {
-														currentSceneId:
-															option.nextSceneId,
-														currentStepIndex: 0,
-													}
-													setCurrentSaveState(newSave);
-													saveState(newSave)
-												}}
-											>
-												{option.text}
-											</HighlightButton>
-										);
-									})}
+								<div
+									className={`flex flex-col items-center w-full`}
+								>
+									{currentStep.options.map(
+										(option: ChoiceOption) => {
+											return (
+												<HighlightButton
+													key={option.nextSceneId}
+													className="text-left"
+													onClick={() => {
+														const newSave = {
+															currentSceneId:
+																option.nextSceneId,
+															currentStepIndex: 0,
+														};
+														setCurrentSaveState(
+															newSave,
+														);
+														saveState(newSave);
+													}}
+												>
+													{option.text}
+												</HighlightButton>
+											);
+										},
+									)}
 								</div>
 							) : (
 								<span>{currentStep?.text}</span>

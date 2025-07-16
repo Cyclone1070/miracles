@@ -162,7 +162,7 @@ export function MainMenu({ ...props }: Props) {
 					<span>
 						{" "}
 						Fuck all has been done to protect your key. Only use a
-						free key and clear your data when you finish the game.
+						free key and clear your data when you finish the game since it's stored locally.
 					</span>
 				</div>
 			</motion.div>

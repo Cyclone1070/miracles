@@ -2,6 +2,7 @@ import type { SaveState, Scene } from "../type";
 import { getObject, putObject } from "../utils/indexedDb";
 
 const SAVE_STATE_KEY = 'miracle_save_state';
+const MUSIC_KEY = 'miracle_music';
 
 export function saveState(saveState: SaveState): void {
     localStorage.setItem(SAVE_STATE_KEY, JSON.stringify(saveState));
@@ -28,4 +29,14 @@ export async function loadScene(sceneId: string): Promise<Scene> {
 		throw new Error(`Scene with ID ${sceneId} is invalid or corrupted`);
 	}
 	return scene;
+}
+export function saveMusic(trackURL: string | null) {
+	if (trackURL) {
+		localStorage.setItem(MUSIC_KEY, trackURL);
+	} else {
+		localStorage.removeItem(MUSIC_KEY);
+	}
+}
+export function loadMusic(): string | null {
+    return localStorage.getItem(MUSIC_KEY);
 }

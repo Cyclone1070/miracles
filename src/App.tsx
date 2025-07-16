@@ -1,19 +1,12 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
-import { BgImage } from "./components/BgImage";
-import { BottomBar } from "./components/BottomBar";
-import { CharacterImages } from "./components/CharacterImages";
+import { GameScreen } from "./components/GameScreen";
 import { MainMenu } from "./components/MainMenu";
-import { NarrativeBox } from "./components/NarrativeBox";
-import { PlayerActionInputArea } from "./components/PlayerActionInputArea";
-import { useGameManager } from "./game/gameManager";
-import type { Action } from "./type";
 import miracleSvgURL from "/miracle.svg?url";
+import { GameManagerProvider } from "./game/gameManager";
 
 function App() {
-	const [isMainMenuOpen, setIsMainMenuOpen] = useState<boolean>(false);
-	const [actions, setActions] = useState<Action[]>([]);
-	const { isGameInitiating } = useGameManager();
+	const [isMainMenuOpen, setIsMainMenuOpen] = useState<boolean>(true);
 	const variants = {
 		hidden: {
 			opacity: 0,
@@ -46,7 +39,7 @@ function App() {
 		});
 	}, []);
 
-	if (!assetsLoaded || isGameInitiating) {
+	if (!assetsLoaded) {
 		return (
 			<div className="w-screen h-screen flex flex-col gap-5 items-center justify-center text-white">
 				<motion.img
@@ -72,34 +65,18 @@ function App() {
 
 	return (
 		<>
-			<motion.div
-				variants={variants}
-				initial="hidden"
-				animate={isMainMenuOpen ? "hidden" : "visible"}
-				className="absolute left-0 top-0 w-screen h-dvh flex flex-col p-6 pb-0 items-center gap-2"
-			>
-				<BgImage location="heaven" className={`-z-1`} />
-				<CharacterImages className={`absolute bottom-0 w-full`}/>
-
-				<div className="w-full relative grow">
-					<PlayerActionInputArea
-						setActions={setActions}
-						actions={actions}
-						className={`absolute mb-10 inset-x-0 bottom-0`}
-					/>
-				</div>
-
-				<NarrativeBox
-					className={`w-full`}
-					setIsMainMenuOpen={setIsMainMenuOpen}
-					setActions={setActions}
-				/>
-				<BottomBar />
-			</motion.div>
-
 			<AnimatePresence>
+				{!isMainMenuOpen && (
+					<GameManagerProvider>
+						<GameScreen
+							isMainMenuOpen={isMainMenuOpen}
+							setIsMainMenuOpen={setIsMainMenuOpen}
+						/>
+					</GameManagerProvider>
+				)}
 				{isMainMenuOpen && (
 					<motion.div
+						key="main-menu"
 						variants={variants}
 						initial={"hidden"}
 						animate={"visible"}

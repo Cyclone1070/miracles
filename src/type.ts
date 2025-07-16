@@ -53,7 +53,11 @@ export interface ChoiceStep {
     id: string;
     options: ChoiceOption[];
 }
-export type Step = DialogStep | ActionStep | NarrationStep | ChoiceStep;
+export interface MusicStep {
+	type: "music";
+	value: string | null; // URL or path to the music file
+}
+export type Step = DialogStep | ActionStep | NarrationStep | ChoiceStep | MusicStep;
 
 export interface Scene {
     id: string;
