@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import type { Action } from "../type";
 import { HighlightButton } from "./HighlightButton";
@@ -12,7 +12,6 @@ interface Props {
 	className?: string;
 	setActions: React.Dispatch<React.SetStateAction<Action[]>>;
 	addActionButtonRef: React.Ref<HTMLButtonElement>;
-	setIsMainMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
 	isActionExpanded: boolean;
 	setIsActionExpanded: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -51,115 +50,88 @@ export function AddPlayerActionButtons({ ...props }: Props) {
 		};
 	}, [props.isActionExpanded]);
 	return (
-		<>
-			{/* Back button to main menu */}
+		<div
+			className={`flex justify-center items-center gap-8 -right-[2px] -left-[2px] absolute top-full -translate-y-1/2`}
+		>
+			{/* add action buttons popup */}
 			<motion.div
+				data-textbox-none-close-click
 				variants={{
-					visible: { opacity: 1, y: 0, x: 0, visibility: "visible" },
-					hidden: { opacity: 0, y: -5, x: -5, visibility: "hidden" },
+					visible: {
+						visibility: "visible",
+						opacity: 1,
+					},
+					hidden: {
+						visibility: "hidden",
+						opacity: 0,
+						y: 5,
+					},
 				}}
-				animate={props.isActionExpanded ? "visible" : "hidden"}
 				transition={{ ease: "easeInOut", duration: 0.3 }}
-				className={`fixed top-4 left-4 z-11`}
+				animate={props.isActionExpanded ? "visible" : "hidden"}
+				className={`absolute bottom-full mb-2 md:mb-3 left-1/2 -translate-x-1/2 flex flex-col gap-2`}
+				onClick={(e) => {
+					e.stopPropagation();
+				}}
 			>
 				<HighlightButton
-					className={`w-10 h-10 rounded-full`}
-					onClick={(e) => {
-						e.stopPropagation();
-						props.setIsMainMenuOpen(true);
-					}}
+					onClick={addDoAction}
+					className={`flex items-center gap-2 h-10`}
 				>
-					&lt;
-				</HighlightButton>
-			</motion.div>
-
-			<div
-				className={`flex justify-center items-center gap-8 -right-[2px] -left-[2px] absolute top-full -translate-y-1/2`}
-			>
-				{/* add action buttons popup */}
-				<motion.div
-					data-textbox-none-close-click
-					variants={{
-						visible: {
-							visibility: "visible",
-							opacity: 1,
-						},
-						hidden: {
-							visibility: "hidden",
-							opacity: 0,
-							y: 5,
-						},
-					}}
-					transition={{ ease: "easeInOut", duration: 0.3 }}
-					animate={props.isActionExpanded ? "visible" : "hidden"}
-					className={`absolute bottom-full mb-2 md:mb-3 left-1/2 -translate-x-1/2 flex flex-col gap-2`}
-					onClick={(e) => {
-						e.stopPropagation();
-					}}
-				>
-					<HighlightButton
-						onClick={addDoAction}
-						className={`flex items-center gap-2 h-10`}
-					>
-						<img
-							className={`h-5 w-5`}
-							src={actionSvgURL}
-							alt="action icon"
-						/>
-						<span>Do</span>
-					</HighlightButton>
-					<HighlightButton
-						onClick={addSayAction}
-						className={`flex items-center gap-2 h-10`}
-					>
-						<img
-							className={`h-5 w-5`}
-							src={saySvgURL}
-							alt="say icon"
-						/>
-						<span>Say</span>
-					</HighlightButton>
-					<HighlightButton
-						onClick={addMiracleAction}
-						className={`flex items-center gap-2 h-10`}
-					>
-						<img
-							className={`w-5 h-5`}
-							src={miracleSvgURL}
-							alt="miracle icon"
-						/>
-						<span>Miracle</span>
-					</HighlightButton>
-				</motion.div>
-
-				{/* main toggle action button */}
-				<HighlightButton
-					data-none-close-click
-					data-textbox-none-close-click
-					ref={props.addActionButtonRef}
-					onClick={(e) => {
-						e.stopPropagation();
-						props.setIsActionExpanded((prev) => !prev);
-					}}
-					className={`w-14 h-14 rounded-full flex justify-center items-center`}
-				>
-					<motion.img
-						variants={iconVariants}
-						animate={props.isActionExpanded ? "hidden" : "visible"}
-						className={`h-7 absolute`}
+					<img
+						className={`h-5 w-5`}
 						src={actionSvgURL}
 						alt="action icon"
 					/>
-					<motion.img
-						variants={iconVariants}
-						animate={props.isActionExpanded ? "visible" : "hidden"}
-						className={`absolute h-7`}
-						src={closeSvgURL}
-						alt="close icon"
-					/>
+					<span>Do</span>
 				</HighlightButton>
-			</div>
-		</>
+				<HighlightButton
+					onClick={addSayAction}
+					className={`flex items-center gap-2 h-10`}
+				>
+					<img className={`h-5 w-5`} src={saySvgURL} alt="say icon" />
+					<span>Say</span>
+				</HighlightButton>
+				<HighlightButton
+					onClick={addMiracleAction}
+					className={`flex items-center gap-2 h-10`}
+				>
+					<img
+						className={`w-5 h-5`}
+						src={miracleSvgURL}
+						alt="miracle icon"
+					/>
+					<span>Miracle</span>
+				</HighlightButton>
+			</motion.div>
+
+			{/* main toggle action button */}
+			<HighlightButton
+				data-none-close-click
+				data-textbox-none-close-click
+				ref={props.addActionButtonRef}
+				onClick={(e) => {
+					e.stopPropagation();
+					props.setIsActionExpanded((prev) => !prev);
+				}}
+				className={`w-14 h-14 rounded-full flex justify-center items-center`}
+			>
+				<motion.img
+					variants={iconVariants}
+					animate={props.isActionExpanded ? "hidden" : "visible"}
+					className={`h-7 absolute`}
+					src={actionSvgURL}
+					alt="action icon"
+				/>
+				<motion.img
+					variants={iconVariants}
+					animate={props.isActionExpanded ? "visible" : "hidden"}
+					className={`absolute h-7`}
+					src={closeSvgURL}
+					alt="close icon"
+				/>
+			</HighlightButton>
+		</div>
 	);
 
 	function addDoAction() {

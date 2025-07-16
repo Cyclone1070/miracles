@@ -1,3 +1,4 @@
+// user action interfaces
 export interface BaseAction {
     id: string;
     expression: "neutral" | "happy" | "annoyed";
@@ -18,6 +19,7 @@ export interface MiracleAction extends BaseAction {
 }
 export type Action = DoAction | SayAction | MiracleAction;
 
+// story display interfaces
 export interface DialogStep {
 	type: "dialog";
     id: string;
@@ -50,4 +52,25 @@ export interface Scene {
 export interface SaveState {
 	currentSceneId: string;
 	currentStepIndex: number;
+}
+
+// game data interfaces
+export interface Item {
+	id: string;
+	name: string;
+	description?: string;
+	state?: string;
+}
+export interface Character {
+	id: string;
+	description?: string;
+	inventory?: Item[];
+}
+export interface Room {
+	id: string;
+	description?: string;
+	connectedRooms?: string[];
+	inViewRooms?: string[];
+	items?: Item[];
+	characters?: Character[];
 }

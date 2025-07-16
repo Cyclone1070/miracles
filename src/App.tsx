@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { BgImage } from "./components/BgImage";
 import { BottomBar } from "./components/BottomBar";
+import { CharacterImages } from "./components/CharacterImages";
 import { MainMenu } from "./components/MainMenu";
 import { NarrativeBox } from "./components/NarrativeBox";
 import { PlayerActionInputArea } from "./components/PlayerActionInputArea";
@@ -12,7 +13,7 @@ import miracleSvgURL from "/miracle.svg?url";
 function App() {
 	const [isMainMenuOpen, setIsMainMenuOpen] = useState<boolean>(false);
 	const [actions, setActions] = useState<Action[]>([]);
-	const { isInitLoading } = useGameManager();
+	const { isGameInitiating } = useGameManager();
 	const variants = {
 		hidden: {
 			opacity: 0,
@@ -45,7 +46,7 @@ function App() {
 		});
 	}, []);
 
-	if (!assetsLoaded || isInitLoading) {
+	if (!assetsLoaded || isGameInitiating) {
 		return (
 			<div className="w-screen h-screen flex flex-col gap-5 items-center justify-center text-white">
 				<motion.img
@@ -78,6 +79,7 @@ function App() {
 				className="absolute left-0 top-0 w-screen h-dvh flex flex-col p-6 pb-0 items-center gap-2"
 			>
 				<BgImage location="heaven" className={`-z-1`} />
+				<CharacterImages className={`absolute bottom-0 w-full`}/>
 
 				<div className="w-full relative grow">
 					<PlayerActionInputArea
@@ -89,7 +91,6 @@ function App() {
 
 				<NarrativeBox
 					className={`w-full`}
-					isNameBoxLeft={true}
 					setIsMainMenuOpen={setIsMainMenuOpen}
 					setActions={setActions}
 				/>

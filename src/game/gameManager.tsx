@@ -1,18 +1,22 @@
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import type { SaveState, Scene } from "../type";
 import { loadScene, loadState, saveScene, saveState } from "./storage";
+import { writeInitialData } from "./writeInitialData";
 
-export function useGameManager() {
+// main game logic, private helper hook
+function useGameHelper() {
     const [isFetchingResponse, setIsFetchingResponse] = useState(false);
-    const [isInitLoading, setIsInitLoading] = useState(true);
+    const [isGameInitiating, setIsGameInitLoading] = useState(true);
     const [currentSaveState, setCurrentSaveState] = useState<SaveState | null>(null)
     const [currentScene, setCurrentScene] = useState<Scene | null>(null);
+    const [isActingCharacterLeft, setIsActingCharacterLeft] = useState(false);
+    const prevSpeaker = useRef<string | null>(null);
 
     // start the game and load the initial game state info
     useEffect(() => {
         async function init() {
             try {
-                await writeGameData();
+                await writeInitialData();
                 const currentSaveState = loadState();
                 if (!currentSaveState) {
                     alert("Failed to initialise game: save state not found. Please refresh the page.");
@@ -21,7 +25,7 @@ export function useGameManager() {
                 setCurrentSaveState(currentSaveState);
                 const currentScene = await loadScene(currentSaveState.currentSceneId);
                 setCurrentScene(currentScene);
-                setIsInitLoading(false);
+                setIsGameInitLoading(false);
             } catch (error) {
                 alert("Error initialising game: " + error);
                 console.error(error);
@@ -66,20 +70,37 @@ export function useGameManager() {
     }
 
     const currentStep = currentScene && currentSaveState ? currentScene.steps[currentSaveState.currentStepIndex] : null;
+    const currentSpeakerId = currentStep?.type === "dialog" ? currentStep?.speakerId : null;
 
-    return { isInitLoading, isFetchingResponse, currentStep, advanceStory, submitPlayerAction };
+    useEffect(() => {
+        if (currentStep?.type === "dialog" && currentSpeakerId && currentSpeakerId !== prevSpeaker.current) {
+            prevSpeaker.current = currentSpeakerId;
+            setIsActingCharacterLeft(prev => !prev);
+        }
+    }, [currentSpeakerId]);
+
+    return { isActingCharacterLeft, isGameInitiating, isFetchingResponse, currentStep, advanceStory, submitPlayerAction };
 }
 
-export async function writeGameData(): Promise<void> {
-    const currentSaveState = loadState();
-    if (currentSaveState) {
-        return
-    }
-    const intro: Scene = { id: "intro", steps: [{ type: "narration", id: "intro_1", displayText: "Welcome to the game! This is the introduction scene. lorem ipsum ios ioasfjio aidfojafo aoief oasd fia fjsdaiof ewoinfao fifjaoijf iwio really looooooooooong yeah lets to goiansido adfjo ajc ferree aiad amscio free style this is bc lorem ipsum wasn't available in my nvim config T_T still not long enough omfg swear to god this shit is rather ridiculous :/Welcome to the game! This is the introduction scene. lorem ipsum ios ioasfjio aidfojafo aoief oasd fia fjsdaiof ewoinfao fifjaoijf iwio really looooooooooong yeah lets to goiansido adfjo ajc ferree aiad amscio free style this is bc lorem ipsum wasn't available in my nvim config T_T still not long enough omfg swear to god this shit is rather ridiculous :/" }, { type: "narration", id: "intro_2", displayText: "This is step 2 of the intro!" }] };
-    try {
-        await saveScene(intro);
-        saveState({ currentSceneId: intro.id, currentStepIndex: 0 });
-    } catch (error) {
-        alert("Error writing game to storage: " + error);
-    }
+// provider pattern
+type GameManagerContextType = ReturnType<typeof useGameHelper>;
+
+const GameContext = createContext<GameManagerContextType | null>(null);
+
+export function GameManagerProvider({ children }: { children: ReactNode }) {
+    const gameManager = useGameHelper();
+    return (
+        <GameContext.Provider value={gameManager} >
+        { children }
+        </GameContext.Provider>
+    );
 }
+
+export function useGameManager() {
+    const context = useContext(GameContext);
+    if (!context) {
+        throw new Error("useGame must be used within a GameManagerProvider");
+    }
+    return context;
+}
+

@@ -4,11 +4,11 @@ import { useGameManager } from "../game/gameManager";
 import type { Action } from "../type";
 import { mergeClasses } from "../utils/tailwindMerge";
 import { AddPlayerActionButtons } from "./AddPlayerActionButtons";
+import { HighlightButton } from "./HighlightButton";
 
 interface Props {
 	className?: string;
 	children?: React.ReactNode;
-	isNameBoxLeft: boolean;
 	setIsMainMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
 	setActions: React.Dispatch<React.SetStateAction<Action[]>>;
 }
@@ -16,6 +16,7 @@ interface Props {
 export function NarrativeBox({ ...props }: Props) {
 	// Refs for narrativeBg calculation
 	const nameBoxRef = useRef<HTMLDivElement>(null);
+	const nameBoxContainerRef = useRef<HTMLDivElement>(null);
 	const narrativeBoxRef = useRef<HTMLDivElement>(null);
 	const narrativeBgRef = useRef<HTMLDivElement>(null);
 	const addActionButtonRef = useRef<HTMLButtonElement>(null);
@@ -26,8 +27,16 @@ export function NarrativeBox({ ...props }: Props) {
 	const textContainerRef = useRef<HTMLDivElement>(null);
 
 	const [isActionExpanded, setIsActionExpanded] = useState(false);
-	const { currentStep, isFetchingResponse, advanceStory } = useGameManager();
-
+	const {
+		isActingCharacterLeft,
+		currentStep,
+		isFetchingResponse,
+		advanceStory,
+	} = useGameManager();
+	let currentName = null;
+	if (currentStep?.type === "dialog") {
+		currentName = currentStep.speakerId;
+	}
 	useEffect(() => {
 		const element = textContainerRef.current;
 		if (!element) return;
@@ -60,146 +69,197 @@ export function NarrativeBox({ ...props }: Props) {
 			narrativeBgRef.current &&
 			narrativeBoxRef.current &&
 			nameBoxRef.current &&
+			nameBoxContainerRef.current &&
 			addActionButtonRef.current
 		) {
 			resizeObserver.observe(narrativeBoxRef.current);
+			mutationObserver.observe(narrativeBoxRef.current, {
+				attributes: true,
+				attributeFilter: ["style", "class"],
+				childList: true,
+			});
 			resizeObserver.observe(nameBoxRef.current);
 			mutationObserver.observe(nameBoxRef.current, {
 				attributes: true,
 				attributeFilter: ["style", "class"],
+			});
+			resizeObserver.observe(nameBoxContainerRef.current);
+			mutationObserver.observe(nameBoxContainerRef.current, {
+				attributes: true,
+				attributeFilter: ["style", "class"],
+				childList: true,
 			});
 		}
 		run(); // Initial run to set the clip path
 		return () => {
 			resizeObserver.disconnect();
 		};
-	}, []);
+	}, [currentName, isActingCharacterLeft]);
 
 	return (
-		<div
-			ref={narrativeBoxRef}
-			className={mergeClasses(
-				`relative h-54 max-w-200 border-2 border-t-0 border-(--accent) rounded-xl text-white p-2 pt-8 pb-10`,
-				props.className,
-			)}
-			onClick={() => {
-				const element = textContainerRef.current;
-				if (!element) return;
-
-				if (isScrollEndSeen) {
-					setIsScrollEndSeen(false);
-					advanceStory();
-					return;
-				}
-
-				const remainingScroll =
-					element.scrollHeight -
-					element.scrollTop -
-					element.clientHeight;
-
-				// 2. Determine the distance for this scroll action.
-				// It's either a full page, or the remaining distance if that's smaller.
-				const distanceToScroll = Math.min(
-					element.clientHeight,
-					remainingScroll,
-				);
-
-				// 3. Perform the perfectly calculated, "smart" scroll.
-				element.scrollBy({
-					top: distanceToScroll,
-					behavior: "smooth",
-				});
-			}}
-		>
-			<div
-				ref={narrativeBgRef}
-				className={`absolute -inset-y-12 -inset-x-4 bg-(--bg) -z-1`}
-				style={clipPath}
-			></div>
-
-			<div className="absolute top-0 -left-[2px] -right-[2px] flex">
-				{/* border */}
-				<div
-					className={`border-t-2 border-(--accent) ${props.isNameBoxLeft ? "border-l-2 rounded-tl-xl w-6 md:w-8" : "border-l-2 rounded-tl-xl grow"}`}
-				/>
-
-				{/* name box */}
-				<div
-					ref={nameBoxRef}
-					className={`relative -translate-y-1/2 text-white `}
-				>
-					<div className="relative border-2 border-(--accent) rounded-xl p-2 text-center">
-						Jesus The Almighty
-					</div>
-				</div>
-
-				{/* border */}
-				<div
-					className={`border-t-2 border-(--accent) ${props.isNameBoxLeft ? "border-r-2 rounded-tr-xl grow" : "border-r-2 rounded-tr-xl w-6 md:w-8"}`}
-				/>
-			</div>
-
+		<>
+			{/* Back button to main menu */}
 			<motion.div
-				ref={textContainerRef}
 				variants={{
-					visible: {
-						opacity: 1,
-						y: 0,
-						visibility: "visible",
-					},
-					faded: {
-						opacity: 0.15,
-						y: 0,
-						visibility: "visible",
-					},
+					visible: { opacity: 1, y: 0, x: 0, visibility: "visible" },
+					hidden: { opacity: 0, y: -5, x: -5, visibility: "hidden" },
 				}}
-				animate={isActionExpanded ? "faded" : "visible"}
+				animate={isActionExpanded ? "visible" : "hidden"}
 				transition={{ ease: "easeInOut", duration: 0.3 }}
-				className={`h-full w-full overflow-auto`}
+				className={`fixed top-4 left-4 z-11`}
 			>
-				<AnimatePresence mode="wait">
-					<motion.div
-						key={currentStep?.id}
-						variants={{
-							visible: {
-								opacity: 1,
-								y: 0,
-								visibility: "visible",
-							},
-							hidden: { y: -8, opacity: 0, visibility: "hidden" },
-							initial: { opacity: 0, y: 8, visibility: "hidden" },
-						}}
-						animate="visible"
-						exit="hidden"
-						initial="initial"
-						transition={{ ease: "easeInOut", duration: 0.3 }}
-						onAnimationComplete={(latest) => {
-							if (latest !== "visible") return;
-							const element = textContainerRef.current;
-							if (!element) return;
-
-							if (element.scrollHeight <= element.clientHeight) {
-								setIsScrollEndSeen(true);
-								return;
-							}
-							setIsScrollEndSeen(false);
-						}}
-					>
-						{currentStep?.displayText}
-					</motion.div>
-				</AnimatePresence>
+				<HighlightButton
+					className={`w-10 h-10 rounded-full`}
+					onClick={(e) => {
+						e.stopPropagation();
+						props.setIsMainMenuOpen(true);
+					}}
+				>
+					&lt;
+				</HighlightButton>
 			</motion.div>
+			<div
+				ref={narrativeBoxRef}
+				className={mergeClasses(
+					`relative h-54 max-w-200 border-2 border-t-0 border-(--accent) rounded-xl text-white p-2 pt-8 pb-10`,
+					props.className,
+				)}
+				onClick={() => {
+					const element = textContainerRef.current;
+					if (!element) return;
 
-			<AddPlayerActionButtons
-				setIsMainMenuOpen={props.setIsMainMenuOpen}
-				setActions={props.setActions}
-				addActionButtonRef={addActionButtonRef}
-				isActionExpanded={isActionExpanded}
-				setIsActionExpanded={setIsActionExpanded}
-			/>
+					if (isScrollEndSeen) {
+						setIsScrollEndSeen(false);
+						advanceStory();
+						return;
+					}
 
-			{props.children}
-		</div>
+					const remainingScroll =
+						element.scrollHeight -
+						element.scrollTop -
+						element.clientHeight;
+
+					// 2. Determine the distance for this scroll action.
+					// It's either a full page, or the remaining distance if that's smaller.
+					const distanceToScroll = Math.min(
+						element.clientHeight,
+						remainingScroll,
+					);
+
+					// 3. Perform the perfectly calculated, "smart" scroll.
+					element.scrollBy({
+						top: distanceToScroll,
+						behavior: "smooth",
+					});
+				}}
+			>
+				<div
+					ref={narrativeBgRef}
+					className={`absolute -inset-y-12 -inset-x-4 bg-(--bg) -z-1`}
+					style={clipPath}
+				></div>
+
+				<div
+					ref={nameBoxContainerRef}
+					className="absolute top-0 -left-[2px] -right-[2px] flex min-h-11"
+				>
+					{currentName ? (
+						<>
+							{/* border */}
+							<div
+								className={`border-t-2 border-(--accent) ${isActingCharacterLeft ? "border-l-2 rounded-tl-xl w-6 md:w-8" : "border-l-2 rounded-tl-xl grow"}`}
+							/>
+
+							{/* name box */}
+							<div
+								ref={nameBoxRef}
+								className={`relative -translate-y-1/2 text-white border-2 border-(--accent) rounded-xl p-2 text-center`}
+							>
+								{currentName}
+							</div>
+
+							{/* border */}
+							<div
+								className={`border-t-2 border-(--accent) ${isActingCharacterLeft ? "border-r-2 rounded-tr-xl grow" : "border-r-2 rounded-tr-xl w-6 md:w-8"}`}
+							/>
+						</>
+					) : (
+						<div
+							className={`border-2 border-b-0 rounded-t-xl border-(--accent) grow`}
+						></div>
+					)}
+				</div>
+				<motion.div
+					ref={textContainerRef}
+					variants={{
+						visible: {
+							opacity: 1,
+							y: 0,
+							visibility: "visible",
+						},
+						faded: {
+							opacity: 0.15,
+							y: 0,
+							visibility: "visible",
+						},
+					}}
+					animate={isActionExpanded ? "faded" : "visible"}
+					transition={{ ease: "easeInOut", duration: 0.3 }}
+					className={`h-full w-full overflow-auto`}
+				>
+					<AnimatePresence mode="wait">
+						<motion.div
+							key={currentStep?.id}
+							variants={{
+								visible: {
+									opacity: 1,
+									y: 0,
+									visibility: "visible",
+								},
+								hidden: {
+									y: -8,
+									opacity: 0,
+									visibility: "hidden",
+								},
+								initial: {
+									opacity: 0,
+									y: 8,
+									visibility: "hidden",
+								},
+							}}
+							animate="visible"
+							exit="hidden"
+							initial="initial"
+							transition={{ ease: "easeInOut", duration: 0.3 }}
+							onAnimationComplete={(latest) => {
+								if (latest !== "visible") return;
+								const element = textContainerRef.current;
+								if (!element) return;
+
+								if (
+									element.scrollHeight <= element.clientHeight
+								) {
+									setIsScrollEndSeen(true);
+									return;
+								}
+								setIsScrollEndSeen(false);
+							}}
+						>
+							{currentStep?.displayText}
+						</motion.div>
+					</AnimatePresence>
+				</motion.div>
+
+				<AddPlayerActionButtons
+					setActions={props.setActions}
+					addActionButtonRef={addActionButtonRef}
+					isActionExpanded={isActionExpanded}
+					setIsActionExpanded={setIsActionExpanded}
+				/>
+
+				{props.children}
+			</div>
+		</>
 	);
 
 	function calculateClipPath(): React.CSSProperties {
