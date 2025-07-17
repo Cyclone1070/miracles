@@ -2,8 +2,8 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { GameScreen } from "./components/GameScreen";
 import { MainMenu } from "./components/MainMenu";
+import { GameManagerProvider } from "./context/GameContext";
 import miracleSvgURL from "/miracle.svg?url";
-import { GameManagerProvider } from "./game/gameManager";
 
 function App() {
 	const [isMainMenuOpen, setIsMainMenuOpen] = useState<boolean>(true);

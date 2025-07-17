@@ -1,5 +1,5 @@
-import doActionSchema from '../../schemas/doAction.schema.json';
-import sayActionSchema from '../../schemas/sayAction.schema.json';
+import doActionSchema from '../schemas/doAction.schema.json';
+import sayActionSchema from '../schemas/sayAction.schema.json';
 
 // In a Vite/Next.js project, get the key from environment variables
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;

@@ -1,4 +1,4 @@
-import { useGameManager } from "../game/gameManager";
+import { useGameManager } from "../context/GameContext";
 import { mergeClasses } from "../utils/tailwindMerge";
 
 interface Props {
@@ -15,7 +15,7 @@ export function CharacterImages({ ...props }: Props) {
 			? currentStep.listenerId + currentStep.listenerExpression
 			: "";
 	} else if (currentStep?.type === "action") {
-		imgMain = currentStep.actorId + currentStep.actorExpression;
+		imgMain = currentStep.characterId + currentStep.characterExpression;
 		imgTarget = currentStep.targetId
 			? currentStep.targetId + currentStep.targetExpression
 			: "";
@@ -27,8 +27,8 @@ export function CharacterImages({ ...props }: Props) {
 				props.className,
 			)}
 		>
-			<div>{isActingCharacterLeft? imgMain : imgTarget}</div>
-			<div>{isActingCharacterLeft? imgTarget : imgMain}</div>
+			<div>{isActingCharacterLeft ? imgMain : imgTarget}</div>
+			<div>{isActingCharacterLeft ? imgTarget : imgMain}</div>
 		</div>
 	);
 }

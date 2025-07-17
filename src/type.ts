@@ -1,6 +1,7 @@
 // user action interfaces
 export interface BaseAction {
     id: string;
+    characterId: string;
     expression: "neutral" | "happy" | "annoyed";
 }
 export interface DoAction extends BaseAction {
@@ -17,9 +18,13 @@ export interface SayAction extends BaseAction {
 export interface MiracleAction extends BaseAction {
     type: "miracle";
 }
+export interface MoveAction extends BaseAction {
+    type: "move";
+    destinationId: string;
+}
 export type Action = DoAction | SayAction | MiracleAction;
 
-// story display interfaces
+// story steps interfaces
 export interface DialogStep {
     type: "dialog";
     id: string;
@@ -33,8 +38,8 @@ export interface ActionStep {
     type: "action";
     id: string;
     text: string;
-    actorId: string;
-    actorExpression: "neutral" | "happy" | "annoyed";
+    characterId: string;
+    characterExpression: "neutral" | "happy" | "annoyed";
     targetId?: string;
     targetExpression?: "neutral" | "happy" | "annoyed";
 }
@@ -45,7 +50,7 @@ export interface NarrationStep {
 }
 export interface ChoiceOption {
     text: string;
-    nextSceneId: string;
+    nextTurnId: string;
 }
 
 export interface ChoiceStep {
@@ -54,38 +59,49 @@ export interface ChoiceStep {
     options: ChoiceOption[];
 }
 export interface MusicStep {
-	type: "music";
-	id: string;
-	value: string | null; // URL or path to the music file
+    type: "music";
+    id: string;
+    value: string | null; // URL or path to the music file
 }
 export type Step = DialogStep | ActionStep | NarrationStep | ChoiceStep | MusicStep;
 
-export interface Scene {
+export interface RoomTurnSummary {
+    roomId: string;
+    eventSummary: string;
+}
+export interface Turn {
     id: string;
     steps: Step[];
+    summary: RoomTurnSummary[];
+	newMapId?: string; // Optional, used for map changes
+	endDay?: boolean; // Optional, indicates if this turn starts a new day
 }
 export interface SaveState {
-    currentSceneId: string;
+    currentTurnId: string;
     currentStepIndex: number;
+    currentMapId: string;
+    currentDay: number;
+    turnsLeft: number;
 }
 
 // game data interfaces
 export interface Item {
     id: string;
     name: string;
-    description?: string;
-    state?: string;
+    description: string;
+    state: string;
+    roomId: string; // ID of the room where the item is located
 }
 export interface Character {
     id: string;
-    description?: string;
+    description: string;
+    state: string;
     inventory?: Item[];
+    roomId: string; // ID of the room where the character is located
 }
 export interface Room {
     id: string;
-    description?: string;
+    description: string;
     connectedRooms?: string[];
     inViewRooms?: string[];
-    items?: Item[];
-    characters?: Character[];
 }

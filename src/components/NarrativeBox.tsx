@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { useGameManager } from "../game/gameManager";
+import { useGameManager } from "../context/GameContext";
 import { saveState } from "../game/storage";
 import type { ChoiceOption } from "../type";
 import { mergeClasses } from "../utils/tailwindMerge";
@@ -252,12 +252,12 @@ export function NarrativeBox({ ...props }: Props) {
 										(option: ChoiceOption) => {
 											return (
 												<HighlightButton
-													key={option.nextSceneId}
+													key={option.nextTurnId}
 													className="text-left"
 													onClick={() => {
 														const newSave = {
-															currentSceneId:
-																option.nextSceneId,
+															currentTurnId:
+																option.nextTurnId,
 															currentStepIndex: 0,
 														};
 														setCurrentSaveState(

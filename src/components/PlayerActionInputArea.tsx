@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "motion/react";
 import { Fragment, useEffect, useState } from "react";
-import { useGameManager } from "../game/gameManager";
+import { useGameManager } from "../context/GameContext";
 import { mergeClasses } from "../utils/tailwindMerge";
 import { HighlightButton } from "./HighlightButton";
 import actionSvgURL from "/action.svg?url";

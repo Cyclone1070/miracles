@@ -1,12 +1,17 @@
-import type { Scene } from "../type";
-import { saveScene, saveState } from "./storage";
+import { saveState, saveTurn } from "../game/storage";
+import type { Turn } from "../type";
 
 export async function writeInitialData(): Promise<void> {
-    const intro: Scene = {
-        id: "intro", steps: [
+    const intro: Turn = {
+        id: "0_0",
+        summary: [{
+            roomId: "heaven",
+            eventSummary: "A normal day in heaven, Lucifer appears to greet Jesus."
+        }],
+        steps: [
             {
                 type: "music",
-				id: "intro_music",
+                id: "intro_music",
                 value: "/birds-ambience.mp3",
             },
             {
@@ -36,14 +41,19 @@ export async function writeInitialData(): Promise<void> {
                 options: [
                     {
                         text: "Lucie my brother!",
-                        nextSceneId: "intro_wacky"
+                        nextTurnId: "intro_wacky"
                     }
                 ]
             }
         ]
     };
-    const intro_wacky: Scene = {
-        id: "intro_wacky", steps: [
+    const intro_wacky: Turn = {
+        id: "0_1",
+        summary: [{
+            roomId: "heaven",
+            eventSummary: "Jesus and Lucifer exchange greetings in a wacky manner."
+        }],
+        steps: [
             {
                 type: "dialog",
                 id: "intro_4",
@@ -56,18 +66,18 @@ export async function writeInitialData(): Promise<void> {
             {
                 type: "action",
                 id: "intro_5",
-                text: "You exchange a fist bumb with Lucifer",
-                actorId: "Jesus",
-                actorExpression: "happy",
+                text: "You exchange a fist bumb with Lucifer.",
+                characterId: "Jesus",
+                characterExpression: "happy",
                 targetId: "Lucifer",
                 targetExpression: "happy"
             },
             {
                 type: "dialog",
                 id: "intro_6",
-                text: "So, what brings you here today? Is it because of the chick winning 2 lotteries back to back the other day? Cause I wouldn't know nothing about that.",
+                text: "So, what brings you here today? Is it about the chick winning 2 lotteries back to back the other day? Cause I wouldn't know nothing about it.",
                 speakerId: "Jesus",
-                speakerExpression: "happy",
+                speakerExpression: "neutral",
                 listenerId: "Lucifer",
                 listenerExpression: "happy"
             },
@@ -83,9 +93,15 @@ export async function writeInitialData(): Promise<void> {
         ]
     }
     try {
-        await saveScene(intro);
-        await saveScene(intro_wacky);
-        saveState({ currentSceneId: intro.id, currentStepIndex: 0 });
+        await saveTurn(intro);
+        await saveTurn(intro_wacky);
+        saveState({
+            currentTurnId: intro.id,
+            currentStepIndex: 0,
+            currentMapId: "heaven",
+            currentDay: 1,
+            turnsLeft: 10
+        });
     } catch (error) {
         alert("Error writing game to storage: " + error);
     }

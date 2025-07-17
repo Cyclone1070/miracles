@@ -1,4 +1,4 @@
-import type { SaveState, Scene } from "../type";
+import type { SaveState, Turn } from "../type";
 import { getObject, putObject } from "../utils/indexedDb";
 
 const SAVE_STATE_KEY = 'miracle_save_state';
@@ -16,19 +16,19 @@ export function loadState() {
     return null;
 }
 
-export async function saveScene(scene: Scene): Promise<void> {
-	await putObject(scene);
+export async function saveTurn(turn: Turn): Promise<void> {
+	await putObject("turns", turn);
 }
 
-export async function loadScene(sceneId: string): Promise<Scene> {
-	const scene = await getObject<Scene>(sceneId);
-	if (!scene) {
-		throw new Error(`Scene with ID ${sceneId} not found`);
+export async function loadTurn(turnId: string): Promise<Turn> {
+	const turn = await getObject<Turn>("turns", turnId);
+	if (!turn) {
+		throw new Error(`Turn with ID ${turnId} not found`);
 	}
-	if (!scene.steps || !Array.isArray(scene.steps)) {
-		throw new Error(`Scene with ID ${sceneId} is invalid or corrupted`);
+	if (!turn.steps || !Array.isArray(turn.steps)) {
+		throw new Error(`Turn with ID ${turnId} is invalid or corrupted`);
 	}
-	return scene;
+	return turn;
 }
 export function saveMusic(trackURL: string | null) {
 	if (trackURL) {

@@ -1,24 +1,20 @@
 import {
-    createContext,
-    useContext,
     useEffect,
     useRef,
-    useState,
-    type ReactNode,
+    useState
 } from "react";
-import type { Action, SaveState, Scene } from "../type";
+import { writeInitialData } from "../data/writeInitialData";
+import type { Action, SaveState, Turn } from "../type";
 import {
     loadMusic,
-    loadScene,
     loadState,
+    loadTurn,
     saveMusic,
-    saveScene,
-    saveState,
+    saveState
 } from "./storage";
-import { writeInitialData } from "./writeInitialData";
 
-// main game logic, private helper hook
-function useGameHelper() {
+// main game logic, helper hook for context provider
+export function useGameHelper() {
 	// states to manage the game state
 	const [isFetchingResponse, setIsFetchingResponse] = useState(false);
 	const [isGameInitiating, setIsGameInitLoading] = useState(true);
@@ -26,16 +22,16 @@ function useGameHelper() {
 		null,
 	);
 	const [playerActions, setPlayerActions] = useState<Action[]>([]);
-	const [currentScene, setCurrentScene] = useState<Scene | null>(null);
+	const [currentTurn, setCurrentTurn] = useState<Turn | null>(null);
 	// states to determine side to render the acting character in the action
 	const [isActingCharacterLeft, setIsActingCharacterLeft] = useState(false);
 	const prevSpeaker = useRef<string | null>(null);
 	// convenience derived variables
 	const currentStep =
-		currentScene &&
+		currentTurn &&
 		currentSaveState &&
-		currentSaveState.currentSceneId === currentScene.id
-			? currentScene.steps[currentSaveState.currentStepIndex]
+		currentSaveState.currentTurnId === currentTurn.id
+			? currentTurn.steps[currentSaveState.currentStepIndex]
 			: null;
 	const currentSpeakerId =
 		currentStep?.type === "dialog" ? currentStep?.speakerId : null;
@@ -59,10 +55,10 @@ function useGameHelper() {
 					return;
 				}
 				setCurrentSaveState(currentSaveState);
-				const currentScene = await loadScene(
-					currentSaveState.currentSceneId,
+				const currentTurn = await loadTurn(
+					currentSaveState.currentTurnId,
 				);
-				setCurrentScene(currentScene);
+				setCurrentTurn(currentTurn);
 				// load music
 				const currentMusicTrack = loadMusic();
 				if (currentMusicTrack) {
@@ -85,25 +81,25 @@ function useGameHelper() {
 		};
 	}, []);
 
-	// Load the correct scene accroding to currentSaveState
+	// Load the correct turn accroding to currentSaveState
 	useEffect(() => {
 		// Don't do anything if the save state hasn't been loaded yet.
 		if (!currentSaveState) return;
 
-		const fetchScene = async () => {
-			// Only load a new scene if the ID in the save state is different
-			// from the one we currently have in our `currentScene` state.
-			if (currentScene?.id !== currentSaveState.currentSceneId) {
+		const fetchTurn = async () => {
+			// Only load a new turn if the ID in the save state is different
+			// from the one we currently have in our `currentTurn` state.
+			if (currentTurn?.id !== currentSaveState.currentTurnId) {
 				setIsFetchingResponse(true); // Show loading indicator while fetching
-				const newScene = await loadScene(
-					currentSaveState.currentSceneId,
+				const newTurn = await loadTurn(
+					currentSaveState.currentTurnId,
 				);
-				setCurrentScene(newScene);
+				setCurrentTurn(newTurn);
 				setIsFetchingResponse(false);
 			}
 		};
 
-		fetchScene();
+		fetchTurn();
 		// This effect depends on currentSaveState. It runs whenever it changes.
 	}, [currentSaveState]);
 
@@ -126,11 +122,11 @@ function useGameHelper() {
 	}, [currentStep, advanceStory]);
 
 	function advanceStory() {
-		if (!currentSaveState || !currentScene) return;
+		if (!currentSaveState || !currentTurn) return;
 
 		const nextIndex = currentSaveState.currentStepIndex + 1;
 
-		if (nextIndex < currentScene.steps.length) {
+		if (nextIndex < currentTurn.steps.length) {
 			const newSaveState = {
 				...currentSaveState,
 				currentStepIndex: nextIndex,
@@ -138,9 +134,12 @@ function useGameHelper() {
 			setCurrentSaveState(newSaveState);
 			saveState(newSaveState);
 		} else {
-			const newSaveState = {
-				currentSceneId: "intro",
+			const newSaveState: SaveState = {
+				currentTurnId: "0",
 				currentStepIndex: 0,
+				currentMapId: currentSaveState.currentMapId,
+				currentDay: currentSaveState.currentDay,
+				turnsLeft: currentSaveState.turnsLeft,
 			};
 			setCurrentSaveState(newSaveState);
 			saveState(newSaveState);
@@ -150,28 +149,7 @@ function useGameHelper() {
 	async function submitPlayerAction() {
 		setIsFetchingResponse(true);
 
-		const newScene: Scene = {
-			id: "test_scene",
-			steps: [
-				{
-					type: "narration",
-					id: "test_1",
-					text: "This is a test step.",
-				},
-			],
-		};
-		try {
-			await saveScene(newScene);
-		} catch (error) {
-			alert("Error writing game to storage: " + error);
-		}
-
-		setCurrentScene(newScene);
-		setCurrentSaveState({
-			currentSceneId: newScene.id,
-			currentStepIndex: 0,
-		});
-		saveState({ currentSceneId: newScene.id, currentStepIndex: 0 });
+		
 
 		setIsFetchingResponse(false);
 	}
@@ -201,24 +179,3 @@ function useGameHelper() {
 	};
 }
 
-// provider pattern
-type GameManagerContextType = ReturnType<typeof useGameHelper>;
-
-const GameContext = createContext<GameManagerContextType | null>(null);
-
-export function GameManagerProvider({ children }: { children: ReactNode }) {
-	const gameManager = useGameHelper();
-	return (
-		<GameContext.Provider value={gameManager}>
-			{children}
-		</GameContext.Provider>
-	);
-}
-
-export function useGameManager() {
-	const context = useContext(GameContext);
-	if (!context) {
-		throw new Error("useGame must be used within a GameManagerProvider");
-	}
-	return context;
-}

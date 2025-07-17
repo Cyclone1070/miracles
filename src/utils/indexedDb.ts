@@ -1,6 +1,6 @@
 const DB_NAME = 'MiraclesDB';
 const DB_VERSION = 1;
-const STORE_NAME = 'appObjects'; // A generic store for various application objects
+const STORE_NAMES = ["rooms", "characters", "items", "turns"]; // A generic store for various application objects
 
 let db: IDBDatabase | null = null;
 
@@ -20,12 +20,11 @@ export function openDatabase(): Promise<IDBDatabase> {
 
         request.onupgradeneeded = (event) => {
             const database = (event.target as IDBOpenDBRequest).result;
-            if (!database.objectStoreNames.contains(STORE_NAME)) {
-                // We'll use 'id' as the keyPath. If your objects don't have an 'id',
-                // you can remove keyPath and let IndexedDB generate keys, or use autoIncrement.
-                // For generic objects, having an 'id' property is often convenient.
-                database.createObjectStore(STORE_NAME, { keyPath: 'id' });
-            }
+            STORE_NAMES.forEach(storeName => {
+                if (!database.objectStoreNames.contains(storeName)) {
+                    database.createObjectStore(storeName, { keyPath: 'id' });
+                }
+            })
         };
 
         request.onsuccess = (event) => {
@@ -53,8 +52,8 @@ export function openDatabase(): Promise<IDBDatabase> {
  * @returns A Promise that resolves when the operation is complete.
  */
 export async function putObject<T extends { id: IDBValidKey }>(
-    object: T,
-    storeName: string = STORE_NAME
+	storeName: string,
+    object: T
 ): Promise<void> {
     const database = await openDatabase();
     return new Promise((resolve, reject) => {
@@ -82,8 +81,8 @@ export async function putObject<T extends { id: IDBValidKey }>(
  * @returns A Promise that resolves with the retrieved object, or undefined if not found.
  */
 export async function getObject<T>(
-    id: IDBValidKey,
-    storeName: string = STORE_NAME
+	storeName: string,
+    id: IDBValidKey
 ): Promise<T | undefined> {
     const database = await openDatabase();
     return new Promise((resolve, reject) => {
@@ -109,21 +108,23 @@ export async function getObject<T>(
  * @param storeName The name of the object store to clear (defaults to 'appObjects').
  * @returns A Promise that resolves when the store is cleared.
  */
-export async function clearStore(storeName: string = STORE_NAME): Promise<void> {
+export async function clearStore(): Promise<void> {
     const database = await openDatabase();
     return new Promise((resolve, reject) => {
-        const transaction = database.transaction([storeName], 'readwrite');
-        const store = transaction.objectStore(storeName);
-        const request = store.clear();
+        STORE_NAMES.forEach(storeName => {
+            const transaction = database.transaction([storeName], 'readwrite');
+            const store = transaction.objectStore(storeName);
+            const request = store.clear();
 
-        request.onsuccess = () => {
-            resolve();
-        };
+            request.onsuccess = () => {
+                resolve();
+            };
 
-        request.onerror = (event) => {
-            console.error('Error clearing store:', (event.target as IDBRequest).error);
-            reject('Failed to clear store');
-        };
+            request.onerror = (event) => {
+                console.error('Error clearing store:', (event.target as IDBRequest).error);
+                reject('Failed to clear store');
+            };
+        })
     });
 }
 

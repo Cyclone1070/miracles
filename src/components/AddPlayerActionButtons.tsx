@@ -1,13 +1,12 @@
 import { motion } from "motion/react";
 import { useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
-import type { Action } from "../type";
+import { useGameManager } from "../context/GameContext";
 import { HighlightButton } from "./HighlightButton";
 import actionSvgURL from "/action.svg?url";
 import closeSvgURL from "/close.svg?url";
 import miracleSvgURL from "/miracle.svg?url";
 import saySvgURL from "/say.svg?url";
-import { useGameManager } from "../game/gameManager";
 
 interface Props {
 	className?: string;
