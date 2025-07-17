@@ -1,6 +1,4 @@
 import { motion } from "motion/react";
-import { useState } from "react";
-import type { Action } from "../type";
 import { BgImage } from "./BgImage";
 import { BottomBar } from "./BottomBar";
 import { CharacterImages } from "./CharacterImages";
@@ -14,7 +12,6 @@ interface Props {
 }
 
 export function GameScreen({ ...props }: Props) {
-	const [actions, setActions] = useState<Action[]>([]);
 	const variants = {
 		hidden: {
 			opacity: 0,
@@ -40,8 +37,6 @@ export function GameScreen({ ...props }: Props) {
 
 			<div className="w-full relative grow">
 				<PlayerActionInputArea
-					setActions={setActions}
-					actions={actions}
 					className={`absolute mb-10 inset-x-0 bottom-0`}
 				/>
 			</div>
@@ -49,7 +44,6 @@ export function GameScreen({ ...props }: Props) {
 			<NarrativeBox
 				className={`w-full`}
 				setIsMainMenuOpen={props.setIsMainMenuOpen}
-				setActions={setActions}
 			/>
 			<BottomBar />
 		</motion.div>

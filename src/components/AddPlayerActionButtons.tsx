@@ -7,16 +7,17 @@ import actionSvgURL from "/action.svg?url";
 import closeSvgURL from "/close.svg?url";
 import miracleSvgURL from "/miracle.svg?url";
 import saySvgURL from "/say.svg?url";
+import { useGameManager } from "../game/gameManager";
 
 interface Props {
 	className?: string;
-	setActions: React.Dispatch<React.SetStateAction<Action[]>>;
 	addActionButtonRef: React.Ref<HTMLButtonElement>;
 	isActionExpanded: boolean;
 	setIsActionExpanded: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export function AddPlayerActionButtons({ ...props }: Props) {
+	const { setPlayerActions } = useGameManager();
 	const iconVariants = {
 		visible: {
 			opacity: 1,
@@ -135,7 +136,7 @@ export function AddPlayerActionButtons({ ...props }: Props) {
 	);
 
 	function addDoAction() {
-		props.setActions((prev) => {
+		setPlayerActions((prev) => {
 			if (prev.length >= 4) {
 				return prev;
 			}
@@ -151,7 +152,7 @@ export function AddPlayerActionButtons({ ...props }: Props) {
 		});
 	}
 	function addSayAction() {
-		props.setActions((prev) => {
+		setPlayerActions((prev) => {
 			if (prev.length >= 4) {
 				return prev;
 			}
@@ -168,7 +169,7 @@ export function AddPlayerActionButtons({ ...props }: Props) {
 		});
 	}
 	function addMiracleAction() {
-		props.setActions((prev) => {
+		setPlayerActions((prev) => {
 			if (prev.length >= 4) {
 				return prev;
 			}

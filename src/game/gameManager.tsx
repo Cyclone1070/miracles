@@ -1,19 +1,19 @@
 import {
-	createContext,
-	useContext,
-	useEffect,
-	useRef,
-	useState,
-	type ReactNode,
+    createContext,
+    useContext,
+    useEffect,
+    useRef,
+    useState,
+    type ReactNode,
 } from "react";
-import type { SaveState, Scene } from "../type";
+import type { Action, SaveState, Scene } from "../type";
 import {
-	loadMusic,
-	loadScene,
-	loadState,
-	saveMusic,
-	saveScene,
-	saveState,
+    loadMusic,
+    loadScene,
+    loadState,
+    saveMusic,
+    saveScene,
+    saveState,
 } from "./storage";
 import { writeInitialData } from "./writeInitialData";
 
@@ -25,6 +25,7 @@ function useGameHelper() {
 	const [currentSaveState, setCurrentSaveState] = useState<SaveState | null>(
 		null,
 	);
+	const [playerActions, setPlayerActions] = useState<Action[]>([]);
 	const [currentScene, setCurrentScene] = useState<Scene | null>(null);
 	// states to determine side to render the acting character in the action
 	const [isActingCharacterLeft, setIsActingCharacterLeft] = useState(false);
@@ -113,9 +114,6 @@ function useGameHelper() {
 
 			// If a new music file is specified in 'value', play it.
 			if (newTrack && newTrack !== musicPlayer.current.src) {
-				console.log(currentScene);
-				console.log(currentStep);
-				console.log(currentSaveState);
 				musicPlayer.current.pause();
 				musicPlayer.current.src = newTrack;
 				musicPlayer.current.play();
@@ -150,8 +148,6 @@ function useGameHelper() {
 	}
 
 	async function submitPlayerAction() {
-		if (!saveState || !currentScene) return;
-
 		setIsFetchingResponse(true);
 
 		const newScene: Scene = {
@@ -200,6 +196,8 @@ function useGameHelper() {
 		advanceStory,
 		submitPlayerAction,
 		setCurrentSaveState,
+		playerActions,
+		setPlayerActions,
 	};
 }
 

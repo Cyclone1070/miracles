@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useGameManager } from "../game/gameManager";
 import { saveState } from "../game/storage";
-import type { Action, ChoiceOption } from "../type";
+import type { ChoiceOption } from "../type";
 import { mergeClasses } from "../utils/tailwindMerge";
 import { AddPlayerActionButtons } from "./AddPlayerActionButtons";
 import { HighlightButton } from "./HighlightButton";
@@ -11,7 +11,6 @@ interface Props {
 	className?: string;
 	children?: React.ReactNode;
 	setIsMainMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
-	setActions: React.Dispatch<React.SetStateAction<Action[]>>;
 }
 
 export function NarrativeBox({ ...props }: Props) {
@@ -274,14 +273,15 @@ export function NarrativeBox({ ...props }: Props) {
 									)}
 								</div>
 							) : (
-								<span>{currentStep?.text}</span>
+								currentStep?.type !== "music" && (
+									<span>{currentStep?.text}</span>
+								)
 							)}
 						</motion.div>
 					</AnimatePresence>
 				</motion.div>
 
 				<AddPlayerActionButtons
-					setActions={props.setActions}
 					addActionButtonRef={addActionButtonRef}
 					isActionExpanded={isActionExpanded}
 					setIsActionExpanded={setIsActionExpanded}

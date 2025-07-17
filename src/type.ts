@@ -55,6 +55,7 @@ export interface ChoiceStep {
 }
 export interface MusicStep {
 	type: "music";
+	id: string;
 	value: string | null; // URL or path to the music file
 }
 export type Step = DialogStep | ActionStep | NarrationStep | ChoiceStep | MusicStep;

@@ -6,7 +6,8 @@ export async function writeInitialData(): Promise<void> {
         id: "intro", steps: [
             {
                 type: "music",
-                value: "/everyday1.mp3",
+				id: "intro_music",
+                value: "/birds-ambience.mp3",
             },
             {
                 type: "narration",

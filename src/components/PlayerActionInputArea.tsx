@@ -1,22 +1,21 @@
 import { AnimatePresence, motion } from "motion/react";
 import { Fragment, useEffect, useState } from "react";
-import type { Action } from "../type";
+import { useGameManager } from "../game/gameManager";
 import { mergeClasses } from "../utils/tailwindMerge";
 import { HighlightButton } from "./HighlightButton";
 import actionSvgURL from "/action.svg?url";
-import saySvgURL from "/say.svg?url";
-import miracleSvgURL from "/miracle.svg?url";
 import binSvgURL from "/bin.svg?url";
+import miracleSvgURL from "/miracle.svg?url";
+import saySvgURL from "/say.svg?url";
 
 interface Props {
 	className?: string;
-	actions: Action[];
-	setActions: React.Dispatch<React.SetStateAction<Action[]>>;
 }
 
 export function PlayerActionInputArea({ ...props }: Props) {
 	const ANIMATION_DURATION_MS = 150;
 	const [activeId, setActiveId] = useState<string | null>(null);
+	const { playerActions, setPlayerActions} = useGameManager();
 
 	async function handleActionChange(newId: string) {
 		if (newId === activeId) {
@@ -58,7 +57,7 @@ export function PlayerActionInputArea({ ...props }: Props) {
 			)}
 		>
 			<AnimatePresence>
-				{props.actions.map((action, index) => (
+				{playerActions.map((action, index) => (
 					<Fragment key={action.id}>
 						{/* arrow between actions */}
 						{index !== 0 && (
@@ -275,7 +274,7 @@ export function PlayerActionInputArea({ ...props }: Props) {
 									<HighlightButton
 										className={`h-8 w-8 p-1 bg-transparent shadow-none`}
 										onClick={() => {
-											props.setActions((prev) =>
+											setPlayerActions((prev) =>
 												prev.filter(
 													(a) => a.id !== action.id,
 												),
