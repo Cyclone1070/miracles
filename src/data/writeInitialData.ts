@@ -3,7 +3,7 @@ import type { Turn } from "../type";
 
 export async function writeInitialData(): Promise<void> {
     const intro: Turn = {
-        id: "0_0",
+        id: "intro",
         summary: [{
             roomId: "heaven",
             eventSummary: "A normal day in heaven, Lucifer appears to greet Jesus."
@@ -48,7 +48,7 @@ export async function writeInitialData(): Promise<void> {
         ]
     };
     const intro_wacky: Turn = {
-        id: "0_1",
+        id: "intro_wacky",
         summary: [{
             roomId: "heaven",
             eventSummary: "Jesus and Lucifer exchange greetings in a wacky manner."

@@ -6,7 +6,7 @@ import { GameManagerProvider } from "./context/GameContext";
 import miracleSvgURL from "/miracle.svg?url";
 
 function App() {
-	const [isMainMenuOpen, setIsMainMenuOpen] = useState<boolean>(true);
+	const [isMainMenuOpen, setIsMainMenuOpen] = useState<boolean>(false);
 	const variants = {
 		hidden: {
 			opacity: 0,
@@ -71,6 +71,7 @@ function App() {
 						<GameScreen
 							isMainMenuOpen={isMainMenuOpen}
 							setIsMainMenuOpen={setIsMainMenuOpen}
+							className={`absolute left-0 top-0 w-screen h-dvh`}
 						/>
 					</GameManagerProvider>
 				)}

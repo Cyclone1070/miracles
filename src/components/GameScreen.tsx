@@ -1,7 +1,10 @@
 import { motion } from "motion/react";
+import { useState } from "react";
+import { mergeClasses } from "../utils/tailwindMerge";
 import { BgImage } from "./BgImage";
 import { BottomBar } from "./BottomBar";
 import { CharacterImages } from "./CharacterImages";
+import { GameMap } from "./GameMap";
 import { NarrativeBox } from "./NarrativeBox";
 import { PlayerActionInputArea } from "./PlayerActionInputArea";
 
@@ -12,6 +15,7 @@ interface Props {
 }
 
 export function GameScreen({ ...props }: Props) {
+	const [isMapExpanded, setIsMapExpanded] = useState(false);
 	const variants = {
 		hidden: {
 			opacity: 0,
@@ -30,22 +34,30 @@ export function GameScreen({ ...props }: Props) {
 			initial="hidden"
 			animate="visible"
 			exit="hidden"
-			className="absolute left-0 top-0 w-screen h-dvh flex flex-col p-6 pb-0 items-center gap-2"
+			className={mergeClasses(
+				`flex flex-col p-6 pb-0 items-center gap-2`,
+				props.className,
+			)}
 		>
 			<BgImage location="heaven" className={`-z-1`} />
 			<CharacterImages className={`absolute bottom-0 w-full`} />
 
-			<div className="w-full relative grow">
+			{/* upper part of the screen */}
+			<div className="w-full relative grow mb-10 flex flex-col">
+				<GameMap
+					isMapExpanded={isMapExpanded}
+					className={`relative self-center w-full h-full max-w-200 flex justify-center items-center`}
+				></GameMap>
 				<PlayerActionInputArea
-					className={`absolute mb-10 inset-x-0 bottom-0`}
+					className={`absolute inset-x-0 bottom-0`}
 				/>
 			</div>
 
 			<NarrativeBox
-				className={`w-full`}
+				className={`w-full h-54 max-w-200`}
 				setIsMainMenuOpen={props.setIsMainMenuOpen}
 			/>
-			<BottomBar />
+			<BottomBar setIsMapExpanded={setIsMapExpanded} />
 		</motion.div>
 	);
 }

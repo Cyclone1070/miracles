@@ -4,9 +4,11 @@ import { mergeClasses } from "../utils/tailwindMerge";
 import { HighlightButton } from "./HighlightButton";
 import historySvgURL from "/history.svg?url";
 import submitSvgURL from "/submit.svg?url";
+import mapSvgURL from "/map.svg?url";
 
 interface Props {
 	className?: string;
+	setIsMapExpanded: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export function BottomBar({ ...props }: Props) {
@@ -19,13 +21,14 @@ export function BottomBar({ ...props }: Props) {
 		>
 			<HighlightButton
 				className={buttonClassNames}
+				onClick={()=>{props.setIsMapExpanded(prev => !prev)}}
 			>
 				<img
 					className={`w-5 h-5`}
-					src={historySvgURL}
+					src={mapSvgURL}
 					alt="history icon"
 				/>
-				<span>History</span>
+				<span>Map</span>
 			</HighlightButton>
 			<div className={`w-18 shrink-0`}></div>
 			<HighlightButton

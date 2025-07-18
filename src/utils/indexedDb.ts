@@ -52,7 +52,7 @@ export function openDatabase(): Promise<IDBDatabase> {
  * @returns A Promise that resolves when the operation is complete.
  */
 export async function putObject<T extends { id: IDBValidKey }>(
-	storeName: string,
+    storeName: string,
     object: T
 ): Promise<void> {
     const database = await openDatabase();
@@ -81,7 +81,7 @@ export async function putObject<T extends { id: IDBValidKey }>(
  * @returns A Promise that resolves with the retrieved object, or undefined if not found.
  */
 export async function getObject<T>(
-	storeName: string,
+    storeName: string,
     id: IDBValidKey
 ): Promise<T | undefined> {
     const database = await openDatabase();
@@ -104,27 +104,37 @@ export async function getObject<T>(
 }
 
 /**
- * Clears all objects from the specified object store.
- * @param storeName The name of the object store to clear (defaults to 'appObjects').
- * @returns A Promise that resolves when the store is cleared.
+ * Deletes the entire database to ensure a clean state.
+ * This is the most effective way to "clear everything", as it forces a 
+ * recreation with the latest schema on the next page load.
+ * @returns A Promise that resolves when the database is successfully deleted.
  */
-export async function clearStore(): Promise<void> {
-    const database = await openDatabase();
+export function clearStore(): Promise<void> {
     return new Promise((resolve, reject) => {
-        STORE_NAMES.forEach(storeName => {
-            const transaction = database.transaction([storeName], 'readwrite');
-            const store = transaction.objectStore(storeName);
-            const request = store.clear();
+        // Ensure any existing connection is closed before trying to delete.
+        if (db) {
+            db.close();
+            db = null;
+        }
 
-            request.onsuccess = () => {
-                resolve();
-            };
+        console.log(`Attempting to delete database: ${DB_NAME}`);
+        const deleteRequest = indexedDB.deleteDatabase(DB_NAME);
 
-            request.onerror = (event) => {
-                console.error('Error clearing store:', (event.target as IDBRequest).error);
-                reject('Failed to clear store');
-            };
-        })
+        deleteRequest.onsuccess = () => {
+            console.log(`Database ${DB_NAME} deleted successfully. Please reload the page.`);
+            resolve();
+        };
+
+        deleteRequest.onerror = (event) => {
+            console.error('Error deleting database:', (event.target as IDBRequest).error);
+            reject('Failed to delete database');
+        };
+
+        // This event is fired if the database is open in another tab, preventing deletion.
+        deleteRequest.onblocked = () => {
+            console.warn('Database deletion is blocked. Please close other tabs with this app open.');
+            reject('Database deletion blocked');
+        };
     });
 }
 

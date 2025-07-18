@@ -135,7 +135,7 @@ export function useGameHelper() {
 			saveState(newSaveState);
 		} else {
 			const newSaveState: SaveState = {
-				currentTurnId: "0",
+				currentTurnId: "intro",
 				currentStepIndex: 0,
 				currentMapId: currentSaveState.currentMapId,
 				currentDay: currentSaveState.currentDay,

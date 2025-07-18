@@ -119,7 +119,7 @@ export function NarrativeBox({ ...props }: Props) {
 			<div
 				ref={narrativeBoxRef}
 				className={mergeClasses(
-					`relative h-54 max-w-200 border-2 border-t-0 border-(--accent) rounded-xl text-white p-2 pt-8 pb-10`,
+					`relative border-2 border-t-0 border-(--accent) rounded-xl text-white p-2 pt-8 pb-10`,
 					props.className,
 				)}
 				onClick={() => {
