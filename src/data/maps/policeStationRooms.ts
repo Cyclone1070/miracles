@@ -1,4 +1,6 @@
-[
+import type { Room } from "../type";
+
+export const policeStationRooms: Room[] = [
 	{
 		"id": "Outside Street",
 		"description": "A city street in front of the police station. Large glass doors lead north into the Lobby.",

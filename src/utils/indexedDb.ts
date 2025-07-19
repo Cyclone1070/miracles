@@ -1,6 +1,6 @@
 const DB_NAME = 'MiraclesDB';
 const DB_VERSION = 1;
-const STORE_NAMES = ["rooms", "characters", "items", "turns"]; // A generic store for various application objects
+const STORE_NAMES = ["maps", "rooms", "characters", "items", "turns", "furniture"]; // A generic store for various application objects
 
 let db: IDBDatabase | null = null;
 
@@ -100,6 +100,49 @@ export async function getObject<T>(
         };
 
         // No need to close db here; connection can remain open for subsequent operations
+    });
+}
+
+/**
+ * Retrieves all objects from a specified object store, optionally filtered by a property.
+ * @param storeName The name of the object store.
+ * @param filterProperty Optional. The name of the property to filter by.
+ * @param filterValue Optional. The value to filter the property by.
+ * @returns A Promise that resolves with an array of retrieved objects.
+ */
+export async function getAllObjectsFromStore<T>(
+    storeName: string,
+    filterProperty?: keyof T,
+    filterValue?: IDBValidKey
+): Promise<T[]> {
+    const database = await openDatabase();
+    return new Promise((resolve, reject) => {
+        const transaction = database.transaction([storeName], 'readonly');
+        const store = transaction.objectStore(storeName);
+        const request = store.openCursor();
+        const results: T[] = [];
+
+        request.onsuccess = (event) => {
+            const cursor = (event.target as IDBRequest).result;
+            if (cursor) {
+                const obj = cursor.value as T;
+                if (filterProperty && filterValue !== undefined) {
+                    if (obj[filterProperty] === filterValue) {
+                        results.push(obj);
+                    }
+                } else {
+                    results.push(obj);
+                }
+                cursor.continue();
+            } else {
+                resolve(results);
+            }
+        };
+
+        request.onerror = (event) => {
+            console.error('Error getting all objects:', (event.target as IDBRequest).error);
+            reject('Failed to get all objects');
+        };
     });
 }
 

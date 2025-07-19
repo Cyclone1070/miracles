@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { Fragment, useEffect, useState } from "react";
 import { useGameManager } from "../context/GameContext";
+import type { Action } from "../type";
 import { mergeClasses } from "../utils/tailwindMerge";
 import { HighlightButton } from "./HighlightButton";
 import actionSvgURL from "/action.svg?url";
@@ -14,20 +15,20 @@ interface Props {
 
 export function PlayerActionInputArea({ ...props }: Props) {
 	const ANIMATION_DURATION_MS = 150;
-	const [activeId, setActiveId] = useState<string | null>(null);
-	const { playerActions, setPlayerActions} = useGameManager();
+	const [activeAction, setActiveAction] = useState<Action | null>(null);
+	const { playerActions, setPlayerActions } = useGameManager();
 
-	async function handleActionChange(newId: string) {
-		if (newId === activeId) {
-			setActiveId(null);
+	async function handleActionChange(newAction: Action) {
+		if (newAction.id === activeAction?.id) {
+			setActiveAction(null);
 		}
-		if (activeId !== null) {
-			setActiveId(null);
+		if (activeAction !== null) {
+			setActiveAction(null);
 			await new Promise((resolve) =>
 				setTimeout(resolve, ANIMATION_DURATION_MS),
 			);
 		}
-		setActiveId(newId);
+		setActiveAction(newAction);
 	}
 
 	useEffect(() => {
@@ -36,18 +37,18 @@ export function PlayerActionInputArea({ ...props }: Props) {
 				event.target instanceof HTMLElement &&
 				!event.target.closest("[data-textbox-none-close-click]")
 			) {
-				setActiveId(null);
+				setActiveAction(null);
 			}
 		}
 
-		if (activeId) {
+		if (activeAction) {
 			document.addEventListener("mousedown", handleClickOutside);
 		}
 
 		return () => {
 			document.removeEventListener("mousedown", handleClickOutside);
 		};
-	}, [activeId]);
+	}, [activeAction]);
 
 	return (
 		<div
@@ -129,7 +130,7 @@ export function PlayerActionInputArea({ ...props }: Props) {
 							exit="hidden"
 							className={`w-10 h-10 flex-shrink-0`}
 						>
-							{activeId !== action.id && (
+							{activeAction?.id !== action.id && (
 								<motion.div
 									data-textbox-none-close-click
 									layoutId={action.id}
@@ -138,11 +139,11 @@ export function PlayerActionInputArea({ ...props }: Props) {
 										stiffness: 300,
 										damping: 30,
 									}}
-									className={`w-full h-full will-change-transform ${activeId === action.id ? "invisible" : ""}`}
+									className={`w-full h-full will-change-transform ${activeAction?.id === action.id ? "invisible" : ""}`}
 								>
 									<HighlightButton
 										onClick={() => {
-											handleActionChange(action.id);
+											handleActionChange(action);
 										}}
 										className={`w-full h-full flex justify-center items-center bg-(--bg)`}
 									>
@@ -192,114 +193,111 @@ export function PlayerActionInputArea({ ...props }: Props) {
 						</motion.div>
 
 						{/* pop up expanded box */}
-						{activeId === action.id && (
-							<motion.div
-								key={`${action.id}-expanded`}
-								data-textbox-none-close-click
-								layoutId={action.id}
-								transition={{
-									type: "spring",
-									stiffness: 300,
-									damping: 30,
-								}}
-								exit={{
-									opacity: 0,
-									y: -10,
-									transition: { duration: 0.3 },
-								}}
-								className={`fixed top-10 w-80 max-w-[95vw] h-50 bg-(--bg) rounded-lg p-2 flex flex-col gap-4 will-change-transform z-10
-								md:absolute md:bottom-full md:mb-10 md:top-auto
-								${activeId === action.id ? "" : "invisible"}`}
-							>
-								{/* first row */}
-								<div
-									className={`relative w-full flex items-center gap-2`}
-								>
-									{/* action icon */}
-									<HighlightButton
-										className={`w-8 h-8 p-1 shadow-none bg-transparent flex gap-2`}
-										onClick={() => {
-											setActiveId(null);
-										}}
-									>
-										{action.type === "do" && (
-											<motion.img
-												layoutId={`${action.id}-icon`}
-												transition={{
-													type: "spring",
-													stiffness: 300,
-													damping: 30,
-												}}
-												src={actionSvgURL}
-												alt="do icon"
-												className={`will-change-transform w-full h-full`}
-											/>
-										)}
-										{action.type === "say" && (
-											<motion.img
-												layoutId={`${action.id}-icon`}
-												transition={{
-													type: "spring",
-													stiffness: 300,
-													damping: 30,
-												}}
-												src={saySvgURL}
-												alt="say icon"
-												className={`will-change-transform w-full h-full`}
-											/>
-										)}
-										{action.type === "miracle" && (
-											<motion.img
-												layoutId={`${action.id}-icon`}
-												transition={{
-													type: "spring",
-													stiffness: 300,
-													damping: 30,
-												}}
-												src={miracleSvgURL}
-												alt="miracle icon"
-												className={`will-change-transform w-full h-full`}
-											/>
-										)}
-									</HighlightButton>
-									<span className={`grow`}>
-										{action.type === "do"
-											? "Do something"
-											: action.type === "say"
-												? "Say something"
-												: "Make a miracle"}
-									</span>
-
-									{/* delete button */}
-									<HighlightButton
-										className={`h-8 w-8 p-1 bg-transparent shadow-none`}
-										onClick={() => {
-											setPlayerActions((prev) =>
-												prev.filter(
-													(a) => a.id !== action.id,
-												),
-											);
-											setActiveId(null);
-										}}
-									>
-										<img
-											src={binSvgURL}
-											alt=""
-											className={`w-full h-full`}
-										/>
-									</HighlightButton>
-								</div>
-
-								{/* content */}
-								<input
-									type="text"
-									className={`border-1 border-(--accent) rounded-md`}
-								/>
-							</motion.div>
-						)}
 					</Fragment>
 				))}
 			</AnimatePresence>
+			{activeAction && (
+				<motion.div
+					key={`${activeAction.id}-expanded`}
+					data-textbox-none-close-click
+					layoutId={activeAction.id}
+					transition={{
+						type: "spring",
+						stiffness: 300,
+						damping: 30,
+					}}
+					exit={{
+						opacity: 0,
+						y: -10,
+						transition: { duration: 0.3 },
+					}}
+					className={`fixed top-10 w-80 max-w-[95vw] h-50 bg-(--bg) rounded-lg p-2 flex flex-col gap-4 will-change-transform z-10
+					md:absolute md:bottom-full md:mb-10 md:top-auto`}
+				>
+					{/* first row */}
+					<div className={`relative w-full flex items-center gap-2`}>
+						{/* action icon */}
+						<HighlightButton
+							className={`w-8 h-8 p-1 shadow-none bg-transparent flex gap-2`}
+							onClick={() => {
+								setActiveAction(null);
+							}}
+						>
+							{activeAction.type === "do" && (
+								<motion.img
+									layoutId={`${activeAction.id}-icon`}
+									transition={{
+										type: "spring",
+										stiffness: 300,
+										damping: 30,
+									}}
+									src={actionSvgURL}
+									alt="do icon"
+									className={`will-change-transform w-full h-full`}
+								/>
+							)}
+							{activeAction.type === "say" && (
+								<motion.img
+									layoutId={`${activeAction.id}-icon`}
+									transition={{
+										type: "spring",
+										stiffness: 300,
+										damping: 30,
+									}}
+									src={saySvgURL}
+									alt="say icon"
+									className={`will-change-transform w-full h-full`}
+								/>
+							)}
+							{activeAction.type === "miracle" && (
+								<motion.img
+									layoutId={`${activeAction.id}-icon`}
+									transition={{
+										type: "spring",
+										stiffness: 300,
+										damping: 30,
+									}}
+									src={miracleSvgURL}
+									alt="miracle icon"
+									className={`will-change-transform w-full h-full`}
+								/>
+							)}
+						</HighlightButton>
+						<span className={`grow`}>
+							{activeAction.type === "do"
+								? "Do something"
+								: activeAction.type === "say"
+									? "Say something"
+									: "Make a miracle"}
+						</span>
+
+						{/* delete button */}
+						<HighlightButton
+							className={`h-8 w-8 p-1 bg-transparent shadow-none`}
+							onClick={() => {
+								setPlayerActions((prev) =>
+									prev.filter(
+										(a) => a.id !== activeAction.id,
+									),
+								);
+								setActiveAction(null);
+							}}
+						>
+							<img
+								src={binSvgURL}
+								alt=""
+								className={`w-full h-full`}
+							/>
+						</HighlightButton>
+					</div>
+
+					{/* content */}
+					<input
+						type="text"
+						className={`border-1 border-(--accent) rounded-md`}
+					/>
+				</motion.div>
+			)}
 		</div>
 	);
 }

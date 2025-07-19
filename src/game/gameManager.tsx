@@ -1,16 +1,12 @@
-import {
-    useEffect,
-    useRef,
-    useState
-} from "react";
+import { useEffect, useRef, useState } from "react";
 import { writeInitialData } from "../data/writeInitialData";
 import type { Action, SaveState, Turn } from "../type";
 import {
-    loadMusic,
-    loadState,
-    loadTurn,
-    saveMusic,
-    saveState
+	loadMusic,
+	loadState,
+	loadTurn,
+	saveMusic,
+	saveState,
 } from "./storage";
 
 // main game logic, helper hook for context provider
@@ -29,6 +25,7 @@ export function useGameHelper() {
 	// convenience derived variables
 	const currentStep =
 		currentTurn &&
+		currentTurn.type === "game" &&
 		currentSaveState &&
 		currentSaveState.currentTurnId === currentTurn.id
 			? currentTurn.steps[currentSaveState.currentStepIndex]
@@ -91,9 +88,7 @@ export function useGameHelper() {
 			// from the one we currently have in our `currentTurn` state.
 			if (currentTurn?.id !== currentSaveState.currentTurnId) {
 				setIsFetchingResponse(true); // Show loading indicator while fetching
-				const newTurn = await loadTurn(
-					currentSaveState.currentTurnId,
-				);
+				const newTurn = await loadTurn(currentSaveState.currentTurnId);
 				setCurrentTurn(newTurn);
 				setIsFetchingResponse(false);
 			}
@@ -103,10 +98,11 @@ export function useGameHelper() {
 		// This effect depends on currentSaveState. It runs whenever it changes.
 	}, [currentSaveState]);
 
-	// handle music player
+	// handle admin turn since they need to auto advance
 	useEffect(() => {
-		if (currentStep?.type === "music") {
-			const newTrack = currentStep.value;
+		// handle music player
+		if (currentTurn?.type === "music") {
+			const newTrack = currentTurn.value;
 
 			// If a new music file is specified in 'value', play it.
 			if (newTrack && newTrack !== musicPlayer.current.src) {
@@ -116,13 +112,34 @@ export function useGameHelper() {
 				saveMusic(newTrack);
 			}
 
-			// A music step is instant. After processing it, advance the story.
-			advanceStory();
+			advanceTurn();
+		} else if (currentTurn?.type === "map") {
+			advanceTurn();
+		} else if (currentTurn?.type === "time") {
+			advanceTurn();
 		}
-	}, [currentStep, advanceStory]);
+	}, [currentTurn, advanceTurn]);
+	// handle time turn
 
-	function advanceStory() {
+	// function to increment turn
+	function advanceTurn() {
 		if (!currentSaveState || !currentTurn) return;
+		const newSaveState: SaveState = {
+			...currentSaveState,
+			currentTurnId: currentTurn.id + 1,
+			currentStepIndex: 0, // Reset step index to 0 for the new turn
+		};
+		setCurrentSaveState(newSaveState);
+		saveState(newSaveState);
+	}
+	// can only advance story if there is a next step, return true if the player action is needed to advance the story
+	function advanceStory() {
+		if (
+			!currentSaveState ||
+			!currentTurn ||
+			currentTurn.type !== "game"
+		)
+			return false;
 
 		const nextIndex = currentSaveState.currentStepIndex + 1;
 
@@ -133,23 +150,20 @@ export function useGameHelper() {
 			};
 			setCurrentSaveState(newSaveState);
 			saveState(newSaveState);
+			return false;
 		} else {
 			const newSaveState: SaveState = {
-				currentTurnId: "intro",
+				currentTurnId: 1,
 				currentStepIndex: 0,
-				currentMapId: currentSaveState.currentMapId,
-				currentDay: currentSaveState.currentDay,
-				turnsLeft: currentSaveState.turnsLeft,
 			};
 			setCurrentSaveState(newSaveState);
 			saveState(newSaveState);
+			return true;
 		}
 	}
 
 	async function submitPlayerAction() {
 		setIsFetchingResponse(true);
-
-		
 
 		setIsFetchingResponse(false);
 	}
@@ -171,11 +185,12 @@ export function useGameHelper() {
 		isGameInitiating,
 		isFetchingResponse,
 		currentStep,
+		advanceTurn,
 		advanceStory,
 		submitPlayerAction,
 		setCurrentSaveState,
 		playerActions,
 		setPlayerActions,
+		currentTurn,
 	};
 }
-

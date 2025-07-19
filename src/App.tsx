@@ -6,7 +6,7 @@ import { GameManagerProvider } from "./context/GameContext";
 import miracleSvgURL from "/miracle.svg?url";
 
 function App() {
-	const [isMainMenuOpen, setIsMainMenuOpen] = useState<boolean>(false);
+	const [isMainMenuOpen, setIsMainMenuOpen] = useState<boolean>(true);
 	const variants = {
 		hidden: {
 			opacity: 0,

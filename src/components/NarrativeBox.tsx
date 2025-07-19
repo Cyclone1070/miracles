@@ -1,8 +1,8 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useGameManager } from "../context/GameContext";
-import { saveState } from "../game/storage";
-import type { ChoiceOption } from "../type";
+import { saveTurn } from "../game/storage";
+import type { ChoiceOption, Turn } from "../type";
 import { mergeClasses } from "../utils/tailwindMerge";
 import { AddPlayerActionButtons } from "./AddPlayerActionButtons";
 import { HighlightButton } from "./HighlightButton";
@@ -34,7 +34,8 @@ export function NarrativeBox({ ...props }: Props) {
 		currentStep,
 		isFetchingResponse,
 		advanceStory,
-		setCurrentSaveState,
+		advanceTurn,
+		currentTurn,
 	} = useGameManager();
 	let currentName = null;
 	if (currentStep?.type === "dialog") {
@@ -254,16 +255,17 @@ export function NarrativeBox({ ...props }: Props) {
 												<HighlightButton
 													key={option.nextTurnId}
 													className="text-left"
-													onClick={() => {
-														const newSave = {
-															currentTurnId:
-																option.nextTurnId,
-															currentStepIndex: 0,
-														};
-														setCurrentSaveState(
-															newSave,
-														);
-														saveState(newSave);
+													onClick={async () => {
+														if (!currentTurn) return;
+														const module =
+															await import(
+																`../data/scripts/${option.nextTurnId}.ts`
+															);
+														const turn: Turn =
+															module.default;
+														turn.id = currentTurn.id + 1;
+														await saveTurn(turn);
+														advanceTurn();
 													}}
 												>
 													{option.text}
@@ -273,9 +275,7 @@ export function NarrativeBox({ ...props }: Props) {
 									)}
 								</div>
 							) : (
-								currentStep?.type !== "music" && (
-									<span>{currentStep?.text}</span>
-								)
+								<span>{currentStep?.text}</span>
 							)}
 						</motion.div>
 					</AnimatePresence>

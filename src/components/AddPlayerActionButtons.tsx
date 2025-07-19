@@ -35,7 +35,7 @@ export function AddPlayerActionButtons({ ...props }: Props) {
 		const handleClickOutside = (event: MouseEvent) => {
 			if (
 				event.target instanceof HTMLElement &&
-				!event.target.closest("[data-none-close-click]")
+				!event.target.closest("[data-add-button-none-close-click]")
 			) {
 				props.setIsActionExpanded(false);
 			}
@@ -107,8 +107,9 @@ export function AddPlayerActionButtons({ ...props }: Props) {
 
 			{/* main toggle action button */}
 			<HighlightButton
-				data-none-close-click
+				data-add-button-none-close-click
 				data-textbox-none-close-click
+				data-map-none-close-click
 				ref={props.addActionButtonRef}
 				onClick={(e) => {
 					e.stopPropagation();

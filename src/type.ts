@@ -58,50 +58,84 @@ export interface ChoiceStep {
     id: string;
     options: ChoiceOption[];
 }
-export interface MusicStep {
+export type Step = DialogStep | ActionStep | NarrationStep | ChoiceStep;
+
+export interface BaseTurn {
+    id: number; // Unique identifier for the turn
+}
+export interface MusicTurn extends BaseTurn {
     type: "music";
-    id: string;
     value: string | null; // URL or path to the music file
 }
-export type Step = DialogStep | ActionStep | NarrationStep | ChoiceStep | MusicStep;
-
-export interface RoomTurnSummary {
+export interface MapTurn extends BaseTurn {
+    type: "map";
+    newMapId: string; // ID of the new map to switch to
+}
+export interface TimeTurn extends BaseTurn {
+    type: "time";
+    newDay: number; // The new day number to set
+    turnLimit: number; // The limit of turns for the new day
+}
+export interface RoomSummary {
     roomId: string;
     eventSummary: string;
 }
-export interface Turn {
-    id: string;
+export interface GameTurn extends BaseTurn {
+    type: "game";
     steps: Step[];
-    summary: RoomTurnSummary[];
-	newMapId?: string; // Optional, used for map changes
-	endDay?: boolean; // Optional, indicates if this turn starts a new day
+    summary?: RoomSummary[];
 }
+export type Turn = GameTurn | MusicTurn | MapTurn | TimeTurn;
+
 export interface SaveState {
-    currentTurnId: string;
+    currentTurnId: number;
     currentStepIndex: number;
-    currentMapId: string;
-    currentDay: number;
-    turnsLeft: number;
+    currentMapId?: string;
+    currentDay?: number;
+    turnsLeft?: number;
 }
 
 // game data interfaces
-export interface Item {
+export interface Furniture {
     id: string;
     name: string;
     description: string;
     state: string;
     roomId: string; // ID of the room where the item is located
+    gridPosition: {
+        x: number; // X coordinate in the grid
+        y: number; // Y coordinate in the grid
+    };
+    asciiArt: string; // Optional ASCII art representation
+    color: string; // Optional color for the furniture
+    itemsIdList?: string[]; // Optional, list of items on the furniture
+}
+export interface Item {
+    id: string;
+    name: string;
+    description: string;
+    state: string;
+    characterId?: string;
+    furnitureId?: string;
 }
 export interface Character {
     id: string;
     description: string;
     state: string;
-    inventory?: Item[];
     roomId: string; // ID of the room where the character is located
+    itemIdList?: string[]; // Optional, list of items the character has
 }
 export interface Room {
     id: string;
     description: string;
     connectedRooms?: string[];
     inViewRooms?: string[];
+    width: number; // Width of the room in grid units
+    height: number; // Height of the room in grid units
+    furnitureIdList?: string[]; // Optional, list of furniture in the room
+    characterIdList?: string[]; // Optional, list of characters in the room
+}
+export interface GameMap {
+    id: string;
+    roomIdList: string[]; // List of rooms in the map
 }
