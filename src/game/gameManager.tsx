@@ -106,8 +106,13 @@ export function useGameHelper() {
 			}
 
 			advanceTurn();
+		} else if (currentTurn?.type === "game") {
+			setCurrentTurnsLeft((prev) => {
+				if (!prev) return prev;
+				return prev - 1;
+			});
 		}
-	}, [currentTurn, advanceTurn]);
+	}, [currentTurn]);
 
 	// function to load next turn
 	async function advanceTurn() {

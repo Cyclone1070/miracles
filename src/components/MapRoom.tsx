@@ -17,7 +17,10 @@ export function MapRoom({ ...props }: Props) {
 			layoutId={props.id}
 			transition={props.transition}
 			onClick={props.onClick}
-			className={mergeClasses(``, props.className)}
+			className={mergeClasses(
+				`bg-(--bg) border-4 border-(--accent)`,
+				props.className,
+			)}
 		></motion.div>
 	);
 }

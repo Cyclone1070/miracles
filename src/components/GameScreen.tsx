@@ -37,11 +37,11 @@ export function GameScreen({ ...props }: Props) {
 				props.className,
 			)}
 		>
-			<BgImage location="heaven" className={`-z-1`} />
+			<BgImage className={`-z-1`} />
 			<CharacterImages className={`absolute bottom-0 w-full`} />
 
 			{/* upper part of the screen */}
-			<div className="w-full relative grow mb-10 flex flex-col">
+			<div className="w-full relative mb-10 flex flex-col flex-1 min-h-0 ">
 				<GameMap
 					className={`self-center w-full h-full max-w-200`}
 				></GameMap>

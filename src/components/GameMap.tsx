@@ -98,28 +98,38 @@ export function GameMap({ ...props }: Props) {
 					<AnimatePresence>
 						{activeRoom && (
 							<div
-								className={`fixed inset-0 flex flex-col gap-4 z-10 p-4`}
+								className={
+									`fixed inset-0 m-auto flex flex-col gap-4 z-10 p-4 max-w-200 ` +
+									`md:absolute md:flex-row`
+								}
 							>
 								<motion.div
 									layoutId="map-viewport"
-									className={`grow-3 basis-0 flex flex-col justify-center items-center`}
+									className={`flex-1 basis-0 flex flex-col justify-center items-center`}
 									transition={commonTransition}
 								>
-									<MapRoom
-										id={activeRoom.id}
-										transition={commonTransition}
-										className={`bg-(--bg) w-full max-w-full max-h-full border-4 border-(--accent)`}
+									<div
+										className={`h-full max-w-full max-h-full flex justify-center items-center ` + `md:w-full md:h-auto`}
 										style={{
 											aspectRatio: `${activeRoom.width} / ${activeRoom.height}`,
 										}}
-									></MapRoom>
+									>
+										<MapRoom
+											id={activeRoom.id}
+											transition={commonTransition}
+											className={`w-full max-h-full max-w-full ` + `md:h-full md:w-auto`}
+											style={{
+												aspectRatio: `${activeRoom.width} / ${activeRoom.height}`,
+											}}
+										></MapRoom>
+									</div>
 								</motion.div>
 								<motion.div
 									initial={{ opacity: 0, y: 20 }}
 									animate={{ opacity: 1, y: 0 }}
 									exit={{ opacity: 0, y: 20 }}
 									transition={commonTransition}
-									className={`grow-2 basis-0 bg-black rounded-xl`}
+									className={`flex-1 basis-0 bg-(--theme-bg) rounded-xl`}
 								></motion.div>
 							</div>
 						)}
