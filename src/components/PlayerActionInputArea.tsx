@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { Fragment, useEffect, useState } from "react";
 import { useGameManager } from "../context/GameContext";
-import type { Action } from "../type";
+import type { Action } from "../types";
 import { mergeClasses } from "../utils/tailwindMerge";
 import { HighlightButton } from "./HighlightButton";
 import actionSvgURL from "/action.svg?url";

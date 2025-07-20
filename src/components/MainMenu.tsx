@@ -1,7 +1,7 @@
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
-import { HighlightButton } from "./HighlightButton";
 import { clearStore } from "../utils/indexedDb";
+import { HighlightButton } from "./HighlightButton";
 
 interface Props {
 	setIsMainMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;

@@ -1,4 +1,4 @@
-import type { GameTurn } from "../../type";
+import type { GameTurn } from "../../types";
 
 const intro_wacky: GameTurn = {
     type: "game",

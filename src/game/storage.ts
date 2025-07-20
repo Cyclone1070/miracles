@@ -1,8 +1,7 @@
-import type { Character, Furniture, GameMap, Room, SaveState, Turn } from "../type";
+import type { Character, Furniture, GameMap, Room, SaveState, Turn } from "../types";
 import { getAllObjectsFromStore, getObject, putObject } from "../utils/indexedDb";
 
 const SAVE_STATE_KEY = 'miracle_save_state';
-const MUSIC_KEY = 'miracle_music';
 
 // states
 export function saveState(saveState: SaveState): void {
@@ -32,14 +31,14 @@ export async function loadTurn(turnId: number): Promise<Turn> {
 
 // maps
 export async function saveMap(map: GameMap): Promise<void> {
-	await putObject("maps", map);
+    await putObject("maps", map);
 }
 export async function loadMap(mapId: string): Promise<GameMap> {
-	const map = await getObject<GameMap>("maps", mapId);
-	if (!map) {
-		throw new Error(`Map with ID ${mapId} not found`);
-	}
-	return map;
+    const map = await getObject<GameMap>("maps", mapId);
+    if (!map) {
+        throw new Error(`Map with ID ${mapId} not found`);
+    }
+    return map;
 }
 
 // rooms
@@ -61,16 +60,4 @@ export async function loadCharactersInRoom(roomId: string): Promise<Character[]>
 
 export async function loadFurnitureInRoom(roomId: string): Promise<Furniture[]> {
     return getAllObjectsFromStore<Furniture>("furniture", "roomId", roomId);
-}
-
-// music
-export function saveMusic(trackURL: string | null) {
-    if (trackURL) {
-        localStorage.setItem(MUSIC_KEY, trackURL);
-    } else {
-        localStorage.removeItem(MUSIC_KEY);
-    }
-}
-export function loadMusic(): string | null {
-    return localStorage.getItem(MUSIC_KEY);
 }

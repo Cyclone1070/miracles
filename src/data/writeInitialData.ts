@@ -1,5 +1,5 @@
 import { saveMap, saveRoom, saveState, saveTurn } from "../game/storage";
-import type { GameTurn, MapTurn, MusicTurn, TimeTurn } from "../type";
+import type { GameTurn, MapTurn, MusicTurn, TimeTurn } from "../types";
 import { gameMaps } from "./maps/gameMaps";
 import { heavenRooms } from "./maps/heavenRooms";
 
@@ -8,12 +8,12 @@ export async function writeInitialData(): Promise<void> {
         type: "time",
         id: 1,
         newDay: 0,
-        turnLimit: 0, // Set a limit for the number of turns in this day
+        newTurnLimit: 0, // Set a limit for the number of turns in this day
     }
     const music: MusicTurn = {
         type: "music",
         id: 2,
-        value: "/birds-ambience.mp3",
+        newMusic: "/birds-ambience.mp3",
     };
     const opening: MapTurn = {
         type: "map",

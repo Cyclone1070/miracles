@@ -1,4 +1,4 @@
-import type { Room } from "../type";
+import type { Room } from "../../types";
 
 export const heavenRooms: Room[] = [
     {

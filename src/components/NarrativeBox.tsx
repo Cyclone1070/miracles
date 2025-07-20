@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useGameManager } from "../context/GameContext";
 import { saveTurn } from "../game/storage";
-import type { ChoiceOption, Turn } from "../type";
+import type { ChoiceOption, Turn } from "../types";
 import { mergeClasses } from "../utils/tailwindMerge";
 import { AddPlayerActionButtons } from "./AddPlayerActionButtons";
 import { HighlightButton } from "./HighlightButton";
@@ -120,7 +120,7 @@ export function NarrativeBox({ ...props }: Props) {
 			<div
 				ref={narrativeBoxRef}
 				className={mergeClasses(
-					`relative border-2 border-t-0 border-(--accent) rounded-xl text-white p-2 pt-8 pb-10`,
+					`relative border-2 border-t-0 border-(--accent) rounded-xl text-white p-2 pt-8 pb-10 cursor-pointer`,
 					props.className,
 				)}
 				onClick={() => {

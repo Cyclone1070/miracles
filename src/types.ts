@@ -65,7 +65,7 @@ export interface BaseTurn {
 }
 export interface MusicTurn extends BaseTurn {
     type: "music";
-    value: string | null; // URL or path to the music file
+    newMusic: string | null; // URL or path to the music file
 }
 export interface MapTurn extends BaseTurn {
     type: "map";
@@ -73,8 +73,8 @@ export interface MapTurn extends BaseTurn {
 }
 export interface TimeTurn extends BaseTurn {
     type: "time";
-    newDay: number; // The new day number to set
-    turnLimit: number; // The limit of turns for the new day
+    newDay?: number; // The new day number to set
+    newTurnLimit?: number; // The limit of turns for the new day
 }
 export interface RoomSummary {
     roomId: string;
@@ -88,11 +88,12 @@ export interface GameTurn extends BaseTurn {
 export type Turn = GameTurn | MusicTurn | MapTurn | TimeTurn;
 
 export interface SaveState {
-    currentTurnId: number;
+    currentTurnId?: number;
     currentStepIndex: number;
     currentMapId?: string;
     currentDay?: number;
-    turnsLeft?: number;
+    currentTurnsLeft?: number;
+	currentMusic?: string;
 }
 
 // game data interfaces
