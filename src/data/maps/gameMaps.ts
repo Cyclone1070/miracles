@@ -1,6 +1,6 @@
 export const gameMaps = [
     {
         id: "Heaven",
-        roomIdList: ["Heaven Court Yard", "History Hall"]
+        roomIdList: ["Heaven Courtyard", "History Hall"]
     }
 ]

@@ -43,7 +43,7 @@ export function GameScreen({ ...props }: Props) {
 			{/* upper part of the screen */}
 			<div className="w-full relative mb-10 flex flex-col flex-1 min-h-0 ">
 				<GameMap
-					className={`self-center w-full h-full max-w-200`}
+					className={`self-center w-full h-full max-w-200 mb-10`}
 				></GameMap>
 				<PlayerActionInputArea
 					className={`absolute inset-x-0 bottom-0`}

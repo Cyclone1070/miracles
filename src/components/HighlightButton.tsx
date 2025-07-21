@@ -10,6 +10,7 @@ interface Props {
 	onMouseEnter?: React.MouseEventHandler<HTMLButtonElement>;
 	onMouseLeave?: React.MouseEventHandler<HTMLButtonElement>;
 	ref?: React.Ref<HTMLButtonElement>;
+	style?: React.CSSProperties;
 }
 
 export function HighlightButton({ ...props }: Props) {

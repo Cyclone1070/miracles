@@ -9,7 +9,8 @@ export const characters: Character[] = [
 			y: 5,
 		},
 		asciiChar: "J",
-		colorHex: "#1591EA"
+		colorHex: "#1591EA",
+		itemsIdList: ["Pen"]
 	},
     {
         id: "Lucifer",

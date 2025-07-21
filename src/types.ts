@@ -22,7 +22,7 @@ export interface MoveAction extends BaseAction {
     type: "move";
     destinationId: string;
 }
-export type Action = DoAction | SayAction | MiracleAction;
+export type Action = DoAction | SayAction | MiracleAction | MoveAction;
 
 // story steps interfaces
 export interface DialogStep {
@@ -99,8 +99,8 @@ export interface SaveState {
 // game data interfaces
 export interface BaseCellObject {
     id: string;
-	state?: string; // Optional state for the object
-	description: string;
+    state?: string; // Optional state for the object
+    description: string;
     gridPosition: {
         x: number; // X coordinate in the grid
         y: number; // Y coordinate in the grid
@@ -113,7 +113,7 @@ export interface Furniture extends BaseCellObject {
     itemsIdList?: string[]; // Optional, list of items on the furniture
 }
 export interface Character extends BaseCellObject {
-    itemIdList?: string[]; // Optional, list of items the character has
+    itemsIdList?: string[]; // Optional, list of items the character has
 }
 export interface Item {
     id: string;
@@ -128,8 +128,9 @@ export interface Room {
     inViewRooms?: string[];
     width: number; // Width of the room in grid units
     height: number; // Height of the room in grid units
-    furnitureIdList?: string[]; // Optional, list of furniture in the room
-    characterIdList?: string[]; // Optional, list of characters in the room
+    furnituresIdList?: string[]; // Optional, list of furniture in the room
+    charactersIdList?: string[]; // Optional, list of characters in the room
+    itemsIdList?: string[]; // Optional, list of items in the room
 }
 export interface GameMap {
     id: string;

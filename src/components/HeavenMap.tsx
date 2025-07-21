@@ -5,7 +5,7 @@ import { MapRoom } from "./MapRoom";
 interface Props {
 	className?: string;
 	isMapExpanded: boolean;
-	setActiveRoom: React.Dispatch<React.SetStateAction<Room | null>>;
+	setActiveRoom: React.Dispatch<React.SetStateAction<{id: string, width: number, height: number}| null>>;
 	commonTransition: Transition;
 	doorStyles: string;
 	roomStyles: string;
@@ -16,16 +16,12 @@ export function HeavenMap({ ...props }: Props) {
 		<>
 			{/* heaven couryard*/}
 			<MapRoom
-				roomId="Heaven Court Yard"
+				roomId="Heaven Courtyard"
 				transition={props.commonTransition}
 				onClick={() => {
 					if (!props.isMapExpanded) return;
 					props.setActiveRoom({
-						id: "Heaven Court Yard",
-						description:
-							"A serene, celestial realm filled with soft clouds and gentle light. The air is filled with a sense of peace and tranquility.",
-						connectedRooms: ["History Hall"],
-						inViewRooms: ["History Hall"],
+						id: "Heaven Courtyard",
 						width: 9,
 						height: 9,
 					});
@@ -47,9 +43,6 @@ export function HeavenMap({ ...props }: Props) {
 					if (!props.isMapExpanded) return;
 					props.setActiveRoom({
 						id: "History Hall",
-						description:
-							"A small hall filled with the history of heaven, with paintings and artifacts from various eras. The walls are lined with portraits of previous Jesus in golden frames.",
-						connectedRooms: ["Heaven Court Yard"],
 						width: 5,
 						height: 5,
 					});

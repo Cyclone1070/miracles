@@ -22,14 +22,19 @@
 	--bg: oklch(0 0 0 / 0.85);
 	--theme-bg: #2c2c2c;
 	--text: #e8e8e8;
+	--text-secondary: theme('colors.gray.300');
 	--accent: theme('colors.cyan.700');
 }
 
 body {
 	font-family: "ComicShannsMono", monospace;
 	background-color: var(--bg);
+	overscroll-behavior: none;
+	overflow: hidden;
 }
-
+input {
+	min-width: 0;
+}
 @layer utilities {
 	/* normal */
 	.adaptive-size {

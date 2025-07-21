@@ -16,7 +16,7 @@ interface Props {
 }
 
 export function AddPlayerActionButtons({ ...props }: Props) {
-	const { setPlayerActions } = useGameManager();
+	const { setPlayerActions, currentMapId } = useGameManager();
 	const iconVariants = {
 		visible: {
 			opacity: 1,
@@ -137,12 +137,15 @@ export function AddPlayerActionButtons({ ...props }: Props) {
 	function addDoAction() {
 		setPlayerActions((prev) => {
 			if (prev.length >= 4) {
+				alert("You can only have 4 actions per turn!");
 				return prev;
 			}
 			return [
 				...prev,
 				{
 					id: uuidv4(),
+					characterId:
+						currentMapId === "heaven" ? "Jesus" : "Big Shot",
 					expression: "neutral",
 					type: "do",
 					action: "test",
@@ -153,12 +156,15 @@ export function AddPlayerActionButtons({ ...props }: Props) {
 	function addSayAction() {
 		setPlayerActions((prev) => {
 			if (prev.length >= 4) {
+				alert("You can only have 4 actions per turn!");
 				return prev;
 			}
 			return [
 				...prev,
 				{
 					id: uuidv4(),
+					characterId:
+						currentMapId === "heaven" ? "Jesus" : "Big Shot",
 					expression: "neutral",
 					type: "say",
 					dialog: "test",
@@ -170,12 +176,15 @@ export function AddPlayerActionButtons({ ...props }: Props) {
 	function addMiracleAction() {
 		setPlayerActions((prev) => {
 			if (prev.length >= 4) {
+				alert("You can only have 4 actions per turn!");
 				return prev;
 			}
 			return [
 				...prev,
 				{
 					id: uuidv4(),
+					characterId:
+						currentMapId === "heaven" ? "Jesus" : "Big Shot",
 					expression: "neutral",
 					type: "miracle",
 				},

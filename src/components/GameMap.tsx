@@ -1,10 +1,10 @@
 import { AnimatePresence, motion, type Transition } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { useGameManager } from "../context/GameContext";
-import type { Room } from "../types";
 import { mergeClasses } from "../utils/tailwindMerge";
 import { HeavenMap } from "./HeavenMap";
 import { MapRoom } from "./MapRoom";
+import { RoomInfo } from "./RoomInfo";
 
 interface Props {
 	className?: string;
@@ -13,6 +13,7 @@ interface Props {
 export function GameMap({ ...props }: Props) {
 	const { currentMapId } = useGameManager();
 	const [isMapExpanded, setIsMapExpanded] = useState(false);
+	const [inspectId, setInspectId] = useState<string | null>(null);
 	const constraintRef = useRef<HTMLDivElement>(null);
 	const roomStyles = `bg-(--bg) border-4 border-(--accent) -m-[2px] cursor-pointer will-change-transform`;
 	const doorStyles = `border-green-400 -m-[2px] z-1 cursor-pointer`;
@@ -20,13 +21,19 @@ export function GameMap({ ...props }: Props) {
 		ease: "easeInOut",
 		duration: 0.3,
 	};
-	const [activeRoom, setActiveRoom] = useState<Room | null>(null);
+	const [activeRoom, setActiveRoom] = useState<{
+		id: string;
+		width: number;
+		height: number;
+	} | null>(null);
+
 	useEffect(() => {
 		function handleClickOutside(event: MouseEvent) {
 			if (
 				event.target instanceof HTMLElement &&
 				!event.target.closest("[data-map-none-close-click]")
 			) {
+				setInspectId(null);
 				if (activeRoom) {
 					setActiveRoom(null);
 					return;
@@ -85,6 +92,11 @@ export function GameMap({ ...props }: Props) {
 							layout
 							transition={commonTransition}
 							className={`w-min h-min p-1 grid auto-rows-[1.25rem] auto-cols-[1.25rem]`}
+							animate={
+								activeRoom
+									? { visibility: "hidden", opacity: 0 }
+									: { visibility: "visible", opacity: 1 }
+							}
 						>
 							<HeavenMap
 								isMapExpanded={isMapExpanded}
@@ -105,11 +117,14 @@ export function GameMap({ ...props }: Props) {
 							>
 								<motion.div
 									layoutId="map-viewport"
-									className={`flex-1 basis-0 flex flex-col justify-center items-center`}
+									className={`flex-2 basis-0 flex flex-col justify-center items-center`}
 									transition={commonTransition}
 								>
 									<div
-										className={`h-full max-w-full max-h-full flex justify-center items-center ` + `md:w-full md:h-auto`}
+										className={
+											`h-full max-w-full max-h-full flex justify-center items-center ` +
+											`md:w-full md:h-auto`
+										}
 										style={{
 											aspectRatio: `${activeRoom.width} / ${activeRoom.height}`,
 										}}
@@ -117,20 +132,31 @@ export function GameMap({ ...props }: Props) {
 										<MapRoom
 											roomId={activeRoom.id}
 											transition={commonTransition}
-											className={`w-full max-h-full max-w-full ` + `md:h-full md:w-auto`}
+											className={
+												`w-full max-h-full max-w-full ` +
+												`md:h-full md:w-auto`
+											}
 											style={{
 												aspectRatio: `${activeRoom.width} / ${activeRoom.height}`,
 											}}
+											setInspectId={setInspectId}
 										></MapRoom>
 									</div>
 								</motion.div>
 								<motion.div
+									data-map-none-close-click
 									initial={{ opacity: 0, y: 20 }}
 									animate={{ opacity: 1, y: 0 }}
 									exit={{ opacity: 0, y: 20 }}
 									transition={commonTransition}
-									className={`flex-1 basis-0 bg-(--theme-bg) rounded-xl`}
-								></motion.div>
+									className={`flex-3 basis-0 bg-(--theme-bg) rounded-xl overflow-y-auto`}
+								>
+									<RoomInfo
+										inspectId={inspectId}
+										roomId={activeRoom.id}
+										className={`w-full`}
+									></RoomInfo>
+								</motion.div>
 							</div>
 						)}
 					</AnimatePresence>

@@ -42,9 +42,9 @@ export const heavenFurnitures: Furniture[] = [
         colorHex: "#8BC34A",
     },
     {
-        id: "Portrait of Jonathan",
-        name: "Portrait of Jonathan",
-        description: "A portrait of Jonathan Cheesus, your predecessor, painted in a classical style.",
+        id: "Portrait of Jonathan Cheesus",
+        name: "Portrait of Jonathan Cheesus",
+        description: "A portrait of Jonathan Cheesus, your direct predecessor, painted in a classical style.",
         gridPosition: {
             x: 3, y: 1
         },
@@ -52,9 +52,9 @@ export const heavenFurnitures: Furniture[] = [
         colorHex: "#FF9800",
     },
     {
-        id: "Portrait of Ar En",
-        name: "Portrait of Ar En",
-        description: "A portrait of Ar En Gesus, one of the past Jesus. Known for his wisdom and compassion, but mostly for his ridiculous luck.",
+        id: "Portrait of Ar En Gesus",
+        name: "Portrait of Ar En Gesus",
+        description: "A portrait of Ar En Gesus, one of the past Jesuses. Known for his wisdom and compassion, but mostly for his ridiculous luck.",
         state: "normal",
         gridPosition: {
             x: 3, y: 5

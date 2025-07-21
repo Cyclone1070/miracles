@@ -1,5 +1,11 @@
 import { motion, type Transition } from "motion/react";
-import { useEffect, useLayoutEffect, useRef, useState, type MouseEventHandler } from "react";
+import {
+    useEffect,
+    useLayoutEffect,
+    useRef,
+    useState,
+    type MouseEventHandler,
+} from "react";
 import {
     getAllCharactersInRoom,
     getAllFurnitureInRoom,
@@ -7,6 +13,7 @@ import {
 } from "../game/storage";
 import type { Character, Furniture, Room } from "../types";
 import { mergeClasses } from "../utils/tailwindMerge";
+import { HighlightButton } from "./HighlightButton";
 
 interface Props {
 	className?: string;
@@ -14,13 +21,14 @@ interface Props {
 	transition?: Transition;
 	onClick?: MouseEventHandler<HTMLDivElement>;
 	style?: React.CSSProperties;
+	setInspectId?: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 export function MapRoom({ ...props }: Props) {
 	const [furnitures, setFurnitures] = useState<Furniture[]>();
 	const [characters, setCharacters] = useState<Character[]>();
 	const [roomInfo, setRoomInfo] = useState<Room>();
-	
+
 	const gridRef = useRef<HTMLDivElement>(null);
 	// fetching useEffect
 	useEffect(() => {
@@ -53,16 +61,17 @@ export function MapRoom({ ...props }: Props) {
 
 		const fontSize = Math.max(cellSize * 0.8); // Ensure minimum font size
 		gridRef.current.style.fontSize = `${fontSize}px`;
-	})
+	}, [gridRef.current]);
 
 	return (
 		<motion.div
+			data-map-none-close-click
 			ref={gridRef}
 			layoutId={props.roomId}
 			transition={props.transition}
 			onClick={props.onClick}
 			className={mergeClasses(
-				`bg-(--bg) border-4 border-(--accent) grid`,
+				`bg-(--bg) border-4 border-(--accent) grid text-white`,
 				props.className,
 			)}
 			style={{
@@ -72,9 +81,14 @@ export function MapRoom({ ...props }: Props) {
 			}}
 		>
 			{furnitures?.map((furniture) => (
-				<div
+				<HighlightButton
 					key={furniture.id}
-					className={`col-span-1 row-span-1 flex justify-center items-center w-full h-full`}
+					onClick={() => {
+						if (props.setInspectId) {
+							props.setInspectId(furniture.id);
+						}
+					}}
+					className={`col-span-1 row-span-1 flex justify-center items-center w-full h-full bg-transparent shadow-none`}
 					style={{
 						color: furniture.colorHex,
 						gridColumnStart: furniture.gridPosition.x,
@@ -82,12 +96,17 @@ export function MapRoom({ ...props }: Props) {
 					}}
 				>
 					{furniture.asciiChar}
-				</div>
+				</HighlightButton>
 			))}
 			{characters?.map((character) => (
-				<div
+				<HighlightButton
 					key={character.id}
-					className={`col-span-1 row-span-1 flex justify-center items-center rounded-sm w-full h-full`}
+					onClick={() => {
+						if (props.setInspectId) {
+							props.setInspectId(character.id);
+						}
+					}}
+					className={`col-span-1 row-span-1 flex justify-center items-center rounded-sm w-full h-full bg-transparent shadow-none`}
 					style={{
 						backgroundColor: character.colorHex,
 						gridColumnStart: character.gridPosition.x,
@@ -95,7 +114,7 @@ export function MapRoom({ ...props }: Props) {
 					}}
 				>
 					{character.asciiChar}
-				</div>
+				</HighlightButton>
 			))}
 		</motion.div>
 	);

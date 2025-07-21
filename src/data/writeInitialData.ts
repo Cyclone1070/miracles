@@ -1,9 +1,10 @@
-import { saveCharacter, saveFurniture, saveMap, saveRoom, saveState, saveTurn } from "../game/storage";
+import { saveCharacter, saveFurniture, saveItem, saveMap, saveRoom, saveState, saveTurn } from "../game/storage";
 import type { GameTurn, MapTurn, MusicTurn, TimeTurn } from "../types";
+import { characters } from "./characters";
+import { heavenFurnitures } from "./furnitures/heavenFurnitures";
+import { heavenItems } from "./items/heavenItems";
 import { gameMaps } from "./maps/gameMaps";
 import { heavenRooms } from "./maps/heavenRooms";
-import { heavenFurnitures } from "./furnitures/heavenFurnitures";
-import { characters } from "./characters";
 
 export async function writeInitialData(): Promise<void> {
     const day0: TimeTurn = {
@@ -67,6 +68,7 @@ export async function writeInitialData(): Promise<void> {
         await Promise.all(gameMaps.map(map => saveMap(map)));
         await Promise.all(heavenRooms.map(room => saveRoom(room)));
         await Promise.all(heavenFurnitures.map(furniture => saveFurniture(furniture)));
+        await Promise.all(heavenItems.map(item => saveItem(item)));
         await Promise.all(characters.map(character => saveCharacter(character)));
 
         await saveTurn(day0);

@@ -8,6 +8,7 @@ import actionSvgURL from "/action.svg?url";
 import binSvgURL from "/bin.svg?url";
 import miracleSvgURL from "/miracle.svg?url";
 import saySvgURL from "/say.svg?url";
+import moveSvgURL from "/move.svg?url";
 
 interface Props {
 	className?: string;
@@ -174,6 +175,19 @@ export function PlayerActionInputArea({ ...props }: Props) {
 												className={`will-change-transform w-full h-full`}
 											/>
 										)}
+										{action.type === "move" && (
+											<motion.img
+												layoutId={`${action.id}-icon`}
+												transition={{
+													type: "spring",
+													stiffness: 300,
+													damping: 30,
+												}}
+												src={moveSvgURL}
+												alt="move icon"
+												className={`will-change-transform w-full h-full`}
+											/>
+										)}
 										{action.type === "miracle" && (
 											<motion.img
 												layoutId={`${action.id}-icon`}
@@ -211,7 +225,7 @@ export function PlayerActionInputArea({ ...props }: Props) {
 						y: -10,
 						transition: { duration: 0.3 },
 					}}
-					className={`fixed top-10 w-80 max-w-[95vw] h-50 bg-(--bg) rounded-lg p-2 flex flex-col gap-4 will-change-transform z-10
+					className={`fixed top-10 w-80 max-w-[95vw] max-h-80 h-min bg-(--bg) rounded-lg p-2 flex flex-col gap-4 will-change-transform z-10 overflow-auto
 					md:absolute md:bottom-full md:mb-10 md:top-auto`}
 				>
 					{/* first row */}
@@ -249,6 +263,19 @@ export function PlayerActionInputArea({ ...props }: Props) {
 									className={`will-change-transform w-full h-full`}
 								/>
 							)}
+							{activeAction.type === "move" && (
+								<motion.img
+									layoutId={`${activeAction.id}-icon`}
+									transition={{
+										type: "spring",
+										stiffness: 300,
+										damping: 30,
+									}}
+									src={moveSvgURL}
+									alt="move icon"
+									className={`will-change-transform w-full h-full`}
+								/>
+							)}
 							{activeAction.type === "miracle" && (
 								<motion.img
 									layoutId={`${activeAction.id}-icon`}
@@ -268,7 +295,9 @@ export function PlayerActionInputArea({ ...props }: Props) {
 								? "Do something"
 								: activeAction.type === "say"
 									? "Say something"
-									: "Make a miracle"}
+									: activeAction.type === "move"
+										? "Move somewhere"
+										: "Make a miracle"}
 						</span>
 
 						{/* delete button */}
@@ -292,10 +321,100 @@ export function PlayerActionInputArea({ ...props }: Props) {
 					</div>
 
 					{/* content */}
-					<input
-						type="text"
-						className={`border-1 border-(--accent) rounded-md`}
-					/>
+					<form
+						action=""
+						className={`grid gap-2 grid-cols-[min-content_1fr] items-center`}
+					>
+						<label htmlFor="expression">Expression:</label>
+						<select
+							name="expression"
+							id="expression"
+							className={`rounded-md py-1 w-min`}
+							value={activeAction.expression}
+							onChange={(e) => {
+								setPlayerActions((prev) => {
+									return prev.map((action) => {
+										if (action.id === activeAction!.id) {
+											return {
+												...action,
+												expression: e.target.value as
+													| "neutral"
+													| "happy"
+													| "annoyed",
+											};
+										}
+										return action;
+									});
+								});
+								setActiveAction((prev) => {
+									if (!prev) return null;
+									return {
+										...prev,
+										expression: e.target.value as
+											| "neutral"
+											| "happy"
+											| "annoyed",
+									};
+								});
+							}}
+						>
+							<option value="neutral">Neutral</option>
+							<option value="happy">Happy</option>
+							<option value="annoyed">Annoyed</option>
+						</select>
+
+						{activeAction.type === "do" && (
+							<>
+								<label htmlFor="action">Action:</label>
+								<input
+									type="text"
+									name="action"
+									id="action"
+									className={`rounded-md px-2 grow border-2 border-(--accent)`}
+									value={activeAction.action}
+									onChange={(e) => {
+										setPlayerActions((prev) => {
+											return prev.map((action) => {
+												if (
+													action.id ===
+													activeAction!.id
+												) {
+													return {
+														...action,
+														action: e.target.value,
+													};
+												}
+												return action;
+											});
+										});
+										setActiveAction((prev) => {
+											if (!prev) return null;
+											return {
+												...prev,
+												action: e.target.value,
+											};
+										});
+									}}
+								/>
+
+								<label htmlFor="target">Target:</label>
+								<input
+									type="text"
+									name="target"
+									id="target"
+									className={`rounded-md px-2 grow border-2 border-(--accent)`}
+								/>
+
+								<label htmlFor="using">Using:</label>
+								<input
+									type="text"
+									name="using"
+									id="using"
+									className={`rounded-md px-2 grow border-2 border-(--accent)`}
+								/>
+							</>
+						)}
+					</form>
 				</motion.div>
 			)}
 		</div>

@@ -1,4 +1,4 @@
-import type { Character, Furniture, GameMap, Room, SaveState, Turn } from "../types";
+import type { Character, Furniture, GameMap, Item, Room, SaveState, Turn } from "../types";
 import { getObject, putObject } from "../utils/indexedDb";
 
 const SAVE_STATE_KEY = 'miracle_save_state';
@@ -56,40 +56,75 @@ export async function loadRoom(roomId: string): Promise<Room> {
 
 // furniture
 export async function saveFurniture(furniture: Furniture): Promise<void> {
-	await putObject("furniture", furniture);
+    await putObject("furniture", furniture);
 }
 export async function loadFurniture(furnitureId: string): Promise<Furniture> {
-	const furniture = await getObject<Furniture>("furniture", furnitureId);
-	if (!furniture) {
-		throw new Error(`Furniture with ID ${furnitureId} not found`);
-	}
-	return furniture;
+    const furniture = await getObject<Furniture>("furniture", furnitureId);
+    if (!furniture) {
+        throw new Error(`Furniture with ID ${furnitureId} not found`);
+    }
+    return furniture;
 }
 
 export async function getAllFurnitureInRoom(roomId: string): Promise<Furniture[]> {
     const room = await loadRoom(roomId);
-    if (!room.furnitureIdList || room.furnitureIdList.length === 0) {
+    if (!room.furnituresIdList || room.furnituresIdList.length === 0) {
         return [];
     }
-    const furniturePromises = room.furnitureIdList.map(id => loadFurniture(id));
+    const furniturePromises = room.furnituresIdList.map(id => loadFurniture(id));
     return Promise.all(furniturePromises);
 }
 // characters
 export async function saveCharacter(character: Character): Promise<void> {
-	await putObject("characters", character);
+    await putObject("characters", character);
 }
 export async function loadCharacter(characterId: string): Promise<Character> {
-	const character = await getObject<Character>("characters", characterId);
-	if (!character) {
-		throw new Error(`Character with ID ${characterId} not found`);
-	}
-	return character;
+    const character = await getObject<Character>("characters", characterId);
+    if (!character) {
+        throw new Error(`Character with ID ${characterId} not found`);
+    }
+    return character;
 }
 export async function getAllCharactersInRoom(roomId: string): Promise<Character[]> {
-	const room = await loadRoom(roomId);
-	if (!room.characterIdList || room.characterIdList.length === 0) {
+    const room = await loadRoom(roomId);
+    if (!room.charactersIdList || room.charactersIdList.length === 0) {
+        return [];
+    }
+    const characterPromises = room.charactersIdList.map(id => loadCharacter(id));
+    return Promise.all(characterPromises);
+}
+// items
+export async function saveItem(item: Item): Promise<void> {
+    await putObject("items", item);
+}
+export async function loadItem(itemId: string): Promise<Item> {
+    const item = await getObject<Furniture>("items", itemId);
+    if (!item) {
+        throw new Error(`Item with ID ${itemId} not found`);
+    }
+    return item;
+}
+export async function getAllItemsInRoom(roomId: string): Promise<Item[]> {
+    const room = await loadRoom(roomId);
+    if (!room.itemsIdList || room.itemsIdList.length === 0) {
+        return [];
+    }
+    const itemPromises = room.itemsIdList.map(id => loadItem(id));
+    return Promise.all(itemPromises);
+}
+export async function getAllItemsInFurniture(furnitureId: string): Promise<Item[]> {
+    const furniture = await loadFurniture(furnitureId);
+    if (!furniture.itemsIdList || furniture.itemsIdList.length === 0) {
+        return [];
+    }
+    const itemPromises = furniture.itemsIdList.map(id => loadItem(id));
+    return Promise.all(itemPromises);
+}
+export async function getAllItemsInCharacter(characterId: string): Promise<Item[]> {
+	const character = await loadCharacter(characterId);
+	if (!character.itemsIdList || character.itemsIdList.length === 0) {
 		return [];
 	}
-	const characterPromises = room.characterIdList.map(id => loadCharacter(id));
-	return Promise.all(characterPromises);
+	const itemPromises = character.itemsIdList.map(id => loadItem(id));
+	return Promise.all(itemPromises);
 }
