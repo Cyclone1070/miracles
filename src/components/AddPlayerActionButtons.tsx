@@ -109,7 +109,6 @@ export function AddPlayerActionButtons({ ...props }: Props) {
 			<HighlightButton
 				data-add-button-none-close-click
 				data-textbox-none-close-click
-				data-map-none-close-click
 				ref={props.addActionButtonRef}
 				onClick={(e) => {
 					e.stopPropagation();

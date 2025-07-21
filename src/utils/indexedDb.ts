@@ -1,21 +1,15 @@
 const DB_NAME = 'MiraclesDB';
 const DB_VERSION = 1;
-const STORE_NAMES = ["maps", "rooms", "characters", "items", "turns", "furniture"]; // A generic store for various application objects
+const STORE_NAMES = ["maps", "rooms", "characters", "items", "turns", "furniture"];
 
-let db: IDBDatabase | null = null;
+let dbPromise: Promise<IDBDatabase> | null = null;
 
-/**
- * Opens the IndexedDB database.
- * If the database doesn't exist, or if the version is new, it creates/updates object stores.
- * @returns A Promise that resolves with the IDBDatabase instance.
- */
-export function openDatabase(): Promise<IDBDatabase> {
-    return new Promise((resolve, reject) => {
-        if (db) {
-            resolve(db); // Return existing connection if already open
-            return;
-        }
+async function openDatabase(): Promise<IDBDatabase> {
+    if (dbPromise) {
+        return dbPromise;
+    }
 
+    dbPromise = new Promise((resolve, reject) => {
         const request = indexedDB.open(DB_NAME, DB_VERSION);
 
         request.onupgradeneeded = (event) => {
@@ -24,15 +18,14 @@ export function openDatabase(): Promise<IDBDatabase> {
                 if (!database.objectStoreNames.contains(storeName)) {
                     database.createObjectStore(storeName, { keyPath: 'id' });
                 }
-            })
+            });
         };
 
         request.onsuccess = (event) => {
-            db = (event.target as IDBOpenDBRequest).result;
-            // Handle unexpected database close (e.g., by user in dev tools)
+            const db = (event.target as IDBOpenDBRequest).result;
             db.onversionchange = () => {
-                db?.close();
-                db = null;
+                db.close();
+                dbPromise = null;
                 console.warn('IndexedDB database connection closed due to version change. Please reload.');
             };
             resolve(db);
@@ -40,84 +33,60 @@ export function openDatabase(): Promise<IDBDatabase> {
 
         request.onerror = (event) => {
             console.error('IndexedDB error:', (event.target as IDBOpenDBRequest).error);
+            dbPromise = null;
             reject('Failed to open IndexedDB: ' + (event.target as IDBOpenDBRequest).error?.message);
         };
     });
+
+    return dbPromise;
 }
 
-/**
- * Puts (adds or updates) an object in the specified object store.
- * @param object The object to store. It must have an 'id' property if keyPath is set.
- * @param storeName The name of the object store (defaults to 'appObjects').
- * @returns A Promise that resolves when the operation is complete.
- */
 export async function putObject<T extends { id: IDBValidKey }>(
     storeName: string,
     object: T
 ): Promise<void> {
-    const database = await openDatabase();
+    const db = await openDatabase();
     return new Promise((resolve, reject) => {
-        const transaction = database.transaction([storeName], 'readwrite');
+        const transaction = db.transaction([storeName], 'readwrite');
         const store = transaction.objectStore(storeName);
-        const request = store.put(object); // 'put' adds or updates based on the key
+        const request = store.put(object);
 
-        request.onsuccess = () => {
-            resolve();
-        };
-
+        request.onsuccess = () => resolve();
         request.onerror = (event) => {
             console.error('Error putting object:', (event.target as IDBRequest).error);
             reject('Failed to put object');
         };
-
-        // No need to close db here; connection can remain open for subsequent operations
     });
 }
 
-/**
- * Retrieves an object from the specified object store by its key.
- * @param id The ID (key) of the object to retrieve.
- * @param storeName The name of the object store (defaults to 'appObjects').
- * @returns A Promise that resolves with the retrieved object, or undefined if not found.
- */
 export async function getObject<T>(
     storeName: string,
     id: IDBValidKey
 ): Promise<T | undefined> {
-    const database = await openDatabase();
+    const db = await openDatabase();
     return new Promise((resolve, reject) => {
-        const transaction = database.transaction([storeName], 'readonly');
+        const transaction = db.transaction([storeName], 'readonly');
         const store = transaction.objectStore(storeName);
         const request = store.get(id);
 
         request.onsuccess = (event) => {
             resolve((event.target as IDBRequest).result as T | undefined);
         };
-
         request.onerror = (event) => {
             console.error('Error getting object:', (event.target as IDBRequest).error);
             reject('Failed to get object');
         };
-
-        // No need to close db here; connection can remain open for subsequent operations
     });
 }
 
-/**
- * Retrieves all objects from a specified object store, optionally filtered by a property.
- * @param storeName The name of the object store.
- * @param filterProperty Optional. The name of the property to filter by.
- * @param filterValue Optional. The value to filter the property by.
- * @returns A Promise that resolves with an array of retrieved objects.
- */
 export async function getAllObjectsFromStore<T>(
     storeName: string,
     filterProperty?: keyof T,
     filterValue?: IDBValidKey
 ): Promise<T[]> {
-    const database = await openDatabase();
+    const db = await openDatabase();
     return new Promise((resolve, reject) => {
-        const transaction = database.transaction([storeName], 'readonly');
+        const transaction = db.transaction([storeName], 'readonly');
         const store = transaction.objectStore(storeName);
         const request = store.openCursor();
         const results: T[] = [];
@@ -146,20 +115,9 @@ export async function getAllObjectsFromStore<T>(
     });
 }
 
-/**
- * Deletes the entire database to ensure a clean state.
- * This is the most effective way to "clear everything", as it forces a 
- * recreation with the latest schema on the next page load.
- * @returns A Promise that resolves when the database is successfully deleted.
- */
-export function clearStore(): Promise<void> {
+export async function clearStore(): Promise<void> {
+    await closeDatabase();
     return new Promise((resolve, reject) => {
-        // Ensure any existing connection is closed before trying to delete.
-        if (db) {
-            db.close();
-            db = null;
-        }
-
         console.log(`Attempting to delete database: ${DB_NAME}`);
         const deleteRequest = indexedDB.deleteDatabase(DB_NAME);
 
@@ -173,7 +131,6 @@ export function clearStore(): Promise<void> {
             reject('Failed to delete database');
         };
 
-        // This event is fired if the database is open in another tab, preventing deletion.
         deleteRequest.onblocked = () => {
             console.warn('Database deletion is blocked. Please close other tabs with this app open.');
             reject('Database deletion blocked');
@@ -181,14 +138,11 @@ export function clearStore(): Promise<void> {
     });
 }
 
-/**
- * Closes the IndexedDB database connection.
- * Call this when your application is shutting down or no longer needs database access.
- */
-export function closeDatabase() {
-    if (db) {
+export async function closeDatabase(): Promise<void> {
+    if (dbPromise) {
+        const db = await dbPromise;
         db.close();
-        db = null;
+        dbPromise = null;
         console.log('IndexedDB connection closed.');
     }
 }

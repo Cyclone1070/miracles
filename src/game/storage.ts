@@ -1,5 +1,5 @@
 import type { Character, Furniture, GameMap, Room, SaveState, Turn } from "../types";
-import { getAllObjectsFromStore, getObject, putObject } from "../utils/indexedDb";
+import { getObject, putObject } from "../utils/indexedDb";
 
 const SAVE_STATE_KEY = 'miracle_save_state';
 
@@ -54,10 +54,42 @@ export async function loadRoom(roomId: string): Promise<Room> {
     return room;
 }
 
-export async function loadCharactersInRoom(roomId: string): Promise<Character[]> {
-    return getAllObjectsFromStore<Character>("characters", "roomId", roomId);
+// furniture
+export async function saveFurniture(furniture: Furniture): Promise<void> {
+	await putObject("furniture", furniture);
+}
+export async function loadFurniture(furnitureId: string): Promise<Furniture> {
+	const furniture = await getObject<Furniture>("furniture", furnitureId);
+	if (!furniture) {
+		throw new Error(`Furniture with ID ${furnitureId} not found`);
+	}
+	return furniture;
 }
 
-export async function loadFurnitureInRoom(roomId: string): Promise<Furniture[]> {
-    return getAllObjectsFromStore<Furniture>("furniture", "roomId", roomId);
+export async function getAllFurnitureInRoom(roomId: string): Promise<Furniture[]> {
+    const room = await loadRoom(roomId);
+    if (!room.furnitureIdList || room.furnitureIdList.length === 0) {
+        return [];
+    }
+    const furniturePromises = room.furnitureIdList.map(id => loadFurniture(id));
+    return Promise.all(furniturePromises);
+}
+// characters
+export async function saveCharacter(character: Character): Promise<void> {
+	await putObject("characters", character);
+}
+export async function loadCharacter(characterId: string): Promise<Character> {
+	const character = await getObject<Character>("characters", characterId);
+	if (!character) {
+		throw new Error(`Character with ID ${characterId} not found`);
+	}
+	return character;
+}
+export async function getAllCharactersInRoom(roomId: string): Promise<Character[]> {
+	const room = await loadRoom(roomId);
+	if (!room.characterIdList || room.characterIdList.length === 0) {
+		return [];
+	}
+	const characterPromises = room.characterIdList.map(id => loadCharacter(id));
+	return Promise.all(characterPromises);
 }

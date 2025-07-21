@@ -85,9 +85,9 @@ export function MainMenu({ ...props }: Props) {
 					</HighlightButton>
 				</div>
 				<HighlightButton
-					onClick={() => {
+					onClick={async () => {
 						localStorage.clear();
-						clearStore();
+						await clearStore();
 						window.location.reload();
 					}}
 					className={`bg-(--accent) p-1.5`}

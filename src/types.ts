@@ -93,38 +93,33 @@ export interface SaveState {
     currentMapId?: string;
     currentDay?: number;
     currentTurnsLeft?: number;
-	currentMusic?: string;
+    currentMusic?: string;
 }
 
 // game data interfaces
-export interface Furniture {
+export interface BaseCellObject {
     id: string;
-    name: string;
-    description: string;
-    state: string;
-    roomId: string; // ID of the room where the item is located
+	state?: string; // Optional state for the object
+	description: string;
     gridPosition: {
         x: number; // X coordinate in the grid
         y: number; // Y coordinate in the grid
     };
-    asciiArt: string; // Optional ASCII art representation
-    color: string; // Optional color for the furniture
+    asciiChar: string; // Optional ASCII art representation
+    colorHex: string; // Optional color for the furniture
+}
+export interface Furniture extends BaseCellObject {
+    name: string;
     itemsIdList?: string[]; // Optional, list of items on the furniture
+}
+export interface Character extends BaseCellObject {
+    itemIdList?: string[]; // Optional, list of items the character has
 }
 export interface Item {
     id: string;
     name: string;
     description: string;
-    state: string;
-    characterId?: string;
-    furnitureId?: string;
-}
-export interface Character {
-    id: string;
-    description: string;
-    state: string;
-    roomId: string; // ID of the room where the character is located
-    itemIdList?: string[]; // Optional, list of items the character has
+    state?: string;
 }
 export interface Room {
     id: string;

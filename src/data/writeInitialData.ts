@@ -1,7 +1,9 @@
-import { saveMap, saveRoom, saveState, saveTurn } from "../game/storage";
+import { saveCharacter, saveFurniture, saveMap, saveRoom, saveState, saveTurn } from "../game/storage";
 import type { GameTurn, MapTurn, MusicTurn, TimeTurn } from "../types";
 import { gameMaps } from "./maps/gameMaps";
 import { heavenRooms } from "./maps/heavenRooms";
+import { heavenFurnitures } from "./furnitures/heavenFurnitures";
+import { characters } from "./characters";
 
 export async function writeInitialData(): Promise<void> {
     const day0: TimeTurn = {
@@ -62,19 +64,18 @@ export async function writeInitialData(): Promise<void> {
         ]
     };
     try {
-        gameMaps.forEach(async (map) => {
-            await saveMap(map);
-        })
-        heavenRooms.forEach(async (room) => {
-            await saveRoom(room);
-        });
-		await saveTurn(day0);
+        await Promise.all(gameMaps.map(map => saveMap(map)));
+        await Promise.all(heavenRooms.map(room => saveRoom(room)));
+        await Promise.all(heavenFurnitures.map(furniture => saveFurniture(furniture)));
+        await Promise.all(characters.map(character => saveCharacter(character)));
+
+        await saveTurn(day0);
         await saveTurn(music);
         await saveTurn(opening);
         await saveTurn(intro);
         saveState({
             currentTurnId: day0.id,
-			currentStepIndex: 0,
+            currentStepIndex: 0,
         });
     } catch (error) {
         alert("Error writing game to storage: " + error);

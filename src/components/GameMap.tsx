@@ -84,7 +84,7 @@ export function GameMap({ ...props }: Props) {
 							dragConstraints={constraintRef}
 							layout
 							transition={commonTransition}
-							className={`w-min h-min p-2 grid auto-rows-[1rem] auto-cols-[1rem]`}
+							className={`w-min h-min p-1 grid auto-rows-[1.25rem] auto-cols-[1.25rem]`}
 						>
 							<HeavenMap
 								isMapExpanded={isMapExpanded}
@@ -115,7 +115,7 @@ export function GameMap({ ...props }: Props) {
 										}}
 									>
 										<MapRoom
-											id={activeRoom.id}
+											roomId={activeRoom.id}
 											transition={commonTransition}
 											className={`w-full max-h-full max-w-full ` + `md:h-full md:w-auto`}
 											style={{

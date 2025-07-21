@@ -16,7 +16,7 @@ export function HeavenMap({ ...props }: Props) {
 		<>
 			{/* heaven couryard*/}
 			<MapRoom
-				id="Heaven Court Yard"
+				roomId="Heaven Court Yard"
 				transition={props.commonTransition}
 				onClick={() => {
 					if (!props.isMapExpanded) return;
@@ -41,7 +41,7 @@ export function HeavenMap({ ...props }: Props) {
 			></div>
 			{/* history hall */}
 			<MapRoom
-				id="History Hall"
+				roomId="History Hall"
 				transition={props.commonTransition}
 				onClick={() => {
 					if (!props.isMapExpanded) return;
