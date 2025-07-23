@@ -61,7 +61,6 @@ export const heavenItems: Item[] = [
         id: "Portrait of Ar En Gesus",
         name: "Portrait of Ar En Gesus",
         description: "A portrait of Ar En Gesus, one of the past Jesuses. Known for his wisdom and compassion, but mostly for his ridiculous luck.",
-        state: "normal",
         gridPosition: {
             x: 3, y: 5
         },

@@ -22,8 +22,6 @@ export function useGameHelper() {
 		currentTurn && currentTurn.type === "game"
 			? currentTurn.steps[currentStepIndex]
 			: null;
-	const currentSpeakerId =
-		currentStep?.type === "dialog" ? currentStep?.speakerId : null;
 	// music related
 	const musicPlayer = useRef(new Audio());
 

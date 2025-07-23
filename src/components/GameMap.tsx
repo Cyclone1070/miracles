@@ -54,6 +54,16 @@ export function GameMap({ ...props }: Props) {
 	return (
 		currentMapId && (
 			<>
+				{activeRoom && (
+					<div
+						className={`absolute inset-0 z-2`}
+						onClick={(e) => {
+							if (isMapExpanded) {
+								e.stopPropagation();
+							}
+						}}
+					></div>
+				)}
 				<div
 					className={mergeClasses(
 						`relative flex justify-center items-center`,

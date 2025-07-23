@@ -34,7 +34,29 @@ function App() {
 			video.onerror = resolve;
 			video.load();
 		});
-		Promise.all([loadVideo]).then(() => {
+
+		const preloadImages = async () => {
+			const imageModules = import.meta.glob(
+				"/*.webp",
+			) as Record<string, () => Promise<{ default: string }>>;
+
+			const promises = Object.values(imageModules).map((loadImage) => {
+				return new Promise((resolve, reject) => {
+					loadImage()
+						.then((img) => {
+							const image = new Image();
+							image.src = img.default;
+							image.onload = resolve;
+							image.onerror = reject;
+						})
+						.catch(reject);
+				});
+			});
+
+			await Promise.all(promises);
+		};
+
+		Promise.all([loadVideo, preloadImages()]).then(() => {
 			setAssetsLoaded(true);
 		});
 	}, []);

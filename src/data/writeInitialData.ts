@@ -43,8 +43,9 @@ export async function writeInitialData(): Promise<void> {
             {
                 type: "animation",
                 id: "intro_2_animation",
-                animationId: "lucifer appears",
+                animationId: "lucifer-appears",
                 characterId: "Lucifer",
+                characterExpression: "happy",
             },
             {
                 type: "dialog",
