@@ -17,9 +17,6 @@ export function useGameHelper() {
 	const [isFetchingResponse, setIsFetchingResponse] = useState(false);
 	const [isGameInitiating, setIsGameInitLoading] = useState(true);
 	const [playerActions, setPlayerActions] = useState<Action[]>([]);
-	// states to determine side to render the acting character in the action
-	const [isActingCharacterLeft, setIsActingCharacterLeft] = useState(false);
-	const prevSpeaker = useRef<string | null>(null);
 	// convenience derived variables
 	const currentStep =
 		currentTurn && currentTurn.type === "game"
@@ -91,19 +88,7 @@ export function useGameHelper() {
 
 	// handle admin turns since they need to auto advance
 	useEffect(() => {
-		if (currentTurn?.type === "music") {
-			const newMusic = currentTurn.newMusic;
-
-			// If a new music file is specified in 'value', play it.
-			if (newMusic && newMusic !== musicPlayer.current.src) {
-				musicPlayer.current.pause();
-				musicPlayer.current.src = newMusic;
-				musicPlayer.current.play();
-				setCurrentMusic(newMusic);
-			}
-
-			advanceTurn();
-		} else if (currentTurn?.type === "map") {
+		if (currentTurn?.type === "map") {
 			setCurrentMapId(currentTurn.newMapId);
 
 			advanceTurn();
@@ -123,6 +108,17 @@ export function useGameHelper() {
 			});
 		}
 	}, [advanceTurn, currentTurn]);
+
+	// play music based on location
+	useEffect(() => {
+		if (currentMapId === "heaven") {
+			if (currentMusic !== "birds-ambience.mp3") {
+				musicPlayer.current.src = "/music/heaven-music.mp3";
+				musicPlayer.current.play();
+				setCurrentMusic("birds-ambience.mp3");
+			}
+		}
+	}, [currentMapId, currentMusic]);
 
 	// function to load next turn
 	// can only advance story if there is a next step, return true if the player action is needed to advance the story
@@ -181,17 +177,6 @@ export function useGameHelper() {
 			window.removeEventListener("pagehide", saveOnExit);
 		};
 	}, []);
-	// handle character images position changes
-	useEffect(() => {
-		if (
-			currentStep?.type === "dialog" &&
-			currentSpeakerId &&
-			currentSpeakerId !== prevSpeaker.current
-		) {
-			prevSpeaker.current = currentSpeakerId;
-			setIsActingCharacterLeft((prev) => !prev);
-		}
-	}, [currentSpeakerId, currentStep?.type]);
 
 	return {
 		currentRoomId,
@@ -201,7 +186,6 @@ export function useGameHelper() {
 		currentDay,
 		currentTurnsLeft,
 		currentMusic,
-		isActingCharacterLeft,
 		isGameInitiating,
 		isFetchingResponse,
 		currentStep,

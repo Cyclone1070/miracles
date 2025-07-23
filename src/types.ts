@@ -17,16 +17,16 @@ export interface SayAction extends BaseAction {
 }
 export interface CreateAction extends BaseAction {
     type: "create";
-	description?: string;
+    description?: string;
 }
 export interface DestroyAction extends BaseAction {
-	type: "destroy";
-	targetId?: string;
+    type: "destroy";
+    targetId?: string;
 }
 export interface TransformAction extends BaseAction {
-	type: "transform";
-	targetId?: string;
-	description?: string;
+    type: "transform";
+    targetId?: string;
+    description?: string;
 }
 export interface MoveAction extends BaseAction {
     type: "move";
@@ -68,14 +68,16 @@ export interface ChoiceStep {
     id: string;
     options: ChoiceOption[];
 }
-export type Step = DialogStep | ActionStep | NarrationStep | ChoiceStep;
+export interface AnimationStep {
+    type: "animation";
+    id: string;
+    animationId: "hold it" | "lucifer appears";
+    characterId?: string;
+}
+export type Step = DialogStep | ActionStep | NarrationStep | ChoiceStep | AnimationStep;
 
 export interface BaseTurn {
     id: number; // Unique identifier for the turn
-}
-export interface MusicTurn extends BaseTurn {
-    type: "music";
-    newMusic: string | null; // URL or path to the music file
 }
 export interface MapTurn extends BaseTurn {
     type: "map";
@@ -95,7 +97,7 @@ export interface GameTurn extends BaseTurn {
     steps: Step[];
     summary?: RoomSummary[];
 }
-export type Turn = GameTurn | MusicTurn | MapTurn | TimeTurn;
+export type Turn = GameTurn | MapTurn | TimeTurn;
 
 export interface SaveState {
     currentTurnId?: number;
@@ -116,7 +118,7 @@ export interface BaseCellObject {
     colorHex: string;
 }
 export interface Item extends BaseCellObject {
-	type: "item";
+    type: "item";
     gridPosition?: {
         x: number;
         y: number;
@@ -125,7 +127,7 @@ export interface Item extends BaseCellObject {
     itemsIdList?: string[];
 }
 export interface Character extends BaseCellObject {
-	type: "character";
+    type: "character";
     gridPosition: {
         x: number;
         y: number;

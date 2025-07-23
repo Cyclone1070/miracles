@@ -132,6 +132,7 @@ export function RoomInfo({ ...props }: Props) {
 										key={item.id}
 										id={item.id}
 										description={item.description}
+										state={item.state}
 										asciiChar={item.asciiChar}
 										colorHex={item.colorHex}
 										className={`pl-4`}
@@ -152,6 +153,7 @@ export function RoomInfo({ ...props }: Props) {
 										key={character.id}
 										id={character.id}
 										description={character.description}
+										state={character.state}
 										asciiChar={character.asciiChar}
 										colorHex={character.colorHex}
 										className={`pl-4`}

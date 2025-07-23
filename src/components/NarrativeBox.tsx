@@ -29,22 +29,29 @@ export function NarrativeBox({ ...props }: Props) {
 
 	// Game manager hooks
 	const {
-		isActingCharacterLeft,
 		currentStep,
 		isFetchingResponse,
 		advanceStory,
 		advanceTurn,
 		currentTurn,
 	} = useGameManager();
-	let currentName = null;
+	const prevSpeakerRef = useRef<string | null>(null);
+	const isLeftRef = useRef(true);
+
+	let currentName: string | null = null;
 	if (currentStep?.type === "dialog") {
 		currentName = currentStep.speakerId;
 	}
 
+	if (currentName && currentName !== prevSpeakerRef.current) {
+		isLeftRef.current = !isLeftRef.current;
+		prevSpeakerRef.current = currentName;
+	}
+	const isActingCharacterLeft = isLeftRef.current;
+
 	useEffect(() => {
 		const element = textContainerRef.current;
 		if (!element) return;
-
 		const handleScroll = () => {
 			const isAtEnd =
 				element.scrollHeight -

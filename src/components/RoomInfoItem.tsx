@@ -11,6 +11,7 @@ interface Props {
 	asciiChar: string;
 	colorHex: string;
 	description: string;
+	state?: string;
 	isItem?: boolean;
 	inspectId?: string | null;
 	setInspectId?: React.Dispatch<React.SetStateAction<string | null>>;
@@ -79,6 +80,16 @@ export function RoomInfoItem({ ...props }: Props) {
 						<div className="text-sm text-(--text-secondary)">
 							{props.description}
 						</div>
+						{props.state && (
+							<>
+								<div className="text-sm text-gray-300 underline mt-2">
+									State:
+								</div>
+								<div className="text-sm text-gray-400">
+									{props.state}
+								</div>
+							</>
+						)}
 						{items.length > 0 && (
 							<>
 								<div className="text-sm text-gray-300 underline mt-2">

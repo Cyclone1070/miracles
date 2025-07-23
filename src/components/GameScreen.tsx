@@ -38,7 +38,7 @@ export function GameScreen({ ...props }: Props) {
 			)}
 		>
 			<BgImage className={`-z-1`} />
-			<CharacterImages className={`absolute bottom-0 w-full`} />
+			<CharacterImages className={`absolute inset-0 -z-1 mb-50 md:mb-auto`} />
 
 			{/* upper part of the screen */}
 			<div className="w-full relative mb-10 flex flex-col flex-1 min-h-0 ">

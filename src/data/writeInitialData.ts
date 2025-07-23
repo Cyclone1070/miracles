@@ -1,5 +1,5 @@
 import { saveCharacter, saveItem, saveMap, saveRoom, saveState, saveTurn } from "../game/storage";
-import type { GameTurn, MapTurn, MusicTurn, TimeTurn } from "../types";
+import type { GameTurn, MapTurn, TimeTurn } from "../types";
 import { characters } from "./characters";
 import { heavenItems } from "./items/heavenItems";
 import { gameMaps } from "./maps/gameMaps";
@@ -12,22 +12,20 @@ export async function writeInitialData(): Promise<void> {
         newDay: 0,
         newTurnLimit: 0, // Set a limit for the number of turns in this day
     }
-    const music: MusicTurn = {
-        type: "music",
-        id: 2,
-        newMusic: "/birds-ambience.mp3",
-    };
     const opening: MapTurn = {
         type: "map",
-        id: 3,
+        id: 2,
         newMapId: "heaven",
     }
     const intro: GameTurn = {
         type: "game",
-        id: 4,
+        id: 3,
         summary: [{
             roomId: "heaven",
             eventSummary: "A normal day in heaven, Lucifer appears to greet Jesus."
+        }, {
+            roomId: "Heaven Courtyard",
+            eventSummary: "Nothing of note happened."
         }],
         steps: [
             {
@@ -41,6 +39,12 @@ export async function writeInitialData(): Promise<void> {
                 text: "...",
                 speakerId: "Jesus",
                 speakerExpression: "neutral"
+            },
+            {
+                type: "animation",
+                id: "intro_2_animation",
+                animationId: "lucifer appears",
+                characterId: "Lucifer",
             },
             {
                 type: "dialog",
@@ -70,7 +74,6 @@ export async function writeInitialData(): Promise<void> {
         await Promise.all(characters.map(character => saveCharacter(character)));
 
         await saveTurn(day0);
-        await saveTurn(music);
         await saveTurn(opening);
         await saveTurn(intro);
         saveState({
