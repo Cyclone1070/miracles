@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { writeInitialData } from "../data/writeInitialData";
 import type { Action, SaveState, Turn } from "../types";
 import { loadState, loadTurn, saveState } from "./storage";
@@ -12,6 +12,7 @@ export function useGameHelper() {
 	const [currentDay, setCurrentDay] = useState<number>();
 	const [currentMusic, setCurrentMusic] = useState<string>();
 	const [currentTurnsLeft, setCurrentTurnsLeft] = useState<number>();
+	const [currentRoomId, setCurrentRoom] = useState<string>();
 
 	const [isFetchingResponse, setIsFetchingResponse] = useState(false);
 	const [isGameInitiating, setIsGameInitLoading] = useState(true);
@@ -40,7 +41,7 @@ export function useGameHelper() {
 
 				// Load the current save state on game load
 				const currentSaveState = loadState();
-				if (!currentSaveState) {
+				if (!currentSaveState || !currentSaveState.currentTurnId) {
 					alert(
 						"Failed to initialise game: save state not found. Please refresh the page.",
 					);
@@ -51,6 +52,7 @@ export function useGameHelper() {
 				setCurrentDay(currentSaveState.currentDay);
 				setCurrentTurnsLeft(currentSaveState.currentTurnsLeft);
 				setCurrentMusic(currentSaveState.currentMusic);
+				setCurrentRoom(currentSaveState.currentRoomId);
 				if (currentSaveState.currentMusic) {
 					musicPlayer.current.loop = true;
 					musicPlayer.current.src = currentSaveState.currentMusic;
@@ -58,13 +60,10 @@ export function useGameHelper() {
 				}
 				setIsGameInitLoading(false);
 
-				// load turn from turn id
-				if (currentSaveState.currentTurnId) {
-					const currentTurn = await loadTurn(
-						currentSaveState.currentTurnId,
-					);
-					setCurrentTurn(currentTurn);
-				}
+				const currentTurn = await loadTurn(
+					currentSaveState.currentTurnId,
+				);
+				setCurrentTurn(currentTurn);
 			} catch (error) {
 				alert("Error initialising game: " + error);
 				console.error(error);
@@ -78,6 +77,17 @@ export function useGameHelper() {
 			}
 		};
 	}, []);
+
+	const advanceTurn = useCallback(async () => {
+		if (!currentTurn) return;
+		const nextTurn = await loadTurn(currentTurn.id + 1);
+		if (!nextTurn) {
+			alert("No next turn found. Please check your game data.");
+			return;
+		}
+		setCurrentTurn(nextTurn);
+		setCurrentStepIndex(0);
+	}, [currentTurn]);
 
 	// handle admin turns since they need to auto advance
 	useEffect(() => {
@@ -112,19 +122,9 @@ export function useGameHelper() {
 				return prev - 1;
 			});
 		}
-	}, [currentTurn]);
+	}, [advanceTurn, currentTurn]);
 
 	// function to load next turn
-	async function advanceTurn() {
-		if (!currentTurn) return;
-		const nextTurn = await loadTurn(currentTurn.id + 1);
-		if (!nextTurn) {
-			alert("No next turn found. Please check your game data.");
-			return;
-		}
-		setCurrentTurn(nextTurn);
-		setCurrentStepIndex(0);
-	}
 	// can only advance story if there is a next step, return true if the player action is needed to advance the story
 	function advanceStory() {
 		if (!currentTurn || currentTurn.type !== "game") return false;
@@ -165,6 +165,7 @@ export function useGameHelper() {
 			currentDay,
 			currentTurnsLeft,
 			currentMusic,
+			currentRoomId: currentRoomId,
 		};
 	});
 
@@ -190,9 +191,10 @@ export function useGameHelper() {
 			prevSpeaker.current = currentSpeakerId;
 			setIsActingCharacterLeft((prev) => !prev);
 		}
-	}, [currentSpeakerId]);
+	}, [currentSpeakerId, currentStep?.type]);
 
 	return {
+		currentRoomId,
 		currentTurn,
 		currentStepIndex,
 		currentMapId,

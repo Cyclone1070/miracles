@@ -32,22 +32,34 @@ body {
 	overscroll-behavior: none;
 	overflow: hidden;
 }
-input {
+
+input,
+textarea {
 	min-width: 0;
+	outline: none;
 }
+
+input:focus,
+textarea:focus {
+	border-color: white;
+}
+
 @layer utilities {
+
 	/* normal */
 	.adaptive-size {
 		width: 100%;
 		height: 100%;
 		object-fit: fill;
 	}
+
 	/* narrow */
 	@media (max-aspect-ratio: 1.5/1) {
 		.adaptive-size {
 			object-fit: cover;
 		}
 	}
+
 	/* wide */
 	@media (min-aspect-ratio: 2/1) {
 		.adaptive-size {

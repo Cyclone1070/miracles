@@ -10,7 +10,6 @@ import { HighlightButton } from "./HighlightButton";
 interface Props {
 	className?: string;
 	children?: React.ReactNode;
-	setIsMainMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export function NarrativeBox({ ...props }: Props) {
@@ -97,30 +96,10 @@ export function NarrativeBox({ ...props }: Props) {
 
 	return (
 		<>
-			{/* Back button to main menu */}
-			<motion.div
-				variants={{
-					visible: { opacity: 1, y: 0, x: 0, visibility: "visible" },
-					hidden: { opacity: 0, y: -5, x: -5, visibility: "hidden" },
-				}}
-				animate={isActionExpanded ? "visible" : "hidden"}
-				transition={{ ease: "easeInOut", duration: 0.3 }}
-				className={`fixed top-4 left-4 z-11`}
-			>
-				<HighlightButton
-					className={`w-10 h-10 rounded-full`}
-					onClick={(e) => {
-						e.stopPropagation();
-						props.setIsMainMenuOpen(true);
-					}}
-				>
-					&lt;
-				</HighlightButton>
-			</motion.div>
 			<div
 				ref={narrativeBoxRef}
 				className={mergeClasses(
-					`relative border-2 border-t-0 border-(--accent) rounded-xl text-white p-2 pt-8 pb-10 cursor-pointer`,
+					`relative border-2 border-t-0 border-(--accent) rounded-xl text-white p-2 pt-8 pb-10 md:px-6 cursor-pointer`,
 					props.className,
 				)}
 				onClick={() => {

@@ -7,22 +7,32 @@ export interface BaseAction {
 export interface DoAction extends BaseAction {
     type: "do";
     action: string;
-    using?: string[];
-    target?: string[];
+    using?: string;
+    target?: string;
 }
 export interface SayAction extends BaseAction {
     type: "say";
     dialog: string;
-    target: string;
+    target?: string;
 }
-export interface MiracleAction extends BaseAction {
-    type: "miracle";
+export interface CreateAction extends BaseAction {
+    type: "create";
+	description?: string;
+}
+export interface DestroyAction extends BaseAction {
+	type: "destroy";
+	targetId?: string;
+}
+export interface TransformAction extends BaseAction {
+	type: "transform";
+	targetId?: string;
+	description?: string;
 }
 export interface MoveAction extends BaseAction {
     type: "move";
     destinationId: string;
 }
-export type Action = DoAction | SayAction | MiracleAction | MoveAction;
+export type Action = DoAction | SayAction | CreateAction | MoveAction | DestroyAction | TransformAction;
 
 // story steps interfaces
 export interface DialogStep {
@@ -89,6 +99,7 @@ export type Turn = GameTurn | MusicTurn | MapTurn | TimeTurn;
 
 export interface SaveState {
     currentTurnId?: number;
+    currentRoomId?: string;
     currentStepIndex: number;
     currentMapId?: string;
     currentDay?: number;
@@ -99,28 +110,29 @@ export interface SaveState {
 // game data interfaces
 export interface BaseCellObject {
     id: string;
-    state?: string; // Optional state for the object
+    state?: string;
     description: string;
-    gridPosition: {
-        x: number; // X coordinate in the grid
-        y: number; // Y coordinate in the grid
-    };
-    asciiChar: string; // Optional ASCII art representation
-    colorHex: string; // Optional color for the furniture
+    asciiChar: string;
+    colorHex: string;
 }
-export interface Furniture extends BaseCellObject {
+export interface Item extends BaseCellObject {
+	type: "item";
+    gridPosition?: {
+        x: number;
+        y: number;
+    };
     name: string;
-    itemsIdList?: string[]; // Optional, list of items on the furniture
+    itemsIdList?: string[];
 }
 export interface Character extends BaseCellObject {
-    itemsIdList?: string[]; // Optional, list of items the character has
+	type: "character";
+    gridPosition: {
+        x: number;
+        y: number;
+    };
+    itemsIdList?: string[];
 }
-export interface Item {
-    id: string;
-    name: string;
-    description: string;
-    state?: string;
-}
+export type GameObject = Item | Character;
 export interface Room {
     id: string;
     description: string;
@@ -128,7 +140,6 @@ export interface Room {
     inViewRooms?: string[];
     width: number; // Width of the room in grid units
     height: number; // Height of the room in grid units
-    furnituresIdList?: string[]; // Optional, list of furniture in the room
     charactersIdList?: string[]; // Optional, list of characters in the room
     itemsIdList?: string[]; // Optional, list of items in the room
 }

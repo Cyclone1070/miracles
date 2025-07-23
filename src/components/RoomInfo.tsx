@@ -1,45 +1,55 @@
 import { useEffect, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import { useGameManager } from "../context/GameContext";
 import {
 	getAllCharactersInRoom,
-	getAllFurnitureInRoom,
 	getAllItemsInRoom,
 	loadRoom,
 } from "../game/storage";
-import type { Character, Furniture, Item, Room } from "../types";
+import type { Character, Item, Room } from "../types";
 import { mergeClasses } from "../utils/tailwindMerge";
 import { HighlightButton } from "./HighlightButton";
 import { RoomInfoItem } from "./RoomInfoItem";
-import { v4 as uuidv4 } from "uuid";
 
 interface Props {
 	className?: string;
 	roomId: string;
 	inspectId?: string | null;
+	setInspectId?: React.Dispatch<React.SetStateAction<string | null>>;
+	setActiveRoom: React.Dispatch<
+		React.SetStateAction<{
+			id: string;
+			width: number;
+			height: number;
+		} | null>
+	>;
 }
 
 export function RoomInfo({ ...props }: Props) {
-	const [furnitures, setFurnitures] = useState<Furniture[]>();
 	const [characters, setCharacters] = useState<Character[]>();
 	const [items, setItems] = useState<Item[]>();
 	const [roomInfo, setRoomInfo] = useState<Room>();
-	const { setPlayerActions, currentMapId } = useGameManager();
+	const [currentRoomInfo, setCurrentRoomInfo] = useState<Room>();
+	const { setPlayerActions, currentMapId, currentRoomId } = useGameManager();
 
 	// fetching useEffect
 	useEffect(() => {
 		async function fetchData() {
+			if (!props.roomId || !currentRoomId) {
+				return;
+			}
+
 			try {
 				const fetchedRoomInfo: Room = await loadRoom(props.roomId);
-				const fetchedFurnitures: Furniture[] =
-					await getAllFurnitureInRoom(props.roomId);
 				const fetchedCharacters: Character[] =
 					await getAllCharactersInRoom(props.roomId);
 				const fetchedItems: Item[] = await getAllItemsInRoom(
 					props.roomId,
 				);
+				const currentRoom: Room = await loadRoom(currentRoomId);
+				setCurrentRoomInfo(currentRoom);
 
 				setRoomInfo(fetchedRoomInfo);
-				setFurnitures(fetchedFurnitures);
 				setCharacters(fetchedCharacters);
 				setItems(fetchedItems);
 			} catch (error) {
@@ -48,7 +58,7 @@ export function RoomInfo({ ...props }: Props) {
 			}
 		}
 		fetchData();
-	}, []);
+	}, [currentRoomId, props.roomId]);
 
 	return (
 		<div
@@ -63,62 +73,69 @@ export function RoomInfo({ ...props }: Props) {
 						className={`flex items-center gap-2 justify-between my-2`}
 					>
 						<h2 className="text-2xl font-bold">{roomInfo.id}</h2>
-						<HighlightButton
-							onClick={() => {
-								setPlayerActions((prev) => {
-									if (prev.length >= 4) {
-										alert(
-											"You can only have 4 actions per turn!",
-										);
-										return prev;
-									}
-									if (
-										prev.some(
-											(action) => action.type === "move",
-										)
-									) {
-										alert(
-											"You can only have one move action per turn!",
-										);
-										return prev;
-									}
-									return [
-										...prev,
-										{
-											id: uuidv4(),
-											characterId:
-												currentMapId === "heaven"
-													? "Jesus"
-													: "Big Shot",
-											expression: "neutral",
-											type: "move",
-											destinationId: props.roomId,
-										},
-									];
-								});
-							}}
-							className={`shrink-0`}
-						>
-							Move here
-						</HighlightButton>
+						{currentRoomInfo?.connectedRooms?.includes(
+							props.roomId,
+						) && (
+							<HighlightButton
+								onClick={() => {
+									setPlayerActions((prev) => {
+										if (prev.length >= 4) {
+											alert(
+												"You can only have 4 actions per turn!",
+											);
+											return prev;
+										}
+										if (
+											prev.some(
+												(action) =>
+													action.type === "move",
+											)
+										) {
+											alert(
+												"You can only have one move action per turn!",
+											);
+											return prev;
+										}
+										return [
+											...prev,
+											{
+												id: uuidv4(),
+												characterId:
+													currentMapId === "heaven"
+														? "Jesus"
+														: "Big Shot",
+												expression: "neutral",
+												type: "move",
+												destinationId: props.roomId,
+											},
+										];
+									});
+									props.setActiveRoom(null);
+								}}
+								className={`shrink-0`}
+							>
+								Move here
+							</HighlightButton>
+						)}
 					</div>
 					<p className="text-sm text-(--text-secondary)">
 						{roomInfo.description}
 					</p>
-					{furnitures && furnitures.length > 0 && (
+					{items && items.length > 0 && (
 						<div>
-							<h3 className="text-xl underline">Furnitures:</h3>
-							<div className={`flex flex-col gap-4`}>
-								{furnitures.map((furniture) => (
+							<h3 className="text-xl underline">Items:</h3>
+							<div className={`flex flex-col gap-3`}>
+								{items.map((item) => (
 									<RoomInfoItem
 										inspectId={props.inspectId}
-										key={furniture.id}
-										id={furniture.id}
-										description={furniture.description}
-										asciiChar={furniture.asciiChar}
-										colorHex={furniture.colorHex}
+										setInspectId={props.setInspectId}
+										key={item.id}
+										id={item.id}
+										description={item.description}
+										asciiChar={item.asciiChar}
+										colorHex={item.colorHex}
 										className={`pl-4`}
-										isFurniture
+										isItem
 									></RoomInfoItem>
 								))}
 							</div>
@@ -127,34 +144,17 @@ export function RoomInfo({ ...props }: Props) {
 					{characters && characters.length > 0 && (
 						<div>
 							<h3 className="text-xl underline">Characters:</h3>
-							<div className={`flex flex-col gap-4`}>
+							<div className={`flex flex-col gap-3`}>
 								{characters.map((character) => (
 									<RoomInfoItem
 										inspectId={props.inspectId}
+										setInspectId={props.setInspectId}
 										key={character.id}
 										id={character.id}
 										description={character.description}
 										asciiChar={character.asciiChar}
 										colorHex={character.colorHex}
 										className={`pl-4`}
-									></RoomInfoItem>
-								))}
-							</div>
-						</div>
-					)}
-					{items && items.length > 0 && (
-						<div>
-							<h3 className="text-xl underline">Items:</h3>
-							<div className={`flex flex-col gap-4`}>
-								{items.map((item) => (
-									<RoomInfoItem
-										key={item.id}
-										id={item.id}
-										description={item.description}
-										asciiChar={"I"}
-										colorHex={"#e8e8e8"}
-										className={`pl-4`}
-										isItem
 									></RoomInfoItem>
 								))}
 							</div>

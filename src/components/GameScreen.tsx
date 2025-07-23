@@ -43,7 +43,7 @@ export function GameScreen({ ...props }: Props) {
 			{/* upper part of the screen */}
 			<div className="w-full relative mb-10 flex flex-col flex-1 min-h-0 ">
 				<GameMap
-					className={`self-center w-full h-full max-w-200 mb-10`}
+					className={`self-center w-full h-full max-w-200 pb-12`}
 				></GameMap>
 				<PlayerActionInputArea
 					className={`absolute inset-x-0 bottom-0`}
@@ -52,9 +52,8 @@ export function GameScreen({ ...props }: Props) {
 
 			<NarrativeBox
 				className={`w-full h-54 max-w-200`}
-				setIsMainMenuOpen={props.setIsMainMenuOpen}
 			/>
-			<BottomBar />
+			<BottomBar setIsMainMenuOpen={props.setIsMainMenuOpen}/>
 		</motion.div>
 	);
 }

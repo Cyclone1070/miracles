@@ -1,9 +1,6 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
-import {
-	getAllItemsInCharacter,
-	getAllItemsInFurniture,
-} from "../game/storage";
+import { getAllItemsInCharacter } from "../game/storage";
 import type { Item } from "../types";
 import { mergeClasses } from "../utils/tailwindMerge";
 import { HighlightButton } from "./HighlightButton";
@@ -14,9 +11,9 @@ interface Props {
 	asciiChar: string;
 	colorHex: string;
 	description: string;
-	isFurniture?: boolean;
 	isItem?: boolean;
 	inspectId?: string | null;
+	setInspectId?: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 export function RoomInfoItem({ ...props }: Props) {
@@ -30,11 +27,8 @@ export function RoomInfoItem({ ...props }: Props) {
 
 		async function fetchItems() {
 			try {
-				if (props.isFurniture) {
-					const fetchedItems = await getAllItemsInFurniture(props.id);
-					setItems(fetchedItems);
-				} else {
-					// If it's not furniture, we can fetch items the character
+				if (!props.isItem) {
+					// If it's not an item, we can fetch items the character inventory
 					const fetchedItems = await getAllItemsInCharacter(props.id);
 					setItems(fetchedItems);
 				}
@@ -43,23 +37,29 @@ export function RoomInfoItem({ ...props }: Props) {
 			}
 		}
 		fetchItems();
-	}, []);
+	}, [props.id, props.isItem]);
 
 	return (
 		<div className={mergeClasses(`flex flex-col`, props.className)}>
 			<HighlightButton
-				className={`flex rounded-sm px-2 cursor-pointer p-1 bg-transparent shadow-none text-left`}
+				className={`flex rounded-sm p-2 cursor-pointer bg-transparent shadow-none text-left`}
 				key={props.id}
-				onClick={() => setIsExpanded((prev) => !prev)}
+				onClick={() => {
+					setIsExpanded((prev) => !prev);
+					if (props.inspectId === props.id) {
+						props.setInspectId?.(null);
+					}
+				}}
 			>
 				<div
-					className={`w-6 h-6 rounded-sm flex justify-center items-center`}
+					className={
+						`w-6 h-6 rounded-sm flex justify-center items-center ` +
+						`${props.isItem && "font-bold"}`
+					}
 					style={
-						props.isFurniture
+						props.isItem
 							? { color: props.colorHex }
-							: props.isItem
-								? {}
-								: { backgroundColor: props.colorHex }
+							: { backgroundColor: props.colorHex }
 					}
 				>
 					{props.asciiChar}
@@ -82,9 +82,7 @@ export function RoomInfoItem({ ...props }: Props) {
 						{items.length > 0 && (
 							<>
 								<div className="text-sm text-gray-300 underline mt-2">
-									{props.isFurniture
-										? "Inside:"
-										: "Inventory:"}
+									Inventory:
 								</div>
 								<div className="flex flex-col gap-2">
 									{items.map((item) => (
@@ -92,8 +90,8 @@ export function RoomInfoItem({ ...props }: Props) {
 											key={item.id}
 											id={item.id}
 											description={item.description}
-											asciiChar={"I"}
-											colorHex={"#e8e8e8"}
+											asciiChar={item.asciiChar}
+											colorHex={item.colorHex}
 											className={`pl-4`}
 											isItem
 										></RoomInfoItem>
@@ -107,4 +105,3 @@ export function RoomInfoItem({ ...props }: Props) {
 		</div>
 	);
 }
-

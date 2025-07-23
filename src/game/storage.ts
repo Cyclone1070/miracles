@@ -1,4 +1,4 @@
-import type { Character, Furniture, GameMap, Item, Room, SaveState, Turn } from "../types";
+import type { Character, GameMap, Item, Room, SaveState, Turn } from "../types";
 import { getObject, putObject } from "../utils/indexedDb";
 
 const SAVE_STATE_KEY = 'miracle_save_state';
@@ -54,26 +54,6 @@ export async function loadRoom(roomId: string): Promise<Room> {
     return room;
 }
 
-// furniture
-export async function saveFurniture(furniture: Furniture): Promise<void> {
-    await putObject("furniture", furniture);
-}
-export async function loadFurniture(furnitureId: string): Promise<Furniture> {
-    const furniture = await getObject<Furniture>("furniture", furnitureId);
-    if (!furniture) {
-        throw new Error(`Furniture with ID ${furnitureId} not found`);
-    }
-    return furniture;
-}
-
-export async function getAllFurnitureInRoom(roomId: string): Promise<Furniture[]> {
-    const room = await loadRoom(roomId);
-    if (!room.furnituresIdList || room.furnituresIdList.length === 0) {
-        return [];
-    }
-    const furniturePromises = room.furnituresIdList.map(id => loadFurniture(id));
-    return Promise.all(furniturePromises);
-}
 // characters
 export async function saveCharacter(character: Character): Promise<void> {
     await putObject("characters", character);
@@ -98,7 +78,7 @@ export async function saveItem(item: Item): Promise<void> {
     await putObject("items", item);
 }
 export async function loadItem(itemId: string): Promise<Item> {
-    const item = await getObject<Furniture>("items", itemId);
+    const item = await getObject<Item>("items", itemId);
     if (!item) {
         throw new Error(`Item with ID ${itemId} not found`);
     }
@@ -110,14 +90,6 @@ export async function getAllItemsInRoom(roomId: string): Promise<Item[]> {
         return [];
     }
     const itemPromises = room.itemsIdList.map(id => loadItem(id));
-    return Promise.all(itemPromises);
-}
-export async function getAllItemsInFurniture(furnitureId: string): Promise<Item[]> {
-    const furniture = await loadFurniture(furnitureId);
-    if (!furniture.itemsIdList || furniture.itemsIdList.length === 0) {
-        return [];
-    }
-    const itemPromises = furniture.itemsIdList.map(id => loadItem(id));
     return Promise.all(itemPromises);
 }
 export async function getAllItemsInCharacter(characterId: string): Promise<Item[]> {

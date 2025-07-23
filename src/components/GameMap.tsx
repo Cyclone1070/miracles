@@ -60,7 +60,7 @@ export function GameMap({ ...props }: Props) {
 						props.className,
 					)}
 				>
-					{/* map view port */}
+					{/* map viewport */}
 					<motion.div
 						layoutId="map-viewport"
 						data-map-none-close-click
@@ -76,7 +76,7 @@ export function GameMap({ ...props }: Props) {
 						animate={isMapExpanded ? "expanded" : "collapsed"}
 						ref={constraintRef}
 						className={
-							`will-change-transform overflow-hidden max-w-min max-h-min flex justify-center items-center rounded-md ` +
+							`will-change-transform overflow-hidden w-full h-full max-w-min max-h-min flex justify-center items-center rounded-md ` +
 							`${!isMapExpanded && "absolute top-0 right-0 translate-x-1/4 -translate-y-1/4 md:bottom-0 md:top-auto md:translate-y-1/4 cursor-pointer"} `
 						}
 						onClick={() => {
@@ -112,7 +112,7 @@ export function GameMap({ ...props }: Props) {
 							<div
 								className={
 									`fixed inset-0 m-auto flex flex-col gap-4 z-10 p-4 max-w-200 ` +
-									`md:absolute md:flex-row`
+									`md:absolute bottom-10 md:flex-row`
 								}
 							>
 								<motion.div
@@ -149,10 +149,12 @@ export function GameMap({ ...props }: Props) {
 									animate={{ opacity: 1, y: 0 }}
 									exit={{ opacity: 0, y: 20 }}
 									transition={commonTransition}
-									className={`flex-3 basis-0 bg-(--theme-bg) rounded-xl overflow-y-auto`}
+									className={`flex-3 basis-0 bg-(--theme-bg) md:bg-(--bg) rounded-xl overflow-y-auto`}
 								>
 									<RoomInfo
+										setActiveRoom={setActiveRoom}
 										inspectId={inspectId}
+										setInspectId={setInspectId}
 										roomId={activeRoom.id}
 										className={`w-full`}
 									></RoomInfo>

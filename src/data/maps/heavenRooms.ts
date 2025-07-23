@@ -9,8 +9,7 @@ export const heavenRooms: Room[] = [
         width: 9,
         height: 9,
         charactersIdList: ["Jesus"],
-        furnituresIdList: ["Magic trees", "Magic trees 2", "Magic trees 3", "Magic trees 4"],
-		itemsIdList: ["Newspaper"]
+		itemsIdList: ["Newspaper", "Magic trees", "Magic trees 2", "Magic trees 3", "Magic trees 4"]
     },
     {
         id: "History Hall",
@@ -18,6 +17,6 @@ export const heavenRooms: Room[] = [
         connectedRooms: ["Heaven Courtyard"],
         width: 5,
         height: 5,
-        furnituresIdList: ["Portrait of Jonathan Cheesus", "Portrait of Ar En Gesus"],
+        itemsIdList: ["Portrait of Jonathan Cheesus", "Portrait of Ar En Gesus"],
     }
 ]

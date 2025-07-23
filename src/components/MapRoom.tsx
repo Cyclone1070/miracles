@@ -1,17 +1,17 @@
 import { motion, type Transition } from "motion/react";
 import {
-    useEffect,
-    useLayoutEffect,
-    useRef,
-    useState,
-    type MouseEventHandler,
+	useEffect,
+	useLayoutEffect,
+	useRef,
+	useState,
+	type MouseEventHandler,
 } from "react";
 import {
-    getAllCharactersInRoom,
-    getAllFurnitureInRoom,
-    loadRoom,
+	getAllCharactersInRoom,
+	getAllItemsInRoom,
+	loadRoom,
 } from "../game/storage";
-import type { Character, Furniture, Room } from "../types";
+import type { Character, Item, Room } from "../types";
 import { mergeClasses } from "../utils/tailwindMerge";
 import { HighlightButton } from "./HighlightButton";
 
@@ -25,7 +25,7 @@ interface Props {
 }
 
 export function MapRoom({ ...props }: Props) {
-	const [furnitures, setFurnitures] = useState<Furniture[]>();
+	const [items, setItems] = useState<Item[]>();
 	const [characters, setCharacters] = useState<Character[]>();
 	const [roomInfo, setRoomInfo] = useState<Room>();
 
@@ -35,13 +35,14 @@ export function MapRoom({ ...props }: Props) {
 		async function fetchData() {
 			try {
 				const fetchedRoomInfo: Room = await loadRoom(props.roomId);
-				const fetchedFurnitures: Furniture[] =
-					await getAllFurnitureInRoom(props.roomId);
+				const fetchedItems: Item[] = await getAllItemsInRoom(
+					props.roomId,
+				);
 				const fetchedCharacters: Character[] =
 					await getAllCharactersInRoom(props.roomId);
 
 				setRoomInfo(fetchedRoomInfo);
-				setFurnitures(fetchedFurnitures);
+				setItems(fetchedItems);
 				setCharacters(fetchedCharacters);
 			} catch (error) {
 				alert("Failed to load room data. " + error);
@@ -49,7 +50,7 @@ export function MapRoom({ ...props }: Props) {
 			}
 		}
 		fetchData();
-	}, []);
+	}, [props.roomId]);
 
 	// calculate font size based on cell size
 	useLayoutEffect(() => {
@@ -61,7 +62,7 @@ export function MapRoom({ ...props }: Props) {
 
 		const fontSize = Math.max(cellSize * 0.8); // Ensure minimum font size
 		gridRef.current.style.fontSize = `${fontSize}px`;
-	}, [gridRef.current]);
+	}, [roomInfo]);
 
 	return (
 		<motion.div
@@ -80,26 +81,33 @@ export function MapRoom({ ...props }: Props) {
 				gridTemplateRows: `repeat(${roomInfo?.height ?? 1}, minmax(0, 1fr))`,
 			}}
 		>
-			{furnitures?.map((furniture) => (
-				<HighlightButton
-					key={furniture.id}
-					onClick={() => {
-						if (props.setInspectId) {
-							props.setInspectId(furniture.id);
-						}
-					}}
-					className={`col-span-1 row-span-1 flex justify-center items-center w-full h-full bg-transparent shadow-none`}
-					style={{
-						color: furniture.colorHex,
-						gridColumnStart: furniture.gridPosition.x,
-						gridRowStart: furniture.gridPosition.y,
-					}}
-				>
-					{furniture.asciiChar}
-				</HighlightButton>
-			))}
+			{items?.map((items) => {
+				if (!items.gridPosition) {
+					return;
+				}
+				return (
+					<HighlightButton
+						disabled={props.onClick !== undefined}
+						key={items.id}
+						onClick={() => {
+							if (props.setInspectId) {
+								props.setInspectId(items.id);
+							}
+						}}
+						className={`col-span-1 row-span-1 flex justify-center items-center w-full h-full bg-transparent shadow-none font-bold`}
+						style={{
+							color: items.colorHex,
+							gridColumnStart: items.gridPosition.x,
+							gridRowStart: items.gridPosition.y,
+						}}
+					>
+						{items.asciiChar}
+					</HighlightButton>
+				);
+			})}
 			{characters?.map((character) => (
 				<HighlightButton
+					disabled={props.onClick !== undefined}
 					key={character.id}
 					onClick={() => {
 						if (props.setInspectId) {

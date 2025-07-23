@@ -1,6 +1,6 @@
 const DB_NAME = 'MiraclesDB';
 const DB_VERSION = 1;
-const STORE_NAMES = ["maps", "rooms", "characters", "items", "turns", "furniture"];
+const STORE_NAMES = ["maps", "rooms", "characters", "items", "turns"];
 
 let dbPromise: Promise<IDBDatabase> | null = null;
 
