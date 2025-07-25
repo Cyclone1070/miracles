@@ -36,6 +36,9 @@ You are the "Game Master" for a text-based adventure game called "Miracles". You
 ### GAME RULES & TONE
 - The narrative tone should be witty, humorous, and slightly surreal.
 - Characters must act according to their established personalities
+- The NPCs are all police officers, detectives, or other law enforcement personnel, so they are very smart, logical, and observant. They will suspect the player character if they act suspiciously or use their powers in an obvious way. Make it hard for the player to avoid suspicion.
+- The destroy miracle is very loud and will attract attention even from other connected or in view rooms.
+- If any NPC suspects the player character, they will perform a "Hold It!" animation, which is a special animation that indicates suspicion. If the player is suspected, they must resolve the suspicion in the next turn or they will lose the game.
 - Events should logically follow from the characters' actions and the current state of the world.
 - Only modify the state of characters and items that are directly involved in or affected by the turn's events. Do not change things arbitrarily.
 - **Schema Adherence is Absolute:** Every single field marked as "required" in the schema MUST be present in your response. This is not optional. Every single value with enum fields must be one of the specified values. Don't make up more values.
@@ -47,18 +50,21 @@ The following sections contain the data for the current turn.
 
 **1. CURRENT WORLD STATE:**
 This JSON object describes the player's current environment.
+
 \`\`\`json
 ${worldStateJson}
 \`\`\`
 
 **2. GAME HISTORY:**
-This is a JSON array containing the full details of previous turns, in chronological order. It provides the complete narrative and event context for the game so far. Each object in the array is a "Turn" object, which has a \`type\` field that determines its structure:
+This is a JSON array containing the full details of previous turns, in chronological order. It provides the complete narrative and event context for the game so far. Each object in the array is a "Turn" object:
+
 \`\`\`json
 ${historyJson}
 \`\`\`
 
 **3. CHARACTERS ACTIONS FOR THIS TURN:**
-This is a JSON array of actions characters (including the player) are planning to do this turn. Treat these as attempts to perform actions, which may or may not succeed based on the game state and other characters actions. Each action object has:
+This is a JSON array of actions the player character, ${currentPlayerCharacterId}, is planning to do this turn. Treat these as attempts to perform actions, which may or may not succeed based on the game state and other characters actions:
+
 \`\`\`json
 ${playerActionsJson}
 \`\`\`
@@ -67,11 +73,12 @@ ${playerActionsJson}
 
 ### YOUR TASK
 Based on all the information above, generate the next game turn as a JSON object.
-2.  Determine the consequences and outcomes of the characters' actions interacting together with the current world state.
-3.  Describe all events in a sequence of narrative steps ("dialog", "action", "narration").
-4.  Define the changes to any characters or items that occurred during the turn.
-5.  Output this all as a single JSON object that validates against the schema.
-1.  Decide on the next turn actions for all Non-Player Characters (NPCs).
+1.  Determine the consequences and outcomes of the characters' actions interacting together with the current world state.
+2.  Describe all events in a sequence of narrative steps ("dialog", "action", "narration").
+3.  Define the changes to any characters or items that occurred during the turn.
+4.  Output this all as a single JSON object that validates against the schema.
+5.  Decide on the next turn actions for all Non-Player Characters (NPCs).
+6.	Make the player lose the game if they are suspected. Make it a hard game, don't go easy on the player.
 `;
 }
 
@@ -207,7 +214,7 @@ export function buildFinalSchema(roomIds: string[], npcIds: string[], characterI
             description: "A chronological array of narrative events. All text fields should be plain text. You should try to generate 10 to 16 new steps per turn, can be more if needed.",
             type: "array",
             items: {
-				minItems: 10,
+                minItems: 10,
                 description: "A single narrative event. Must be one of DialogStep, ActionStep, or NarrationStep or HoldItAnimation.",
                 anyOf: [
                     {
@@ -217,13 +224,13 @@ export function buildFinalSchema(roomIds: string[], npcIds: string[], characterI
                             type: { type: "string", enum: ["animation"], description: "The type of step, must be 'animation' for HoldItAnimation." },
                             animationId: { type: "string", enum: ["hold-it"], description: "The animation id, must be 'hold-it' for HoldItAnimation." },
                             characterId: { type: "string", enum: characterIds, description: "The ID of the character being suspicious of the player character." },
-							characterExpression: { type: "string", enum: ["neutral", "happy", "annoyed"], description: "The emotional expression of the character performing the animation. Can only be 'neutral', 'happy' or 'annoyed'." }
+                            characterExpression: { type: "string", enum: ["neutral", "happy", "annoyed"], description: "The emotional expression of the character performing the animation. Can only be 'neutral', 'happy' or 'annoyed'." }
                         },
                         required: ["type", "characterId", "animationId", "characterExpression"]
                     },
                     {
                         title: "DialogStep", type: "object",
-						description: "A step representing a character speaking. All dialogs must be a DialogStep.",
+                        description: "A step representing a character speaking. All dialogs must be a DialogStep.",
                         properties: {
                             type: { type: "string", enum: ["dialog"] },
                             text: { type: "string", description: "The exact words spoken by the character." },
@@ -236,7 +243,7 @@ export function buildFinalSchema(roomIds: string[], npcIds: string[], characterI
                     },
                     {
                         title: "ActionStep", type: "object",
-						description: "A step representing a character performing an action. All actions must be an ActionStep.",
+                        description: "A step representing a character performing an action. All actions must be an ActionStep.",
                         properties: {
                             type: { type: "string", enum: ["action"] },
                             text: { type: "string", description: "A narrative description of the character's action." },
@@ -249,7 +256,7 @@ export function buildFinalSchema(roomIds: string[], npcIds: string[], characterI
                     },
                     {
                         title: "NarrationStep", type: "object",
-						description: "A step representing a narrative description from the Game Master. Can not be a dialog or action.",
+                        description: "A step representing a narrative description from the Game Master. Can not be a dialog or action.",
                         properties: {
                             type: { type: "string", enum: ["narration"] },
                             text: { type: "string", description: "Descriptive text from you, the Game Master. Not from any character." }
@@ -347,7 +354,7 @@ export function buildFinalSchema(roomIds: string[], npcIds: string[], characterI
         finalSchema.properties.isGameOver = {
             title: "isGameOver",
             type: "boolean",
-            description: "Whether the game is over due to suspicion of the player character. If the player actions this turn aren't enough to resolve the suspicion from the previous turn, the game ends.",
+            description: "Whether the game is over due to suspicion of the player character. If the player actions this turn aren't enough to resolve the suspicion from the previous turn, the game ends. If this is true then write enough steps to wrap up the game in this turn since there will be no next turn.",
         };
         finalSchema.required.push("isGameOver");
     }

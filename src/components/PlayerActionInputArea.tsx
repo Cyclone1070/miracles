@@ -27,7 +27,7 @@ export function PlayerActionInputArea({ ...props }: Props) {
 	const [characters, setCharacters] = useState<Character[]>();
 	const [items, setItems] = useState<Item[]>();
 	const [connectedRooms, setConnectedRooms] = useState<string[]>([]);
-	const { playerActions, setPlayerActions, currentRoomId } = useGameManager();
+	const { playerActions, setPlayerActions, currentRoomId, currentStep} = useGameManager();
 	const targets: GameObject[] =
 		characters && items ? [...items, ...characters] : [];
 	const dialogTargets: GameObject[] =
@@ -72,7 +72,7 @@ export function PlayerActionInputArea({ ...props }: Props) {
 			}
 		}
 		fetchData();
-	}, [currentRoomId]);
+	}, [currentRoomId, currentStep]);
 
 	useEffect(() => {
 		function handleClickOutside(event: MouseEvent) {
