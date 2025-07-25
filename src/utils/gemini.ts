@@ -94,9 +94,12 @@ export async function getNextTurn(
         .flatMap(room => room.characters)
         .filter(char => char.id !== playerCharacterId)
         .map(npc => npc.id);
+    const allCharacterIds = worldState.rooms.flatMap(room => room.characters).map(char => char.id);
+    const allItemIds = worldState.rooms.flatMap(room => room.items).map(item => item.id);
+    const allTargetIds = [...allCharacterIds, ...allItemIds];
 
     // 2. Build the entire, final schema from scratch.
-    const finalSchema = buildFinalSchema(allRoomIds, allNpcIds, isSus);
+    const finalSchema = buildFinalSchema(allRoomIds, allNpcIds, allCharacterIds, allTargetIds, isSus);
 
     console.log(finalSchema)
 
@@ -193,128 +196,129 @@ export function createNextTurnNpcActionsSchema(npcIds: string[]): object {
     return npcActionsSchema;
 }
 
-export function buildFinalSchema(roomIds: string[], npcIds: string[], isSus: boolean): object {
+export function buildFinalSchema(roomIds: string[], npcIds: string[], characterIds: string[], targetIds: string[], isSus: boolean): object {
     // This object contains all the static definitions from your schema.
     const staticProperties = {
-        "type": {
-            "description": "The type of the turn. For this schema, it must always be 'game'.",
-            "type": "string", "enum": ["game"]
+        type: {
+            description: "The type of the turn. For this schema, it must always be 'game'.",
+            type: "string", enum: ["game"]
         },
-        "steps": {
-            "description": "A chronological array of narrative events. All text fields should be plain text. You should try to generate 8 to 10 new steps per turn.",
-            "type": "array",
-            "items": {
-                "description": "A single narrative event. Must be one of DialogStep, ActionStep, or NarrationStep or HoldItAnimation.",
-                "anyOf": [
+        steps: {
+            description: "A chronological array of narrative events. All text fields should be plain text. You should try to generate 8 to 10 new steps per turn.",
+            type: "array",
+            items: {
+				minItems: 8,
+                description: "A single narrative event. Must be one of DialogStep, ActionStep, or NarrationStep or HoldItAnimation.",
+                anyOf: [
                     {
-                        "title": "HoldItAnimation", "type": "object",
-                        "description": "A special animation step for when an npc becomes suspicious of the player character.",
-                        "properties": {
-                            "type": { "type": "string", "enum": ["animation"], "description": "The type of step, must be 'animation' for HoldItAnimation." },
-                            "animationId": { "type": "string", "enum": ["hold-it"], "description": "The animation id, must be 'hold-it' for HoldItAnimation." },
-                            "characterId": { "type": "string", "description": "The ID of the character being suspicious of the player character." },
+                        title: "HoldItAnimation", type: "object",
+                        description: "A special animation step for when an npc becomes suspicious of the player character.",
+                        properties: {
+                            type: { type: "string", enum: ["animation"], description: "The type of step, must be 'animation' for HoldItAnimation." },
+                            animationId: { type: "string", enum: ["hold-it"], description: "The animation id, must be 'hold-it' for HoldItAnimation." },
+                            characterId: { type: "string", enum: characterIds, description: "The ID of the character being suspicious of the player character." },
                         },
-                        "required": ["type", "characterId", "animationId"]
+                        required: ["type", "characterId", "animationId"]
                     },
                     {
-                        "title": "DialogStep", "type": "object",
-						"description": "A step representing a character speaking. All dialogs must be a DialogStep.",
-                        "properties": {
-                            "type": { "type": "string", "enum": ["dialog"] },
-                            "text": { "type": "string", "description": "The exact words spoken by the character." },
-                            "speakerId": { "type": "string", "description": "The ID of the character who is speaking." },
-                            "speakerExpression": { "type": "string", "enum": ["neutral", "happy", "annoyed"], "description": "The emotional expression of the speaker. Can only be 'neutral', 'happy' or 'annoyed'." },
-                            "listenerId": { "type": "string", "description": "Optional ID of the character being spoken to." },
-                            "listenerExpression": { "type": "string", "enum": ["neutral", "happy", "annoyed"], "description": "Optional emotional expression of the listener. Can only be 'neutral', 'happy' or 'annoyed'. Is required and must be present if listenerId is available." }
+                        title: "DialogStep", type: "object",
+						description: "A step representing a character speaking. All dialogs must be a DialogStep.",
+                        properties: {
+                            type: { type: "string", enum: ["dialog"] },
+                            text: { type: "string", description: "The exact words spoken by the character." },
+                            speakerId: { type: "string", enum: characterIds, description: "The ID of the character who is speaking." },
+                            speakerExpression: { type: "string", enum: ["neutral", "happy", "annoyed"], description: "The emotional expression of the speaker. Can only be 'neutral', 'happy' or 'annoyed'." },
+                            listenerId: { type: "string", enum: characterIds, description: "Optional ID of the character being spoken to." },
+                            listenerExpression: { type: "string", enum: ["neutral", "happy", "annoyed"], description: "Optional emotional expression of the listener. Can only be 'neutral', 'happy' or 'annoyed'. Is required and must be present if listenerId is available." }
                         },
-                        "required": ["type", "text", "speakerId", "speakerExpression", "listenerExpression"]
+                        required: ["type", "text", "speakerId", "speakerExpression", "listenerExpression"]
                     },
                     {
-                        "title": "ActionStep", "type": "object",
-						"description": "A step representing a character performing an action. All actions must be an ActionStep.",
-                        "properties": {
-                            "type": { "type": "string", "enum": ["action"] },
-                            "text": { "type": "string", "description": "A narrative description of the character's action." },
-                            "characterId": { "type": "string", "description": "The ID of the character performing the action." },
-                            "characterExpression": { "type": "string", "enum": ["neutral", "happy", "annoyed"], "description": "The emotional expression of the character performing the action. Can only be 'neutral', 'happy' or 'annoyed'." },
-                            "targetId": { "type": "string", "description": "Optional ID of the item or character being acted upon." },
-                            "targetExpression": { "type": "string", "enum": ["neutral", "happy", "annoyed"], "description": "Optional emotional expression of the target. Can only be 'neutral', 'happy' or 'annoyed'. Is required and must be present if listenerId is available." }
+                        title: "ActionStep", type: "object",
+						description: "A step representing a character performing an action. All actions must be an ActionStep.",
+                        properties: {
+                            type: { type: "string", enum: ["action"] },
+                            text: { type: "string", description: "A narrative description of the character's action." },
+                            characterId: { type: "string", enum: characterIds, description: "The ID of the character performing the action." },
+                            characterExpression: { type: "string", enum: ["neutral", "happy", "annoyed"], description: "The emotional expression of the character performing the action. Can only be 'neutral', 'happy' or 'annoyed'." },
+                            targetId: { type: "string", enum: targetIds, description: "Optional ID of the item or character being acted upon." },
+                            targetExpression: { type: "string", enum: ["neutral", "happy", "annoyed"], description: "Optional emotional expression of the target. Can only be 'neutral', 'happy' or 'annoyed'. Is required and must be present if listenerId is available." }
                         },
-                        "required": ["type", "text", "characterId", "characterExpression", "targetExpression"]
+                        required: ["type", "text", "characterId", "characterExpression", "targetExpression"]
                     },
                     {
-                        "title": "NarrationStep", "type": "object",
-						"description": "A step representing a narrative description from the Game Master. Can not be a dialog or action.",
-                        "properties": {
-                            "type": { "type": "string", "enum": ["narration"] },
-                            "text": { "type": "string", "description": "Descriptive text from you, the Game Master. Not from any character." }
+                        title: "NarrationStep", type: "object",
+						description: "A step representing a narrative description from the Game Master. Can not be a dialog or action.",
+                        properties: {
+                            type: { type: "string", enum: ["narration"] },
+                            text: { type: "string", description: "Descriptive text from you, the Game Master. Not from any character." }
                         },
-                        "required": ["type", "text"]
+                        required: ["type", "text"]
                     }
                 ]
             }
         },
-        "itemsChanges": {
-            "description": "A list of items that were created or had their properties changed.", "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "id": { "type": "string", "description": "The item's unique ID. Can be new or existing." },
-                    "state": { "type": "string", "description": "The item's new state (e.g., 'on fire')." },
-                    "description": { "type": "string", "description": "An updated narrative description." },
-                    "asciiChar": { "type": "string", "description": "The ASCII character." },
-                    "colorHex": { "type": "string", "description": "The hex color code." },
-                    "type": { "type": "string", "enum": ["item"] },
-                    "gridPosition": { "type": "object", "properties": { "x": { "type": "number" }, "y": { "type": "number" } }, "required": ["x", "y"] },
-                    "name": { "type": "string", "description": "The proper name of the item." },
-                    "newRoomId": { "type": "string", "description": "The ID of the room where the item will be located if creating a new item. An item can only have newRoomId or newCharacterId, it can't have both. If an item is not in a character inventory then use newRoomId and exclude newCharacterId." },
-                    "newCharacterId": { "type": "string", "description": "The ID of the character carrying the item if creating a new item. An item can only have newRoomId or newCharacterId, it can't have both. If a character is picking up an item, use newCharacterId and exclude newRoomId." }
+        itemsChanges: {
+            description: "A list of items that were created or had their properties changed.", type: "array",
+            items: {
+                type: "object",
+                properties: {
+                    id: { type: "string", description: "The item's unique ID. Can be new or existing." },
+                    state: { type: "string", description: "The item's new state (e.g., 'on fire')." },
+                    description: { type: "string", description: "An updated narrative description." },
+                    asciiChar: { type: "string", description: "The ASCII character." },
+                    colorHex: { type: "string", description: "The hex color code." },
+                    type: { type: "string", enum: ["item"] },
+                    gridPosition: { type: "object", properties: { x: { type: "number" }, y: { type: "number" } }, required: ["x", "y"] },
+                    name: { type: "string", description: "The proper name of the item." },
+                    newRoomId: { type: "string", enum: roomIds, description: "The ID of the room where the item will be located if creating a new item. An item can only have newRoomId or newCharacterId, it can't have both. If an item is not in a character inventory then use newRoomId and exclude newCharacterId." },
+                    newCharacterId: { type: "string", enum: characterIds, description: "The ID of the character carrying the item if creating a new item. An item can only have newRoomId or newCharacterId, it can't have both. If a character is picking up an item, use newCharacterId and exclude newRoomId." }
                 },
-                "required": ["id", "type", "name", "asciiChar", "colorHex", "description"]
+                required: ["id", "type", "name", "asciiChar", "colorHex", "description"]
             }
         },
-        "itemsMove": {
-            "description": "A list of items that changed location.", "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "id": { "type": "string", "description": "The ID of the item being moved." },
-                    "newRoomId": { "type": "string", "description": "The ID of the new room." },
-                    "newGridPosition": { "type": "object", "description": "The new (x,y) coordinates.", "properties": { "x": { "type": "number" }, "y": { "type": "number" } }, "required": ["x", "y"] },
-                    "newCharacterId": { "type": "string", "description": "The ID of the new character carrier." }
-                }, "required": ["id"]
+        itemsMove: {
+            description: "A list of items that changed location.", type: "array",
+            items: {
+                type: "object",
+                properties: {
+                    id: { type: "string", enum: targetIds, description: "The ID of the item being moved." },
+                    newRoomId: { type: "string", enum: roomIds, description: "The ID of the new room." },
+                    newGridPosition: { type: "object", description: "The new (x,y) coordinates.", properties: { x: { type: "number" }, y: { type: "number" } }, required: ["x", "y"] },
+                    newCharacterId: { type: "string", enum: characterIds, description: "The ID of the new character carrier." }
+                }, required: ["id"]
             }
         },
-        "itemsDeleted": {
-            "description": "A list of unique IDs of items that were permanently removed.", "type": "array",
-            "items": { "type": "string" }
+        itemsDeleted: {
+            description: "A list of unique IDs of items that were permanently removed.", type: "array",
+            items: { type: "string", enum: targetIds }
         },
-        "charactersChanges": {
-            "description": "A list of characters whose properties have changed. ", "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "id": { "type": "string", "description": "The existing ID of the character." },
-                    "state": { "type": "string", "description": "The character's new state (e.g., 'confused')." },
-                    "description": { "type": "string", "description": "An updated narrative description." },
-                    "asciiChar": { "type": "string", "description": "The ASCII character." },
-                    "colorHex": { "type": "string", "description": "The hex color code." },
-                    "type": { "type": "string", "enum": ["character"] },
-                    "gridPosition": { "type": "object", "properties": { "x": { "type": "number" }, "y": { "type": "number" } }, "required": ["x", "y"] },
+        charactersChanges: {
+            description: "A list of characters whose properties have changed. ", type: "array",
+            items: {
+                type: "object",
+                properties: {
+                    id: { type: "string", enum: characterIds, description: "The existing ID of the character." },
+                    state: { type: "string", description: "The character's new state (e.g., 'confused')." },
+                    description: { type: "string", description: "An updated narrative description." },
+                    asciiChar: { type: "string", description: "The ASCII character." },
+                    colorHex: { type: "string", description: "The hex color code." },
+                    type: { type: "string", enum: ["character"] },
+                    gridPosition: { type: "object", properties: { x: { type: "number" }, y: { type: "number" } }, required: ["x", "y"] },
                 },
-                "required": ["id", "type", "description", "asciiChar", "colorHex", "gridPosition"]
+                required: ["id", "type", "description", "asciiChar", "colorHex", "gridPosition"]
             }
         },
-        "charactersMove": {
-            "description": "A list of characters that have moved to a new room.", "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "id": { "type": "string", "description": "The ID of the character moving." },
-                    "newRoomId": { "type": "string", "description": "The ID of the new room." },
-                    "newGridPosition": { "type": "object", "description": "The new (x,y) coordinates.", "properties": { "x": { "type": "number" }, "y": { "type": "number" } }, "required": ["x", "y"] }
+        charactersMove: {
+            description: "A list of characters that have moved to a new room.", type: "array",
+            items: {
+                type: "object",
+                properties: {
+                    id: { type: "string", enum: characterIds, description: "The ID of the character moving." },
+                    newRoomId: { type: "string", enum: roomIds, description: "The ID of the new room." },
+                    newGridPosition: { type: "object", description: "The new (x,y) coordinates.", properties: { x: { type: "number" }, y: { type: "number" } }, required: ["x", "y"] }
                 },
-                "required": ["id", "newRoomId", "newGridPosition"]
+                required: ["id", "newRoomId", "newGridPosition"]
             }
         }
     };
