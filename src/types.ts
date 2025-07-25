@@ -37,7 +37,7 @@ export type Action = DoAction | SayAction | CreateAction | MoveAction | DestroyA
 // story steps interfaces
 export interface DialogStep {
     type: "dialog";
-    id: string;
+    id?: string;
     text: string;
     speakerId: string;
     speakerExpression: "neutral" | "happy" | "annoyed";
@@ -46,7 +46,7 @@ export interface DialogStep {
 }
 export interface ActionStep {
     type: "action";
-    id: string;
+    id?: string;
     text: string;
     characterId: string;
     characterExpression: "neutral" | "happy" | "annoyed";
@@ -55,7 +55,7 @@ export interface ActionStep {
 }
 export interface NarrationStep {
     type: "narration";
-    id: string;
+    id?: string;
     text: string;
 }
 export interface ChoiceOption {
@@ -65,12 +65,12 @@ export interface ChoiceOption {
 
 export interface ChoiceStep {
     type: "choice";
-    id: string;
+    id?: string;
     options: ChoiceOption[];
 }
 export interface AnimationStep {
     type: "animation";
-    id: string;
+    id?: string;
     animationId: "hold-it" | "lucifer-appears";
     characterId?: string;
     characterExpression?: "neutral" | "happy" | "annoyed";

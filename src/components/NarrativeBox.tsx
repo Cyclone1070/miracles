@@ -6,6 +6,7 @@ import type { ChoiceOption, Turn } from "../types";
 import { mergeClasses } from "../utils/tailwindMerge";
 import { AddPlayerActionButtons } from "./AddPlayerActionButtons";
 import { HighlightButton } from "./HighlightButton";
+import miracleSvgURL from "/miracle.svg?url";
 
 interface Props {
 	className?: string;
@@ -34,6 +35,7 @@ export function NarrativeBox({ ...props }: Props) {
 		advanceStory,
 		advanceTurn,
 		currentTurn,
+		isTurnEnd,
 	} = useGameManager();
 	const prevSpeakerRef = useRef<string | null>(null);
 	const isLeftRef = useRef(true);
@@ -110,6 +112,11 @@ export function NarrativeBox({ ...props }: Props) {
 					props.className,
 				)}
 				onClick={async () => {
+					if (isFetchingResponse) return;
+					if (isTurnEnd && currentStep?.type !== "choice") {
+						setIsActionExpanded(true);
+						return;
+					};
 					const element = textContainerRef.current;
 					if (!element) return;
 					if (currentStep?.type === "choice") return;
@@ -231,7 +238,29 @@ export function NarrativeBox({ ...props }: Props) {
 								setIsScrollEndSeen(false);
 							}}
 						>
-							{currentStep?.type === "choice" ? (
+							{isFetchingResponse ? (
+								<div className={`w-full h-full flex items-center justify-center`}>
+									<div className="flex flex-col gap-5 items-center justify-center text-white">
+										<motion.img
+											src={miracleSvgURL}
+											alt="Loading icon"
+											className="h-12 w-12"
+											animate={{
+												rotate: [0, 90, 90, 90],
+												scale: [1, 1, 0.5, 1],
+											}}
+											transition={{
+												duration: 2,
+												ease: "easeInOut",
+												times: [0, 0.5, 0.75, 1],
+												repeat: Infinity,
+												repeatDelay: 0.2,
+											}}
+										/>
+										<div>Requesting response...</div>
+									</div>
+								</div>
+							) : currentStep?.type === "choice" ? (
 								<div
 									className={`flex flex-col items-center w-full`}
 								>
@@ -241,15 +270,18 @@ export function NarrativeBox({ ...props }: Props) {
 												<HighlightButton
 													key={option.nextTurnId}
 													className="text-left"
-													onClick={async () => {
-														if (!currentTurn) return;
+													onClick={async (e) => {
+														e.stopPropagation();
+														if (!currentTurn)
+															return;
 														const module =
 															await import(
 																`../data/scripts/${option.nextTurnId}.ts`
 															);
 														const turn: Turn =
 															module.default;
-														turn.id = currentTurn.id + 1;
+														turn.id =
+															currentTurn.id + 1;
 														await saveTurn(turn);
 														advanceTurn();
 													}}
@@ -261,7 +293,10 @@ export function NarrativeBox({ ...props }: Props) {
 									)}
 								</div>
 							) : (
-								<span>{currentStep?.type !== "animation" && currentStep?.text}</span>
+								<span>
+									{currentStep?.type !== "animation" &&
+										currentStep?.text}
+								</span>
 							)}
 						</motion.div>
 					</AnimatePresence>

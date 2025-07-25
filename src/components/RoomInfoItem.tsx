@@ -21,7 +21,7 @@ interface Props {
 export function RoomInfoItem({ ...props }: Props) {
 	const [items, setItems] = useState<Item[]>([]);
 	const [isExpanded, setIsExpanded] = useState(false);
-	const { npcActions } = useGameManager();
+	const { npcActions, isTurnEndHandling } = useGameManager();
 	if (props.inspectId === props.id && !isExpanded) {
 		setIsExpanded(true);
 	}
@@ -40,7 +40,7 @@ export function RoomInfoItem({ ...props }: Props) {
 			}
 		}
 		fetchItems();
-	}, [props.id, props.isItem]);
+	}, [props.id, props.isItem, isTurnEndHandling]);
 
 	return (
 		<div className={mergeClasses(`flex flex-col`, props.className)}>

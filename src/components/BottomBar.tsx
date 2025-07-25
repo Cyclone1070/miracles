@@ -11,7 +11,7 @@ interface Props {
 }
 
 export function BottomBar({ ...props }: Props) {
-	const { submitPlayerAction, playerActions } = useGameManager();
+	const { submitPlayerAction, playerActions, isTurnEnd, currentStep} = useGameManager();
 	const buttonClassNames =
 		"rounded-xl basis-0 grow h-full flex justify-center items-center gap-2 bg-(--bg) max-w-40";
 	const bottomBarRef = useRef<HTMLDivElement>(null);
@@ -39,6 +39,10 @@ export function BottomBar({ ...props }: Props) {
 			<div className={`w-18 shrink-0`}></div>
 			<HighlightButton
 				onClick={() => {
+					if (!isTurnEnd || currentStep?.type === "choice") {
+						alert("You can only submit actions at the end of a turn.");
+						return;
+					}
 					for (const action of playerActions) {
 						if (action.type === "do" && !action.action) {
 							alert("Missing requried fields in do action.");

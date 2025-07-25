@@ -29,6 +29,7 @@ export function useGameHelper() {
 	const [isGameInitiating, setIsGameInitLoading] = useState(true);
 	const [playerActions, setPlayerActions] = useState<Action[]>([]);
 	const [isTurnEnd, setIsTurnEnd] = useState(false);
+	const [isTurnEndHandling, setIsTurnEndHandling] = useState(false);
 	const [npcActions, setNpcActions] = useState<Record<string, string>>();
 	// convenience derived variables
 	const currentStep =
@@ -118,6 +119,7 @@ export function useGameHelper() {
 				return prev - 1;
 			});
 		}
+		setIsTurnEnd(false);
 	}, [advanceTurn, currentTurn]);
 
 	// play music based on location
@@ -132,6 +134,7 @@ export function useGameHelper() {
 	}, [currentMapId, currentMusic]);
 
 	const handleTurnEnd = useCallback(async () => {
+		setIsTurnEndHandling(true);
 		if (!currentTurn || currentTurn.type !== "game") return;
 
 		if (currentTurn.charactersMove) {
@@ -174,7 +177,7 @@ export function useGameHelper() {
 
 		setNpcActions(currentTurn.nextTurnNpcActions);
 
-		setIsTurnEnd(false);
+		setIsTurnEndHandling(false);
 	}, [currentTurn]);
 	useEffect(() => {
 		if (isTurnEnd) {
@@ -185,7 +188,7 @@ export function useGameHelper() {
 	// function to load next turn
 	// can only advance story if there is a next step, return true if the player action is needed to advance the story
 	async function advanceStory() {
-		if (!currentTurn || currentTurn.type !== "game") return false;
+		if (!currentTurn || currentTurn.type !== "game") return;
 
 		const nextIndex = currentStepIndex + 1;
 
@@ -194,9 +197,7 @@ export function useGameHelper() {
 			if (nextIndex === currentTurn.steps.length - 1) {
 				setIsTurnEnd(true);
 			}
-			return false;
-		} else {
-			return true;
+			return;
 		}
 	}
 
@@ -206,6 +207,33 @@ export function useGameHelper() {
 
 		const processedRooms = await getCurrentProcessedRooms(currentMapId);
 		const turnHistory = await getAllTurns();
+		const excludedStepTypes = ["animation", "choice"];
+		const cleanTurnHistory = turnHistory.map((turn) => {
+			// If it's not a game turn, we don't need to change it at all
+			if (turn.type !== "game") {
+				return turn;
+			}
+
+			// For game turns, transform the steps
+			const transformedSteps = turn.steps
+				// 1. First, filter out the unwanted step types
+				.filter((step) => !excludedStepTypes.includes(step.type))
+				// 2. THEN, map over the remaining steps to strip the 'id'
+				.map((step) => {
+					// Use destructuring to pull out the 'id' and collect the 'rest' of the properties.
+					// 'id: _' tells TypeScript/ESLint that we are intentionally not using the 'id' variable.
+					// eslint-disable-next-line @typescript-eslint/no-unused-vars
+					const { id: _, ...stepWithoutId } = step;
+					return stepWithoutId;
+				});
+
+			// Return a new turn object with the transformed steps
+			return {
+				...turn,
+				steps: transformedSteps,
+			};
+		});
+		console.log("Cleaned turn history:", cleanTurnHistory);
 		const worldState: WorldState = {
 			mapId: currentMapId,
 			day: currentDay || 1,
@@ -214,15 +242,12 @@ export function useGameHelper() {
 			currentRoomId,
 			npcActions: npcActions || {},
 		};
-		console.log("submitting player actions");
-		console.log(processedRooms);
-		console.log(turnHistory)
 		const nextTurn = await getNextTurn(
 			worldState,
-			turnHistory,
+			cleanTurnHistory,
 			playerActions,
 		);
-		console.log(nextTurn);
+		console.log("Next turn:", nextTurn);
 
 		setIsFetchingResponse(false);
 	}
@@ -278,6 +303,7 @@ export function useGameHelper() {
 		playerActions,
 		setPlayerActions,
 		isTurnEnd,
-		npcActions
+		isTurnEndHandling,
+		npcActions,
 	};
 }

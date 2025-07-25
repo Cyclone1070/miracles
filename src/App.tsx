@@ -69,7 +69,7 @@ function App() {
 					alt="Loading icon"
 					className="h-12 w-12"
 					animate={{
-						rotate: [0, 180, 180, 180],
+						rotate: [0, 90, 90, 90],
 						scale: [1, 1, 0.5, 1],
 					}}
 					transition={{

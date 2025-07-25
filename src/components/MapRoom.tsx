@@ -30,7 +30,7 @@ export function MapRoom({ ...props }: Props) {
 	const [characters, setCharacters] = useState<Character[]>();
 	const [roomInfo, setRoomInfo] = useState<Room>();
 
-	const { isTurnEnd } = useGameManager();
+	const { isTurnEndHandling } = useGameManager();
 
 	const gridRef = useRef<HTMLDivElement>(null);
 	// fetching useEffect
@@ -53,7 +53,7 @@ export function MapRoom({ ...props }: Props) {
 			}
 		}
 		fetchData();
-	}, [props.roomId, isTurnEnd]);
+	}, [props.roomId, isTurnEndHandling]);
 
 	// calculate font size based on cell size
 	useLayoutEffect(() => {

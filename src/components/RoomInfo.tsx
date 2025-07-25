@@ -30,7 +30,7 @@ export function RoomInfo({ ...props }: Props) {
 	const [items, setItems] = useState<Item[]>();
 	const [roomInfo, setRoomInfo] = useState<Room>();
 	const [currentRoomInfo, setCurrentRoomInfo] = useState<Room>();
-	const { setPlayerActions, currentMapId, currentRoomId } = useGameManager();
+	const { setPlayerActions, currentMapId, currentRoomId, isTurnEndHandling } = useGameManager();
 
 	// fetching useEffect
 	useEffect(() => {
@@ -58,7 +58,7 @@ export function RoomInfo({ ...props }: Props) {
 			}
 		}
 		fetchData();
-	}, [currentRoomId, props.roomId]);
+}, [currentRoomId, props.roomId, isTurnEndHandling]);
 
 	return (
 		<div

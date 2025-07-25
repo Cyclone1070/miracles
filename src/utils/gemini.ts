@@ -174,7 +174,7 @@ export function createRoomsEventSummarySchema(roomIds: string[]): object {
  */
 export function createNextTurnNpcActionsSchema(npcIds: string[]): object {
     const singleNpcActionSchema = {
-		type: "string",
+        type: "string",
         description: "A single planned action for an NPC for the next turn."
     };
 
@@ -200,7 +200,7 @@ export function buildFinalSchema(roomIds: string[], npcIds: string[]): object {
             "type": "string", "enum": ["game"]
         },
         "steps": {
-            "description": "A chronological array of narrative events. These should pick up directly from the very last step from the previous turn like a continuous story with smooth conversation flow. Do not repeat the text or events from the previous turn, not even part of it. All text fields should be plain text. You should try to generate 8 to 10 new steps per turn.",
+            "description": "A chronological array of narrative events. These should pick up directly from the very last step from the previous turn like a continuous story with smooth conversation flow. Each step should pickup where the last step left off, even if the last step is from a previous turn. All text fields should be plain text. You should try to generate 8 to 10 new steps per turn.",
             "type": "array",
             "items": {
                 "description": "A single narrative event. Must be one of DialogStep, ActionStep, or NarrationStep.",
@@ -209,7 +209,6 @@ export function buildFinalSchema(roomIds: string[], npcIds: string[]): object {
                         "title": "DialogStep", "type": "object",
                         "properties": {
                             "type": { "type": "string", "enum": ["dialog"] },
-                            "id": { "type": "string", "description": "A unique ID for this step." },
                             "text": { "type": "string", "description": "The exact words spoken by the character." },
                             "speakerId": { "type": "string", "description": "The ID of the character who is speaking." },
                             "speakerExpression": { "type": "string", "enum": ["neutral", "happy", "annoyed"], "description": "The emotional expression of the speaker." },
@@ -222,7 +221,6 @@ export function buildFinalSchema(roomIds: string[], npcIds: string[]): object {
                         "title": "ActionStep", "type": "object",
                         "properties": {
                             "type": { "type": "string", "enum": ["action"] },
-                            "id": { "type": "string", "description": "A unique ID for this step." },
                             "text": { "type": "string", "description": "A narrative description of the character's action." },
                             "characterId": { "type": "string", "description": "The ID of the character performing the action." },
                             "characterExpression": { "type": "string", "enum": ["neutral", "happy", "annoyed"], "description": "The emotional expression of the character performing the action." },
@@ -235,7 +233,6 @@ export function buildFinalSchema(roomIds: string[], npcIds: string[]): object {
                         "title": "NarrationStep", "type": "object",
                         "properties": {
                             "type": { "type": "string", "enum": ["narration"] },
-                            "id": { "type": "string", "description": "A unique ID for this step." },
                             "text": { "type": "string", "description": "Descriptive text from you, the Game Master." }
                         },
                         "required": ["type", "id", "text"]
@@ -312,6 +309,7 @@ export function buildFinalSchema(roomIds: string[], npcIds: string[]): object {
         title: "GameTurn",
         description: "The complete definition of a single 'game' turn in Miracles.",
         type: "object",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         properties: staticProperties as Record<string, any>,
         required: ["type", "steps", "roomsEventSummary"] // Start with the always-required fields.
     };
