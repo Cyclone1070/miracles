@@ -1,5 +1,5 @@
 const DB_NAME = 'MiraclesDB';
-const DB_VERSION = 2;
+const DB_VERSION = 1;
 const STORE_NAMES = ["maps", "rooms", "characters", "items", "turns", "dailySaves"];
 
 let dbPromise: Promise<IDBDatabase> | null = null;
@@ -128,6 +128,21 @@ export async function getAllObjectsFromStore<T>(
         request.onerror = (event) => {
             console.error('Error getting all objects:', (event.target as IDBRequest).error);
             reject('Failed to get all objects');
+        };
+    });
+}
+
+export async function clearObjectStore(storeName: string): Promise<void> {
+    const db = await openDatabase();
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction([storeName], 'readwrite');
+        const store = transaction.objectStore(storeName);
+        const request = store.clear();
+
+        request.onsuccess = () => resolve();
+        request.onerror = (event) => {
+            console.error(`Error clearing store ${storeName}:`, (event.target as IDBRequest).error);
+            reject(`Failed to clear store ${storeName}`);
         };
     });
 }

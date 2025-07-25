@@ -113,6 +113,7 @@ export function NarrativeBox({ ...props }: Props) {
 					props.className,
 				)}
 				onClick={async () => {
+					if (currentStep?.type === "animation") return
 					if (isFetchingResponse) return;
 					if (isTurnEnd && currentStep?.type !== "choice") {
 						if (

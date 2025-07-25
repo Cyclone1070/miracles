@@ -6,6 +6,7 @@ export const policeStationRooms: Room[] = [
         description: "A city street in front of the police station. Large glass doors lead north into the Lobby.",
         connectedRooms: ["Lobby", "Parking Lot"],
         inViewRooms: ["Lobby", "Detectives Room"]
+		
     },
     {
         id: "Lobby",

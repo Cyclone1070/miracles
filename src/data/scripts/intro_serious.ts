@@ -13,7 +13,7 @@ const intro_wacky: GameTurn = {
             id: "intro_4",
             text: "What do you need, dude?",
             speakerId: "Jesus",
-            speakerExpression: "neutral",
+            speakerExpression: "annoyed",
             listenerId: "Lucifer",
             listenerExpression: "happy"
         },
