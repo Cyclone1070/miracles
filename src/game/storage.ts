@@ -1,5 +1,5 @@
 import type { Character, GameMap, Item, ProcessedCharacter, ProcessedRoom, Room, SaveState, Turn } from "../types";
-import { getAllObjectsFromStore, getObject, putObject } from "../utils/indexedDb";
+import { deleteObject, getAllObjectsFromStore, getObject, putObject } from "../utils/indexedDb";
 
 const SAVE_STATE_KEY = 'miracle_save_state';
 
@@ -73,9 +73,19 @@ export async function findRoomWithCharacter(characterId: string): Promise<Room> 
         !room.charactersIdList ? false : room.charactersIdList.includes(characterId)
     );
     // Returns the first matching room, or undefined if no rooms match.
-	if (rooms.length === 0) {
-		throw new Error(`No room found with character ID ${characterId}`);
-	}
+    if (rooms.length === 0) {
+        throw new Error(`No room found with character ID ${characterId}`);
+    }
+    return rooms[0];
+}
+export async function findRoomWithItem(itemId: string): Promise<Room> {
+    const rooms = await getAllObjectsFromStore<Room>('rooms', (room) =>
+        !room.itemsIdList ? false : room.itemsIdList.includes(itemId)
+    );
+    // Returns the first matching room, or undefined if no rooms match.
+    if (rooms.length === 0) {
+        throw new Error(`No room found with item ID ${itemId}`);
+    }
     return rooms[0];
 }
 // characters
@@ -97,6 +107,16 @@ export async function getAllCharactersInRoom(roomId: string): Promise<Character[
     const characterPromises = room.charactersIdList.map(id => loadCharacter(id));
     return Promise.all(characterPromises);
 }
+export async function findCharacterWithItem(itemId: string): Promise<Character> {
+    const characters = await getAllObjectsFromStore<Character>('characters', (character) =>
+        !character.itemsIdList ? false : character.itemsIdList.includes(itemId)
+    );
+    // Returns the first matching character, or undefined if no characters match.
+    if (characters.length === 0) {
+        throw new Error(`No character found with item ID ${itemId}`);
+    }
+    return characters[0];
+}
 // items
 export async function saveItem(item: Item): Promise<void> {
     await putObject("items", item);
@@ -107,6 +127,9 @@ export async function loadItem(itemId: string): Promise<Item> {
         throw new Error(`Item with ID ${itemId} not found`);
     }
     return item;
+}
+export async function deleteItem(itemId: string): Promise<void> {
+    await deleteObject('items', itemId);
 }
 export async function getAllItemsInRoom(roomId: string): Promise<Item[]> {
     const room = await loadRoom(roomId);

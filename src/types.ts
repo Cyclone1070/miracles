@@ -125,6 +125,7 @@ export interface SaveState {
     currentDay?: number;
     currentTurnsLeft?: number;
     currentMusic?: string;
+	lastProcessedTurnId?: number; // ID of the last processed turn
 }
 
 // game data interfaces
@@ -142,6 +143,8 @@ export interface Item extends BaseCellObject {
         y: number;
     };
     name: string;
+	newRoomId?: string;
+	newCharacterId?: string;
 }
 export interface Character extends BaseCellObject {
     type: "character";

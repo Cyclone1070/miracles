@@ -7,7 +7,7 @@ if (!GEMINI_API_KEY) {
     console.error("VITE_GEMINI_API_KEY is not defined. Please set it in your .env.local file.");
 }
 
-const MODEL_NAME = 'gemini-2.5-flash';
+const MODEL_NAME = 'gemini-2.0-flash';
 
 /**
  * Constructs the prompt for the Gemini API call.
@@ -38,7 +38,7 @@ You are the "Game Master" for a text-based adventure game called "Miracles". You
 - Characters must act according to their established personalities
 - Events should logically follow from the characters' actions and the current state of the world.
 - Only modify the state of characters and items that are directly involved in or affected by the turn's events. Do not change things arbitrarily.
-- **Schema Adherence is Absolute:** Every single field marked as "required" in the schema MUST be present in your response. This is not optional.
+- **Schema Adherence is Absolute:** Every single field marked as "required" in the schema MUST be present in your response. This is not optional. Every single value with enum fields must be one of the specified values. Don't make up more values.
 
 ---
 
@@ -78,8 +78,9 @@ Based on all the information above, generate the next game turn as a JSON object
 export async function getNextTurn(
     worldState: WorldState,
     history: Turn[],
-    playerActions: Action[]
-) {
+    playerActions: Action[],
+    isSus: boolean = false // Whether the player character is suspected of being suspicious
+): Promise<Turn> {
     if (!GEMINI_API_KEY) {
         throw new Error("Gemini API key is not configured.");
     }
@@ -95,7 +96,7 @@ export async function getNextTurn(
         .map(npc => npc.id);
 
     // 2. Build the entire, final schema from scratch.
-    const finalSchema = buildFinalSchema(allRoomIds, allNpcIds);
+    const finalSchema = buildFinalSchema(allRoomIds, allNpcIds, isSus);
 
     console.log(finalSchema)
 
@@ -192,7 +193,7 @@ export function createNextTurnNpcActionsSchema(npcIds: string[]): object {
     return npcActionsSchema;
 }
 
-export function buildFinalSchema(roomIds: string[], npcIds: string[]): object {
+export function buildFinalSchema(roomIds: string[], npcIds: string[], isSus: boolean): object {
     // This object contains all the static definitions from your schema.
     const staticProperties = {
         "type": {
@@ -200,20 +201,30 @@ export function buildFinalSchema(roomIds: string[], npcIds: string[]): object {
             "type": "string", "enum": ["game"]
         },
         "steps": {
-            "description": "A chronological array of narrative events. These should pick up directly from the very last step from the previous turn like a continuous story with smooth conversation flow. Each step should pickup where the last step left off, even if the last step is from a previous turn. All text fields should be plain text. You should try to generate 8 to 10 new steps per turn.",
+            "description": "A chronological array of narrative events. All text fields should be plain text. You should try to generate 8 to 10 new steps per turn.",
             "type": "array",
             "items": {
-                "description": "A single narrative event. Must be one of DialogStep, ActionStep, or NarrationStep.",
+                "description": "A single narrative event. Must be one of DialogStep, ActionStep, or NarrationStep or HoldItAnimation.",
                 "oneOf": [
+                    {
+                        "title": "HoldItAnimation", "type": "object",
+                        "description": "A special animation step for when an npc becomes suspicious of the player character.",
+                        "properties": {
+                            "type": { "type": "string", "enum": ["animation"], "description": "The type of step, must be 'animation' for HoldItAnimation." },
+                            "animationId": { "type": "string", "enum": ["hold-it"], "description": "The animation id, must be 'hold-it' for HoldItAnimation." },
+                            "characterId": { "type": "string", "description": "The ID of the character being suspicious of the player character." },
+                        },
+                        "required": ["type", "characterId", "animationId"]
+                    },
                     {
                         "title": "DialogStep", "type": "object",
                         "properties": {
                             "type": { "type": "string", "enum": ["dialog"] },
                             "text": { "type": "string", "description": "The exact words spoken by the character." },
                             "speakerId": { "type": "string", "description": "The ID of the character who is speaking." },
-                            "speakerExpression": { "type": "string", "enum": ["neutral", "happy", "annoyed"], "description": "The emotional expression of the speaker." },
+                            "speakerExpression": { "type": "string", "format": "enum", "enum": ["neutral", "happy", "annoyed"], "description": "The emotional expression of the speaker. Can only be 'neutral', 'happy' or 'annoyed'. Asolutely can not be any other values. This is important. Any other values will break the game." },
                             "listenerId": { "type": "string", "description": "Optional ID of the character being spoken to." },
-                            "listenerExpression": { "type": "string", "enum": ["neutral", "happy", "annoyed"], "description": "Optional emotional expression of the listener." }
+                            "listenerExpression": { "type": "string", "format": "enum", "enum": ["neutral", "happy", "annoyed"], "description": "Optional emotional expression of the listener. Can only be 'neutral', 'happy' or 'annoyed'. Asolutely can not be any other values. This is important. Any other values will break the game." }
                         },
                         "required": ["type", "id", "text", "speakerId", "speakerExpression"]
                     },
@@ -223,9 +234,9 @@ export function buildFinalSchema(roomIds: string[], npcIds: string[]): object {
                             "type": { "type": "string", "enum": ["action"] },
                             "text": { "type": "string", "description": "A narrative description of the character's action." },
                             "characterId": { "type": "string", "description": "The ID of the character performing the action." },
-                            "characterExpression": { "type": "string", "enum": ["neutral", "happy", "annoyed"], "description": "The emotional expression of the character performing the action." },
+                            "characterExpression": { "type": "string", "format": "enum", "enum": ["neutral", "happy", "annoyed"], "description": "The emotional expression of the character performing the action. Can only be 'neutral', 'happy' or 'annoyed'. Asolutely can not be any other values. This is important. Any other values will break the game." },
                             "targetId": { "type": "string", "description": "Optional ID of the item or character being acted upon." },
-                            "targetExpression": { "type": "string", "enum": ["neutral", "happy", "annoyed"], "description": "Optional emotional expression of the target." }
+                            "targetExpression": { "type": "string", "format": "enum", "enum": ["neutral", "happy", "annoyed"], "description": "Optional emotional expression of the target. Can only be 'neutral', 'happy' or 'annoyed'. Asolutely can not be any other values. This is important. Any other values will break the game." }
                         },
                         "required": ["type", "id", "text", "characterId", "characterExpression"]
                     },
@@ -252,9 +263,11 @@ export function buildFinalSchema(roomIds: string[], npcIds: string[]): object {
                     "colorHex": { "type": "string", "description": "The hex color code." },
                     "type": { "type": "string", "enum": ["item"] },
                     "gridPosition": { "type": "object", "properties": { "x": { "type": "number" }, "y": { "type": "number" } }, "required": ["x", "y"] },
-                    "name": { "type": "string", "description": "The proper name of the item." }
+                    "name": { "type": "string", "description": "The proper name of the item." },
+                    "newRoomId": { "type": "string", "description": "The ID of the room where the item will be located if creating a new item. An item can only have newRoomId or newCharacterId, it can't have both. If an item is not in a character inventory then use newRoomId and exclude newCharacterId." },
+                    "newCharacterId": { "type": "string", "description": "The ID of the character carrying the item if creating a new item. An item can only have newRoomId or newCharacterId, it can't have both. If a character is picking up an item, use newCharacterId and exclude newRoomId." }
                 },
-                "required": ["id", "type"]
+                "required": ["id", "type", "name", "asciiChar", "colorHex", "description"]
             }
         },
         "itemsMove": {
@@ -274,7 +287,7 @@ export function buildFinalSchema(roomIds: string[], npcIds: string[]): object {
             "items": { "type": "string" }
         },
         "charactersChanges": {
-            "description": "A list of characters whose properties have changed.", "type": "array",
+            "description": "A list of characters whose properties have changed. ", "type": "array",
             "items": {
                 "type": "object",
                 "properties": {
@@ -285,9 +298,8 @@ export function buildFinalSchema(roomIds: string[], npcIds: string[]): object {
                     "colorHex": { "type": "string", "description": "The hex color code." },
                     "type": { "type": "string", "enum": ["character"] },
                     "gridPosition": { "type": "object", "properties": { "x": { "type": "number" }, "y": { "type": "number" } }, "required": ["x", "y"] },
-                    "itemsIdList": { "type": "array", "items": { "type": "string" }, "description": "The complete list of item IDs the character carries." }
                 },
-                "required": ["id", "type"]
+                "required": ["id", "type", "description", "asciiChar", "colorHex", "gridPosition"]
             }
         },
         "charactersMove": {
@@ -322,7 +334,15 @@ export function buildFinalSchema(roomIds: string[], npcIds: string[]): object {
         // If we add the property, we must also make it required.
         finalSchema.required.push("nextTurnNpcActions");
     }
-
+    if (isSus) {
+        // If the player character is suspected, we add the HoldItAnimation step.
+        finalSchema.properties.isGameOver = {
+            title: "isGameOver",
+            type: "boolean",
+            description: "Whether the game is over due to suspicion of the player character. If the player actions this turn aren't enough to resolve the suspicion from the previous turn, the game ends.",
+        };
+        finalSchema.required.push("isGameOver");
+    }
     return finalSchema;
 }
 

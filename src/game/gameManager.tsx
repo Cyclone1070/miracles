@@ -1,17 +1,25 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import { writeInitialData } from "../data/writeInitialData";
 import type { Action, SaveState, Turn, WorldState } from "../types";
 import { getNextTurn } from "../utils/gemini";
 import {
+	deleteItem,
+	findCharacterWithItem,
 	findRoomWithCharacter,
+	findRoomWithItem,
 	getAllTurns,
 	getCurrentProcessedRooms,
 	loadCharacter,
+	loadItem,
 	loadRoom,
 	loadState,
 	loadTurn,
+	saveCharacter,
+	saveItem,
 	saveRoom,
 	saveState,
+	saveTurn,
 } from "./storage";
 
 // main game logic, helper hook for context provider
@@ -31,6 +39,7 @@ export function useGameHelper() {
 	const [isTurnEnd, setIsTurnEnd] = useState(false);
 	const [isTurnEndHandling, setIsTurnEndHandling] = useState(false);
 	const [npcActions, setNpcActions] = useState<Record<string, string>>();
+	const [lastProcessedTurnId, setLastProcessedTurnId] = useState<number>(0);
 	// convenience derived variables
 	const currentStep =
 		currentTurn && currentTurn.type === "game"
@@ -62,6 +71,7 @@ export function useGameHelper() {
 				setCurrentTurnsLeft(currentSaveState.currentTurnsLeft);
 				setCurrentMusic(currentSaveState.currentMusic);
 				setCurrentRoom(currentSaveState.currentRoomId);
+				setLastProcessedTurnId(currentSaveState.lastProcessedTurnId || 0);
 				if (currentSaveState.currentMusic) {
 					musicPlayer.current.loop = true;
 					musicPlayer.current.src = currentSaveState.currentMusic;
@@ -94,6 +104,7 @@ export function useGameHelper() {
 			alert("No next turn found. Please check your game data.");
 			return;
 		}
+		setIsTurnEnd(false);
 		setCurrentTurn(nextTurn);
 		setCurrentStepIndex(0);
 	}, [currentTurn]);
@@ -119,8 +130,18 @@ export function useGameHelper() {
 				return prev - 1;
 			});
 		}
-		setIsTurnEnd(false);
 	}, [advanceTurn, currentTurn]);
+
+	useEffect(() => {
+		if (
+			currentTurn?.type === "game" &&
+			currentStepIndex === currentTurn?.steps.length - 1
+		) {
+			setIsTurnEnd(true);
+		} else {
+			setIsTurnEnd(false);
+		}
+	}, [currentTurn, currentStepIndex, currentStep?.type]);
 
 	// play music based on location
 	useEffect(() => {
@@ -134,53 +155,211 @@ export function useGameHelper() {
 	}, [currentMapId, currentMusic]);
 
 	const handleTurnEnd = useCallback(async () => {
-		setIsTurnEndHandling(true);
 		if (!currentTurn || currentTurn.type !== "game") return;
+		if (currentTurn.id <= lastProcessedTurnId) return;
+		setIsTurnEndHandling(true);
 
 		if (currentTurn.charactersMove) {
-			console.log(
-				"Handling character movement for turn:",
-				currentTurn.id,
-			);
 			// handle character movement
 			for (const move of currentTurn.charactersMove) {
 				// Find the original room of the character
-				const originalRoom = await findRoomWithCharacter(move.id);
-				if (originalRoom) {
+				try {
+					const originalRoom = await findRoomWithCharacter(move.id);
 					// Update the character's room
 					originalRoom.charactersIdList =
 						originalRoom.charactersIdList?.filter(
 							(id) => id !== move.id,
 						);
-				}
-				// Load the new room where the character is moving
-				const newRoom = await loadRoom(move.newRoomId);
-				if (newRoom) {
+					// Load the new room where the character is moving
+					const newRoom = await loadRoom(move.newRoomId);
 					// Add the character to the new room
 					newRoom.charactersIdList = [
 						...(newRoom.charactersIdList || []),
 						move.id,
 					];
+					// Update the character's grid position if specified
+					if (move.newGridPosition) {
+						const character = await loadCharacter(move.id);
+						if (character) {
+							character.gridPosition = move.newGridPosition;
+						}
+					}
+					// Save the updated rooms
+					await saveRoom(originalRoom);
+					await saveRoom(newRoom);
+				} catch (error) {
+					console.log(error);
+				}
+			}
+		}
+		if (currentTurn.charactersChanges) {
+			// handle character changes
+			for (const newCharacter of currentTurn.charactersChanges) {
+				try {
+					const character = await loadCharacter(newCharacter.id);
+					// Update the character's properties
+					await saveCharacter({
+						...newCharacter,
+						itemsIdList: character.itemsIdList,
+					});
+				} catch (error) {
+					console.log(error);
+				}
+			}
+		}
+		if (currentTurn.itemsMove) {
+			for (const move of currentTurn.itemsMove) {
+				// Find the original room of the character
+				let originalRoom;
+				let originalCharacter;
+				try {
+					originalRoom = await findRoomWithItem(move.id);
+					if (originalRoom) {
+						// Update the item's room
+						originalRoom.itemsIdList =
+							originalRoom.itemsIdList?.filter(
+								(id) => id !== move.id,
+							);
+					}
+				} catch (error) {
+					console.log("false alarm: " + error);
+				}
+
+				try {
+					originalCharacter = await findCharacterWithItem(move.id);
+					if (originalCharacter) {
+						// Remove the item from the character's items list
+						originalCharacter.itemsIdList =
+							originalCharacter.itemsIdList?.filter(
+								(id) => id !== move.id,
+							);
+						await saveCharacter(originalCharacter);
+					}
+				} catch (error) {
+					console.log("false alarm: " + error);
+				}
+
+				let newRoom;
+				let newCharacter;
+
+				if (move.newRoomId) {
+					newRoom = await loadRoom(move.newRoomId);
+					// Add the items to the new room
+					newRoom.itemsIdList = [
+						...(newRoom.charactersIdList || []),
+						move.id,
+					];
+				}
+				if (move.newCharacterId) {
+					newCharacter = await loadCharacter(move.newCharacterId);
+					// Add the item to the new character's items list
+					newCharacter.itemsIdList = [
+						...(newCharacter.itemsIdList || []),
+						move.id,
+					];
+					await saveCharacter(newCharacter);
 				}
 				// Update the character's grid position if specified
 				if (move.newGridPosition) {
-					const character = await loadCharacter(move.id);
-					if (character) {
-						character.gridPosition = move.newGridPosition;
+					const item = await loadItem(move.id);
+					if (item) {
+						item.gridPosition = move.newGridPosition;
 					}
 				}
 				// Save the updated rooms
-				await saveRoom(originalRoom);
-				await saveRoom(newRoom);
+				if (originalRoom) {
+					await saveRoom(originalRoom);
+				}
+				if (originalCharacter) {
+					await saveCharacter(originalCharacter);
+				}
+				if (newCharacter) {
+					await saveCharacter(newCharacter);
+				} else if (newRoom) {
+					await saveRoom(newRoom);
+				}
+			}
+		}
+		if (currentTurn.itemsChanges) {
+			// handle item changes
+			for (const newItem of currentTurn.itemsChanges) {
+				const { newRoomId, newCharacterId, ...newItemCleaned } =
+					newItem;
+
+				if (newCharacterId) {
+					// If the item is moving to a new character, find the character and update it
+					try {
+						const character = await loadCharacter(newCharacterId);
+						character.itemsIdList = [
+							...(character.itemsIdList || []),
+							newItemCleaned.id,
+						];
+						await saveCharacter(character);
+					} catch (error) {
+						console.log(
+							"Error updating item in character: " + error,
+						);
+					}
+				} else if (newRoomId) {
+					// If the item is moving to a new room, find the room and update it
+					try {
+						const room = await loadRoom(newRoomId);
+						room.itemsIdList = [
+							...(room.itemsIdList || []),
+							newItemCleaned.id,
+						];
+						await saveRoom(room);
+					} catch (error) {
+						console.log("Error updating item in room: " + error);
+					}
+				}
+				// Update the item's properties
+				await saveItem({
+					...newItem,
+				});
+			}
+		}
+		if (currentTurn.itemsDeleted) {
+			// handle item deletions
+			for (const itemId of currentTurn.itemsDeleted) {
+				try {
+					const item = await loadItem(itemId);
+					console.log("Deleting item: ", item);
+				} catch (error) {
+					console.log("Item not found: " + error);
+					continue; // Skip to the next item if not found
+				}
+				await deleteItem(itemId);
+				try {
+					const character = await findCharacterWithItem(itemId);
+					character.itemsIdList = character.itemsIdList?.filter(
+						(id) => id !== itemId,
+					);
+					await saveCharacter(character);
+				} catch (error) {
+					console.log(error);
+				}
+				try {
+					const room = await findRoomWithItem(itemId);
+					room.itemsIdList = room.itemsIdList?.filter(
+						(id) => id !== itemId,
+					);
+					await saveRoom(room);
+				} catch (error) {
+					console.log(error);
+				}
 			}
 		}
 
 		setNpcActions(currentTurn.nextTurnNpcActions);
 
+		setLastProcessedTurnId(currentTurn.id);
 		setIsTurnEndHandling(false);
-	}, [currentTurn]);
+	}, [currentTurn, lastProcessedTurnId]);
+
 	useEffect(() => {
 		if (isTurnEnd) {
+			console.log("called");
 			handleTurnEnd();
 		}
 	}, [isTurnEnd, handleTurnEnd]);
@@ -194,15 +373,12 @@ export function useGameHelper() {
 
 		if (nextIndex < currentTurn.steps.length) {
 			setCurrentStepIndex(nextIndex);
-			if (nextIndex === currentTurn.steps.length - 1) {
-				setIsTurnEnd(true);
-			}
 			return;
 		}
 	}
 
 	async function submitPlayerAction() {
-		if (!currentMapId || !currentRoomId) return;
+		if (!currentMapId || !currentRoomId || !currentTurn) return;
 		setIsFetchingResponse(true);
 
 		const processedRooms = await getCurrentProcessedRooms(currentMapId);
@@ -234,6 +410,7 @@ export function useGameHelper() {
 			};
 		});
 		console.log("Cleaned turn history:", cleanTurnHistory);
+
 		const worldState: WorldState = {
 			mapId: currentMapId,
 			day: currentDay || 1,
@@ -242,14 +419,29 @@ export function useGameHelper() {
 			currentRoomId,
 			npcActions: npcActions || {},
 		};
+		const isSus =
+			currentTurn.type === "game" &&
+			currentTurn.steps.some(
+				(step) =>
+					step.type === "animation" && step.animationId === "hold-it",
+			);
 		const nextTurn = await getNextTurn(
 			worldState,
 			cleanTurnHistory,
 			playerActions,
+			isSus,
 		);
+		if (nextTurn.type === "game") {
+			nextTurn.id = currentTurn.id + 1; // Ensure the next turn has the correct ID
+			nextTurn.steps.forEach((step) => {
+				step.id = uuidv4();
+			});
+		}
 		console.log("Next turn:", nextTurn);
+		saveTurn(nextTurn);
 
 		setIsFetchingResponse(false);
+		advanceTurn();
 	}
 
 	// handle save state on exit
@@ -260,6 +452,7 @@ export function useGameHelper() {
 		currentDay,
 		currentTurnsLeft,
 		currentMusic,
+		lastProcessedTurnId
 	});
 	useEffect(() => {
 		latestSaveState.current = {
@@ -270,6 +463,7 @@ export function useGameHelper() {
 			currentTurnsLeft,
 			currentMusic,
 			currentRoomId: currentRoomId,
+			lastProcessedTurnId,
 		};
 	});
 

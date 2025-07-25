@@ -113,10 +113,10 @@ export function NarrativeBox({ ...props }: Props) {
 				)}
 				onClick={async () => {
 					if (isFetchingResponse) return;
-					if (isTurnEnd && currentStep?.type !== "choice") {
+					if (isTurnEnd) {
 						setIsActionExpanded(true);
 						return;
-					};
+					}
 					const element = textContainerRef.current;
 					if (!element) return;
 					if (currentStep?.type === "choice") return;
@@ -239,7 +239,9 @@ export function NarrativeBox({ ...props }: Props) {
 							}}
 						>
 							{isFetchingResponse ? (
-								<div className={`w-full h-full flex items-center justify-center`}>
+								<div
+									className={`w-full h-full flex items-center justify-center`}
+								>
 									<div className="flex flex-col gap-5 items-center justify-center text-white">
 										<motion.img
 											src={miracleSvgURL}

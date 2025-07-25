@@ -79,6 +79,24 @@ export async function getObject<T>(
     });
 }
 
+export async function deleteObject(
+    storeName: string,
+    id: IDBValidKey
+): Promise<void> {
+    const db = await openDatabase();
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction([storeName], 'readwrite');
+        const store = transaction.objectStore(storeName);
+        const request = store.delete(id);
+
+        request.onsuccess = () => resolve();
+        request.onerror = (event) => {
+            console.error('Error deleting object:', (event.target as IDBRequest).error);
+            reject('Failed to delete object');
+        };
+    });
+}
+
 export async function getAllObjectsFromStore<T>(
     storeName: string,
     filter?: (obj: T) => boolean
