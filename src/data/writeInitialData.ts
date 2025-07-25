@@ -60,7 +60,10 @@ export async function writeInitialData(): Promise<void> {
                     {
                         text: "Lucie my brother!",
                         nextTurnId: "intro_wacky"
-                    }
+                    }, {
+						text: "What do you need?",
+						nextTurnId: "intro_serious"
+					}
                 ]
             }
         ],

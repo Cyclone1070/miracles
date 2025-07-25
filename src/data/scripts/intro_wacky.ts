@@ -11,7 +11,7 @@ const intro_wacky: GameTurn = {
         {
             type: "dialog",
             id: "intro_4",
-            text: "Lucie my brother! How you been?",
+            text: "Luci my brother! How you been?",
             speakerId: "Jesus",
             speakerExpression: "happy",
             listenerId: "Lucifer",

@@ -264,7 +264,7 @@ export function NarrativeBox({ ...props }: Props) {
 								</div>
 							) : currentStep?.type === "choice" ? (
 								<div
-									className={`flex flex-col items-center w-full`}
+									className={`flex flex-col items-center justify-center w-full gap-2`}
 								>
 									{currentStep.options.map(
 										(option: ChoiceOption) => {

@@ -39,6 +39,8 @@ export function useGameHelper() {
 	const [isTurnEnd, setIsTurnEnd] = useState(false);
 	const [isTurnEndHandling, setIsTurnEndHandling] = useState(false);
 	const [npcActions, setNpcActions] = useState<Record<string, string>>();
+	const [eventSummary, setLastTurnEventSummary] =
+		useState<Record<string, string>>();
 	const [lastProcessedTurnId, setLastProcessedTurnId] = useState<number>(0);
 	// convenience derived variables
 	const currentStep =
@@ -71,7 +73,9 @@ export function useGameHelper() {
 				setCurrentTurnsLeft(currentSaveState.currentTurnsLeft);
 				setCurrentMusic(currentSaveState.currentMusic);
 				setCurrentRoom(currentSaveState.currentRoomId);
-				setLastProcessedTurnId(currentSaveState.lastProcessedTurnId || 0);
+				setLastProcessedTurnId(
+					currentSaveState.lastProcessedTurnId || 0,
+				);
 				if (currentSaveState.currentMusic) {
 					musicPlayer.current.loop = true;
 					musicPlayer.current.src = currentSaveState.currentMusic;
@@ -129,6 +133,7 @@ export function useGameHelper() {
 				if (!prev) return prev;
 				return prev - 1;
 			});
+			setLastTurnEventSummary(currentTurn.roomsEventSummary);
 		}
 	}, [advanceTurn, currentTurn]);
 
@@ -147,7 +152,7 @@ export function useGameHelper() {
 	useEffect(() => {
 		if (currentMapId === "Heaven") {
 			if (currentMusic !== "birds-ambience.mp3") {
-				musicPlayer.current.src = "/music/heaven-music.mp3";
+				musicPlayer.current.src = "/birds-ambience.mp3";
 				musicPlayer.current.play();
 				setCurrentMusic("birds-ambience.mp3");
 			}
@@ -452,7 +457,7 @@ export function useGameHelper() {
 		currentDay,
 		currentTurnsLeft,
 		currentMusic,
-		lastProcessedTurnId
+		lastProcessedTurnId,
 	});
 	useEffect(() => {
 		latestSaveState.current = {
@@ -499,5 +504,6 @@ export function useGameHelper() {
 		isTurnEnd,
 		isTurnEndHandling,
 		npcActions,
+		eventSummary,
 	};
 }

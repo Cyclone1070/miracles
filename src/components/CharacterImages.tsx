@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { useGameManager } from "../context/GameContext";
 import { mergeClasses } from "../utils/tailwindMerge";
 import beamURL from "/beam.webp?url";
+import holdItSoundURL from "/hold-it.mp3?url";
+import holdItURL from "/hold-it.webp?url";
 import jesusAnnoyedURL from "/jesus-annoyed.webp?url";
 import jesusHappyURL from "/jesus-happy.webp?url";
 import jesusNeutralURL from "/jesus-neutral.webp?url";
@@ -32,6 +34,8 @@ export function CharacterImages({ ...props }: Props) {
 	const [luciferAnimationSide, setLuciferAnimationSide] = useState<
 		"left" | "right" | null
 	>(null);
+	const [showHoldItBox, setShowHoldItBox] = useState(false);
+	const holdItSoundPlayer = useRef(new Audio(holdItSoundURL));
 
 	// Reset all trackers when entering a new room or map
 	useEffect(() => {
@@ -80,8 +84,25 @@ export function CharacterImages({ ...props }: Props) {
 				? isLuciferMain
 				: !isLuciferMain;
 			setLuciferAnimationSide(luciferIsLeft ? "left" : "right");
+		} else if (
+			currentStep?.type === "animation" &&
+			currentStep.animationId === "hold-it"
+		) {
+			setShowHoldItBox(true);
 		}
 	}, [currentStep, actingCharacterId]);
+
+	useEffect(() => {
+		if (showHoldItBox) {
+			holdItSoundPlayer.current.play();
+			const timer = setTimeout(() => {
+				setShowHoldItBox(false);
+				advanceStory();
+			}, 1500); // 1.5-second delay
+
+			return () => clearTimeout(timer);
+		}
+	}, [showHoldItBox, advanceStory]);
 
 	if (
 		actingCharacterId &&
@@ -179,6 +200,11 @@ export function CharacterImages({ ...props }: Props) {
 				props.className,
 			)}
 		>
+			{showHoldItBox && (
+				<div className="fixed inset-0 bottom-20 md:bottom-0 flex items-center justify-center z-50 ">
+					<img src={holdItURL} alt="hold it" className={`w-100 h-100`} />
+				</div>
+			)}
 			{renderImageSlot(displayLeftKey, "left")}
 			{renderImageSlot(displayRightKey, "right")}
 		</div>

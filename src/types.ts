@@ -72,8 +72,8 @@ export interface AnimationStep {
     type: "animation";
     id?: string;
     animationId: "hold-it" | "lucifer-appears";
-    characterId?: string;
-    characterExpression?: "neutral" | "happy" | "annoyed";
+    characterId: string;
+    characterExpression: "neutral" | "happy" | "annoyed";
 }
 export type Step = DialogStep | ActionStep | NarrationStep | ChoiceStep | AnimationStep;
 

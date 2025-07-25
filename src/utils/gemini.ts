@@ -204,21 +204,22 @@ export function buildFinalSchema(roomIds: string[], npcIds: string[], characterI
             type: "string", enum: ["game"]
         },
         steps: {
-            description: "A chronological array of narrative events. All text fields should be plain text. You should try to generate 8 to 10 new steps per turn.",
+            description: "A chronological array of narrative events. All text fields should be plain text. You should try to generate 10 to 16 new steps per turn, can be more if needed.",
             type: "array",
             items: {
-				minItems: 8,
+				minItems: 10,
                 description: "A single narrative event. Must be one of DialogStep, ActionStep, or NarrationStep or HoldItAnimation.",
                 anyOf: [
                     {
                         title: "HoldItAnimation", type: "object",
-                        description: "A special animation step for when an npc becomes suspicious of the player character.",
+                        description: "A special animation step for when an npc becomes suspicious of the player character. This will only trigger if the player is acting suspiciously. Or using their power in an obvious way.",
                         properties: {
                             type: { type: "string", enum: ["animation"], description: "The type of step, must be 'animation' for HoldItAnimation." },
                             animationId: { type: "string", enum: ["hold-it"], description: "The animation id, must be 'hold-it' for HoldItAnimation." },
                             characterId: { type: "string", enum: characterIds, description: "The ID of the character being suspicious of the player character." },
+							characterExpression: { type: "string", enum: ["neutral", "happy", "annoyed"], description: "The emotional expression of the character performing the animation. Can only be 'neutral', 'happy' or 'annoyed'." }
                         },
-                        required: ["type", "characterId", "animationId"]
+                        required: ["type", "characterId", "animationId", "characterExpression"]
                     },
                     {
                         title: "DialogStep", type: "object",
