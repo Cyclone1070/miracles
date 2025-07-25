@@ -114,6 +114,7 @@ export interface GameTurn extends BaseTurn {
     }[],
     roomsEventSummary?: Record<string, string>;
     nextTurnNpcActions?: Record<string, string>;
+	isGameOver?: boolean;
 }
 export type Turn = GameTurn | MapTurn | TimeTurn;
 

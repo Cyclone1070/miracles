@@ -1,7 +1,9 @@
 import { motion } from "motion/react";
+import { useGameManager } from "../context/GameContext";
 import { BgImage } from "./BgImage";
 import { BottomBar } from "./BottomBar";
 import { CharacterImages } from "./CharacterImages";
+import { GameOverScreen } from "./GameOverScreen";
 import { GameMap } from "./GameMap";
 import { NarrativeBox } from "./NarrativeBox";
 import { PlayerActionInputArea } from "./PlayerActionInputArea";
@@ -14,6 +16,7 @@ interface Props {
 }
 
 export function GameScreen({ ...props }: Props) {
+	const { isGameOver } = useGameManager();
 	const variants = {
 		hidden: {
 			opacity: 0,
@@ -37,6 +40,7 @@ export function GameScreen({ ...props }: Props) {
 				props.className,
 			)}
 		>
+			{isGameOver && <GameOverScreen />}
 			<BgImage className={`-z-1`} />
 			<CharacterImages className={`absolute inset-0 -z-1 mb-50 md:mb-auto`} />
 

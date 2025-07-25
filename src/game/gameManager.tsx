@@ -1,25 +1,26 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { writeInitialData } from "../data/writeInitialData";
-import type { Action, SaveState, Turn, WorldState } from "../types";
+import type { Action, Character, Item, Room, SaveState, Turn, WorldState } from "../types";
 import { getNextTurn } from "../utils/gemini";
+import { getAllObjectsFromStore, getObject, putObject } from "../utils/indexedDb";
 import {
-	deleteItem,
-	findCharacterWithItem,
-	findRoomWithCharacter,
-	findRoomWithItem,
-	getAllTurns,
-	getCurrentProcessedRooms,
-	loadCharacter,
-	loadItem,
-	loadRoom,
-	loadState,
-	loadTurn,
-	saveCharacter,
-	saveItem,
-	saveRoom,
-	saveState,
-	saveTurn,
+    deleteItem,
+    findCharacterWithItem,
+    findRoomWithCharacter,
+    findRoomWithItem,
+    getAllTurns,
+    getCurrentProcessedRooms,
+    loadCharacter,
+    loadItem,
+    loadRoom,
+    loadState,
+    loadTurn,
+    saveCharacter,
+    saveItem,
+    saveRoom,
+    saveState,
+    saveTurn,
 } from "./storage";
 
 // main game logic, helper hook for context provider
@@ -42,6 +43,7 @@ export function useGameHelper() {
 	const [eventSummary, setLastTurnEventSummary] =
 		useState<Record<string, string>>();
 	const [lastProcessedTurnId, setLastProcessedTurnId] = useState<number>(0);
+	const [isGameOver, setIsGameOver] = useState(false);
 	// convenience derived variables
 	const currentStep =
 		currentTurn && currentTurn.type === "game"
@@ -113,6 +115,47 @@ export function useGameHelper() {
 		setCurrentStepIndex(0);
 	}, [currentTurn]);
 
+	async function saveDailyState(day: number) {
+		const rooms = await getAllObjectsFromStore("rooms");
+		const characters = await getAllObjectsFromStore("characters");
+		const items = await getAllObjectsFromStore("items");
+		const saveState = loadState();
+		if (!saveState) return;
+
+		const dailySave = {
+			id: day,
+			rooms,
+			characters,
+			items,
+			saveState: { ...saveState, lastProcessedTurnId: 0 },
+		};
+
+		await putObject("dailySaves", dailySave);
+	}
+
+	async function retryFromLastSave() {
+		if (!currentDay) return;
+		const dailySave = await getObject<{
+			id: number,
+			rooms: Room[],
+			characters: Character[],
+			items: Item[],
+			saveState: SaveState
+		}>("dailySaves", currentDay);
+
+		if (!dailySave) {
+			alert("No save found for the current day.");
+			return;
+		}
+
+		await Promise.all(dailySave.rooms.map(room => saveRoom(room)));
+		await Promise.all(dailySave.characters.map(char => saveCharacter(char)));
+		await Promise.all(dailySave.items.map(item => saveItem(item)));
+		saveState(dailySave.saveState);
+
+		window.location.reload();
+	}
+
 	// handle turns
 	useEffect(() => {
 		if (currentTurn?.type === "map") {
@@ -122,6 +165,7 @@ export function useGameHelper() {
 		} else if (currentTurn?.type === "time") {
 			if (currentTurn.newDay) {
 				setCurrentDay(currentTurn.newDay);
+				saveDailyState(currentTurn.newDay);
 			}
 			if (currentTurn.newTurnLimit) {
 				setCurrentTurnsLeft(currentTurn.newTurnLimit);
@@ -163,6 +207,7 @@ export function useGameHelper() {
 		if (!currentTurn || currentTurn.type !== "game") return;
 		if (currentTurn.id <= lastProcessedTurnId) return;
 		setIsTurnEndHandling(true);
+
 
 		if (currentTurn.charactersMove) {
 			// handle character movement
@@ -379,7 +424,7 @@ export function useGameHelper() {
 		if (nextIndex < currentTurn.steps.length) {
 			setCurrentStepIndex(nextIndex);
 			return;
-		}
+		} 
 	}
 
 	async function submitPlayerAction() {
@@ -505,5 +550,7 @@ export function useGameHelper() {
 		isTurnEndHandling,
 		npcActions,
 		eventSummary,
+		isGameOver,
+		setIsGameOver,
 	};
 }

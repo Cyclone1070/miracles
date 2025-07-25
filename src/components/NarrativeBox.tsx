@@ -36,6 +36,7 @@ export function NarrativeBox({ ...props }: Props) {
 		advanceTurn,
 		currentTurn,
 		isTurnEnd,
+		setIsGameOver,
 	} = useGameManager();
 	const prevSpeakerRef = useRef<string | null>(null);
 	const isLeftRef = useRef(true);
@@ -114,6 +115,12 @@ export function NarrativeBox({ ...props }: Props) {
 				onClick={async () => {
 					if (isFetchingResponse) return;
 					if (isTurnEnd && currentStep?.type !== "choice") {
+						if (
+							currentTurn?.type === "game" &&
+							currentTurn?.isGameOver
+						) {
+							setIsGameOver(true);
+						}
 						setIsActionExpanded(true);
 						return;
 					}

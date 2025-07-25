@@ -42,6 +42,7 @@ const intro_wacky: GameTurn = {
             listenerId: "Lucifer",
             listenerExpression: "neutral"
         },
-    ]
+    ],
+	isGameOver: true,
 }
 export default intro_wacky;
