@@ -1,5 +1,5 @@
-import type { Character, GameMap, Item, Room, SaveState, Turn } from "../types";
-import { getObject, putObject } from "../utils/indexedDb";
+import type { Character, GameMap, Item, ProcessedCharacter, ProcessedRoom, Room, SaveState, Turn } from "../types";
+import { getAllObjectsFromStore, getObject, putObject } from "../utils/indexedDb";
 
 const SAVE_STATE_KEY = 'miracle_save_state';
 
@@ -29,6 +29,13 @@ export async function loadTurn(turnId: number): Promise<Turn> {
     return turn;
 }
 
+export async function getAllTurns(): Promise<Turn[]> {
+    const turns = await getAllObjectsFromStore<Turn>("turns");
+    if (!turns || turns.length === 0) {
+        return [];
+    }
+    return turns.sort((a, b) => a.id - b.id);
+}
 // maps
 export async function saveMap(map: GameMap): Promise<void> {
     await putObject("maps", map);
@@ -53,7 +60,24 @@ export async function loadRoom(roomId: string): Promise<Room> {
     }
     return room;
 }
-
+export async function getAllRoomsInMap(mapId: string): Promise<Room[]> {
+    const map = await loadMap(mapId);
+    if (!map.roomsIdList || map.roomsIdList.length === 0) {
+        return [];
+    }
+    const roomPromises = map.roomsIdList.map(id => loadRoom(id));
+    return Promise.all(roomPromises);
+}
+export async function findRoomWithCharacter(characterId: string): Promise<Room> {
+    const rooms = await getAllObjectsFromStore<Room>('rooms', (room) =>
+        !room.charactersIdList ? false : room.charactersIdList.includes(characterId)
+    );
+    // Returns the first matching room, or undefined if no rooms match.
+	if (rooms.length === 0) {
+		throw new Error(`No room found with character ID ${characterId}`);
+	}
+    return rooms[0];
+}
 // characters
 export async function saveCharacter(character: Character): Promise<void> {
     await putObject("characters", character);
@@ -93,10 +117,38 @@ export async function getAllItemsInRoom(roomId: string): Promise<Item[]> {
     return Promise.all(itemPromises);
 }
 export async function getAllItemsInCharacter(characterId: string): Promise<Item[]> {
-	const character = await loadCharacter(characterId);
-	if (!character.itemsIdList || character.itemsIdList.length === 0) {
-		return [];
-	}
-	const itemPromises = character.itemsIdList.map(id => loadItem(id));
-	return Promise.all(itemPromises);
+    const character = await loadCharacter(characterId);
+    if (!character.itemsIdList || character.itemsIdList.length === 0) {
+        return [];
+    }
+    const itemPromises = character.itemsIdList.map(id => loadItem(id));
+    return Promise.all(itemPromises);
+}
+export async function getCurrentProcessedRooms(mapId: string): Promise<ProcessedRoom[]> {
+    const rooms = await getAllRoomsInMap(mapId)
+    const processedRooms: ProcessedRoom[] = [];
+    for (const room of rooms) {
+        const characters = await getAllCharactersInRoom(room.id);
+        const processedCharacters: ProcessedCharacter[] = [];
+        const RoomItems = await getAllItemsInRoom(room.id);
+        for (const character of characters) {
+            const items = await getAllItemsInCharacter(character.id);
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { itemsIdList: _items, ...characterWithoutItems } = character;
+            const processedCharacter: ProcessedCharacter = {
+                ...characterWithoutItems,
+                items: items,
+            }
+            processedCharacters.push(processedCharacter);
+        }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { charactersIdList: _characters, itemsIdList: _items, ...roomWithoutItems } = room;
+        const processedRoom: ProcessedRoom = {
+            ...roomWithoutItems,
+            characters: processedCharacters,
+            items: RoomItems,
+        };
+        processedRooms.push(processedRoom);
+    }
+    return processedRooms;
 }

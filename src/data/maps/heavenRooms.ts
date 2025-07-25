@@ -18,5 +18,6 @@ export const heavenRooms: Room[] = [
         width: 5,
         height: 5,
         itemsIdList: ["Portrait of Jonathan Cheesus", "Portrait of Ar En Gesus"],
+		charactersIdList: ["Lucifer"],
     }
 ]

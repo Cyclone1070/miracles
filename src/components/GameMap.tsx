@@ -51,6 +51,7 @@ export function GameMap({ ...props }: Props) {
 			document.removeEventListener("mousedown", handleClickOutside);
 		};
 	}, [isMapExpanded, activeRoom]);
+
 	return (
 		currentMapId && (
 			<>

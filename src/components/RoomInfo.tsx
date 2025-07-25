@@ -101,7 +101,7 @@ export function RoomInfo({ ...props }: Props) {
 											{
 												id: uuidv4(),
 												characterId:
-													currentMapId === "heaven"
+													currentMapId === "Heaven"
 														? "Jesus"
 														: "Big Shot",
 												expression: "neutral",

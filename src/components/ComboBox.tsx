@@ -47,7 +47,10 @@ export function Combobox<T>({ ...props }: Props<T>) {
 
 	return (
 		<>
-			<label {...getLabelProps()}>{props.label}</label>
+			<label {...getLabelProps()}>
+				{props.required && <span className={`text-red-500`}>*</span>}
+				{props.label}
+			</label>
 			<div className={`relative ${props.className}`}>
 				<div className="relative rounded-md w-full">
 					<input
@@ -72,7 +75,9 @@ export function Combobox<T>({ ...props }: Props<T>) {
 								} else if (inputItems.length > 0) {
 									selectItem(inputItems[0]);
 								} else {
-									console.log("Resetting input value on blur");
+									console.log(
+										"Resetting input value on blur",
+									);
 									reset();
 								}
 							},

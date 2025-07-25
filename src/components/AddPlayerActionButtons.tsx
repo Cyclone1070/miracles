@@ -217,15 +217,18 @@ export function AddPlayerActionButtons({ ...props }: Props) {
 				alert("You can only have 4 actions per turn!");
 				return prev;
 			}
+			if (prev.some((action) => action.type === "move")) {
+				alert("Your move action must be the last action of the turn!");
+				return prev;
+			}
 			return [
 				...prev,
 				{
 					id: uuidv4(),
 					characterId:
-						currentMapId === "heaven" ? "Jesus" : "Big Shot",
+						currentMapId === "Heaven" ? "Jesus" : "Big Shot",
 					expression: "neutral",
 					type: "do",
-					action: "test",
 				},
 			];
 		});
@@ -236,16 +239,18 @@ export function AddPlayerActionButtons({ ...props }: Props) {
 				alert("You can only have 4 actions per turn!");
 				return prev;
 			}
+			if (prev.some((action) => action.type === "move")) {
+				alert("Your move action must be the last action of the turn!");
+				return prev;
+			}
 			return [
 				...prev,
 				{
 					id: uuidv4(),
 					characterId:
-						currentMapId === "heaven" ? "Jesus" : "Big Shot",
+						currentMapId === "Heaven" ? "Jesus" : "Big Shot",
 					expression: "neutral",
 					type: "say",
-					dialog: "test",
-					target: "test target",
 				},
 			];
 		});
@@ -256,12 +261,16 @@ export function AddPlayerActionButtons({ ...props }: Props) {
 				alert("You can only have 4 actions per turn!");
 				return prev;
 			}
+			if (prev.some((action) => action.type === "move")) {
+				alert("Your move action must be the last action of the turn!");
+				return prev;
+			}
 			return [
 				...prev,
 				{
 					id: uuidv4(),
 					characterId:
-						currentMapId === "heaven" ? "Jesus" : "Big Shot",
+						currentMapId === "Heaven" ? "Jesus" : "Big Shot",
 					expression: "neutral",
 					type: "create",
 				},
@@ -274,12 +283,16 @@ export function AddPlayerActionButtons({ ...props }: Props) {
 				alert("You can only have 4 actions per turn!");
 				return prev;
 			}
+			if (prev.some((action) => action.type === "move")) {
+				alert("Your move action must be the last action of the turn!");
+				return prev;
+			}
 			return [
 				...prev,
 				{
 					id: uuidv4(),
 					characterId:
-						currentMapId === "heaven" ? "Jesus" : "Big Shot",
+						currentMapId === "Heaven" ? "Jesus" : "Big Shot",
 					expression: "neutral",
 					type: "transform",
 				},
@@ -292,12 +305,16 @@ export function AddPlayerActionButtons({ ...props }: Props) {
 				alert("You can only have 4 actions per turn!");
 				return prev;
 			}
+			if (prev.some((action) => action.type === "move")) {
+				alert("Your move action must be the last action of the turn!");
+				return prev;
+			}
 			return [
 				...prev,
 				{
 					id: uuidv4(),
 					characterId:
-						currentMapId === "heaven" ? "Jesus" : "Big Shot",
+						currentMapId === "Heaven" ? "Jesus" : "Big Shot",
 					expression: "neutral",
 					type: "destroy",
 				},

@@ -1,5 +1,4 @@
 import type { Transition } from "motion/react";
-import type { Room } from "../types";
 import { MapRoom } from "./MapRoom";
 
 interface Props {

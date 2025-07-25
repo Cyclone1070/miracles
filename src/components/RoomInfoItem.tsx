@@ -4,6 +4,7 @@ import { getAllItemsInCharacter } from "../game/storage";
 import type { Item } from "../types";
 import { mergeClasses } from "../utils/tailwindMerge";
 import { HighlightButton } from "./HighlightButton";
+import { useGameManager } from "../context/GameContext";
 
 interface Props {
 	className?: string;
@@ -20,6 +21,7 @@ interface Props {
 export function RoomInfoItem({ ...props }: Props) {
 	const [items, setItems] = useState<Item[]>([]);
 	const [isExpanded, setIsExpanded] = useState(false);
+	const { npcActions } = useGameManager();
 	if (props.inspectId === props.id && !isExpanded) {
 		setIsExpanded(true);
 	}
@@ -82,17 +84,27 @@ export function RoomInfoItem({ ...props }: Props) {
 						</div>
 						{props.state && (
 							<>
-								<div className="text-sm text-gray-300 underline mt-2">
+								<div className="text-sm text-(--text) underline mt-2">
 									State:
 								</div>
-								<div className="text-sm text-gray-400">
+								<div className="text-sm text-(--text-secondary)">
 									{props.state}
+								</div>
+							</>
+						)}
+						{!props.isItem && npcActions && props.id in npcActions && (
+							<>
+								<div className="text-sm text-(--text) underline mt-2">
+									Next Action:
+								</div>
+								<div className="text-sm text-(--text-secondary)">
+									{npcActions[props.id]}
 								</div>
 							</>
 						)}
 						{items.length > 0 && (
 							<>
-								<div className="text-sm text-gray-300 underline mt-2">
+								<div className="text-sm text-(--text) underline mt-2">
 									Inventory:
 								</div>
 								<div className="flex flex-col gap-2">

@@ -3,10 +3,10 @@ import type { GameTurn } from "../../types";
 const intro_wacky: GameTurn = {
     type: "game",
     id: 0,
-    summary: [{
-        roomId: "heaven",
-        eventSummary: "Jesus and Lucifer exchange greetings in a wacky manner."
-    }],
+    roomsEventSummary: {
+        "Heaven Courtyard": "Jesus greets Lucifer in a wacky manner.",
+        "History Hall": "Nothing happened."
+    },
     steps: [
         {
             type: "dialog",

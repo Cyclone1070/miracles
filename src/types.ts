@@ -6,14 +6,14 @@ export interface BaseAction {
 }
 export interface DoAction extends BaseAction {
     type: "do";
-    action: string;
-    using?: string;
-    target?: string;
+    action?: string;
+    usingId?: string;
+    targetId?: string;
 }
 export interface SayAction extends BaseAction {
     type: "say";
-    dialog: string;
-    target?: string;
+    dialog?: string;
+    targetId?: string;
 }
 export interface CreateAction extends BaseAction {
     type: "create";
@@ -73,7 +73,7 @@ export interface AnimationStep {
     id: string;
     animationId: "hold-it" | "lucifer-appears";
     characterId?: string;
-	characterExpression?: "neutral" | "happy" | "annoyed";
+    characterExpression?: "neutral" | "happy" | "annoyed";
 }
 export type Step = DialogStep | ActionStep | NarrationStep | ChoiceStep | AnimationStep;
 
@@ -89,14 +89,31 @@ export interface TimeTurn extends BaseTurn {
     newDay?: number; // The new day number to set
     newTurnLimit?: number; // The limit of turns for the new day
 }
-export interface RoomSummary {
-    roomId: string;
-    eventSummary: string;
-}
 export interface GameTurn extends BaseTurn {
     type: "game";
     steps: Step[];
-    summary?: RoomSummary[];
+    itemsChanges?: Item[];
+    itemsMove?: {
+        id: string;
+        newRoomId?: string;
+        newGridPosition?: {
+            x: number;
+            y: number;
+        },
+        newCharacterId?: string;
+    }[],
+    itemsDeleted?: string[];
+    charactersChanges?: Character[];
+    charactersMove?: {
+        id: string;
+        newRoomId: string;
+        newGridPosition: {
+            x: number;
+            y: number;
+        };
+    }[],
+    roomsEventSummary?: Record<string, string>;
+    nextTurnNpcActions?: Record<string, string>;
 }
 export type Turn = GameTurn | MapTurn | TimeTurn;
 
@@ -125,7 +142,6 @@ export interface Item extends BaseCellObject {
         y: number;
     };
     name: string;
-    itemsIdList?: string[];
 }
 export interface Character extends BaseCellObject {
     type: "character";
@@ -145,8 +161,25 @@ export interface Room {
     height: number; // Height of the room in grid units
     charactersIdList?: string[]; // Optional, list of characters in the room
     itemsIdList?: string[]; // Optional, list of items in the room
+    state?: string; // Optional state of the room
 }
 export interface GameMap {
     id: string;
-    roomIdList: string[]; // List of rooms in the map
+    roomsIdList: string[]; // List of rooms in the map
+}
+
+export interface ProcessedRoom extends Omit<Room, "charactersIdList" | "itemsIdList"> {
+    characters: ProcessedCharacter[];
+    items: Item[];
+}
+export interface ProcessedCharacter extends Omit<Character, "itemsIdList"> {
+    items: Item[];
+}
+export interface WorldState {
+    mapId: string;
+    day: number;
+    turnsLeft: number;
+    rooms: ProcessedRoom[];
+    currentRoomId: string;
+	npcActions: Record<string, string>; // Actions for NPCs in the current turn
 }

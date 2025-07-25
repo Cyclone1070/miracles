@@ -1,7 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { writeInitialData } from "../data/writeInitialData";
-import type { Action, SaveState, Turn } from "../types";
-import { loadState, loadTurn, saveState } from "./storage";
+import type { Action, SaveState, Turn, WorldState } from "../types";
+import { getNextTurn } from "../utils/gemini";
+import {
+	findRoomWithCharacter,
+	getAllTurns,
+	getCurrentProcessedRooms,
+	loadCharacter,
+	loadRoom,
+	loadState,
+	loadTurn,
+	saveRoom,
+	saveState,
+} from "./storage";
 
 // main game logic, helper hook for context provider
 export function useGameHelper() {
@@ -17,6 +28,8 @@ export function useGameHelper() {
 	const [isFetchingResponse, setIsFetchingResponse] = useState(false);
 	const [isGameInitiating, setIsGameInitLoading] = useState(true);
 	const [playerActions, setPlayerActions] = useState<Action[]>([]);
+	const [isTurnEnd, setIsTurnEnd] = useState(false);
+	const [npcActions, setNpcActions] = useState<Record<string, string>>();
 	// convenience derived variables
 	const currentStep =
 		currentTurn && currentTurn.type === "game"
@@ -84,7 +97,7 @@ export function useGameHelper() {
 		setCurrentStepIndex(0);
 	}, [currentTurn]);
 
-	// handle admin turns since they need to auto advance
+	// handle turns
 	useEffect(() => {
 		if (currentTurn?.type === "map") {
 			setCurrentMapId(currentTurn.newMapId);
@@ -109,7 +122,7 @@ export function useGameHelper() {
 
 	// play music based on location
 	useEffect(() => {
-		if (currentMapId === "heaven") {
+		if (currentMapId === "Heaven") {
 			if (currentMusic !== "birds-ambience.mp3") {
 				musicPlayer.current.src = "/music/heaven-music.mp3";
 				musicPlayer.current.play();
@@ -118,26 +131,98 @@ export function useGameHelper() {
 		}
 	}, [currentMapId, currentMusic]);
 
+	const handleTurnEnd = useCallback(async () => {
+		if (!currentTurn || currentTurn.type !== "game") return;
+
+		if (currentTurn.charactersMove) {
+			console.log(
+				"Handling character movement for turn:",
+				currentTurn.id,
+			);
+			// handle character movement
+			for (const move of currentTurn.charactersMove) {
+				// Find the original room of the character
+				const originalRoom = await findRoomWithCharacter(move.id);
+				if (originalRoom) {
+					// Update the character's room
+					originalRoom.charactersIdList =
+						originalRoom.charactersIdList?.filter(
+							(id) => id !== move.id,
+						);
+				}
+				// Load the new room where the character is moving
+				const newRoom = await loadRoom(move.newRoomId);
+				if (newRoom) {
+					// Add the character to the new room
+					newRoom.charactersIdList = [
+						...(newRoom.charactersIdList || []),
+						move.id,
+					];
+				}
+				// Update the character's grid position if specified
+				if (move.newGridPosition) {
+					const character = await loadCharacter(move.id);
+					if (character) {
+						character.gridPosition = move.newGridPosition;
+					}
+				}
+				// Save the updated rooms
+				await saveRoom(originalRoom);
+				await saveRoom(newRoom);
+			}
+		}
+
+		setNpcActions(currentTurn.nextTurnNpcActions);
+
+		setIsTurnEnd(false);
+	}, [currentTurn]);
+	useEffect(() => {
+		if (isTurnEnd) {
+			handleTurnEnd();
+		}
+	}, [isTurnEnd, handleTurnEnd]);
+
 	// function to load next turn
 	// can only advance story if there is a next step, return true if the player action is needed to advance the story
-	function advanceStory() {
+	async function advanceStory() {
 		if (!currentTurn || currentTurn.type !== "game") return false;
 
 		const nextIndex = currentStepIndex + 1;
 
 		if (nextIndex < currentTurn.steps.length) {
 			setCurrentStepIndex(nextIndex);
+			if (nextIndex === currentTurn.steps.length - 1) {
+				setIsTurnEnd(true);
+			}
 			return false;
 		} else {
-			loadTurn(1).then((firstTurn) => {
-				setCurrentTurn(firstTurn);
-			});
 			return true;
 		}
 	}
 
 	async function submitPlayerAction() {
+		if (!currentMapId || !currentRoomId) return;
 		setIsFetchingResponse(true);
+
+		const processedRooms = await getCurrentProcessedRooms(currentMapId);
+		const turnHistory = await getAllTurns();
+		const worldState: WorldState = {
+			mapId: currentMapId,
+			day: currentDay || 1,
+			turnsLeft: currentTurnsLeft || 0,
+			rooms: processedRooms,
+			currentRoomId,
+			npcActions: npcActions || {},
+		};
+		console.log("submitting player actions");
+		console.log(processedRooms);
+		console.log(turnHistory)
+		const nextTurn = await getNextTurn(
+			worldState,
+			turnHistory,
+			playerActions,
+		);
+		console.log(nextTurn);
 
 		setIsFetchingResponse(false);
 	}
@@ -192,5 +277,7 @@ export function useGameHelper() {
 		submitPlayerAction,
 		playerActions,
 		setPlayerActions,
+		isTurnEnd,
+		npcActions
 	};
 }

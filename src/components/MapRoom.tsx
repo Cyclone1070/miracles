@@ -6,6 +6,7 @@ import {
 	useState,
 	type MouseEventHandler,
 } from "react";
+import { useGameManager } from "../context/GameContext";
 import {
 	getAllCharactersInRoom,
 	getAllItemsInRoom,
@@ -29,6 +30,8 @@ export function MapRoom({ ...props }: Props) {
 	const [characters, setCharacters] = useState<Character[]>();
 	const [roomInfo, setRoomInfo] = useState<Room>();
 
+	const { isTurnEnd } = useGameManager();
+
 	const gridRef = useRef<HTMLDivElement>(null);
 	// fetching useEffect
 	useEffect(() => {
@@ -50,7 +53,7 @@ export function MapRoom({ ...props }: Props) {
 			}
 		}
 		fetchData();
-	}, [props.roomId]);
+	}, [props.roomId, isTurnEnd]);
 
 	// calculate font size based on cell size
 	useLayoutEffect(() => {

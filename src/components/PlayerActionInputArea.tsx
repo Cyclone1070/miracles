@@ -350,14 +350,15 @@ export function PlayerActionInputArea({ ...props }: Props) {
 								onClick={() => {
 									setPlayerActions((prev) => {
 										const indexToRemove = prev.findIndex(
-											(action) => action.id === activeAction.id,
+											(action) =>
+												action.id === activeAction.id,
 										);
 
 										// 2. Remove the item at the found index if it exists (index is not -1)
 										if (indexToRemove !== -1) {
 											prev.splice(indexToRemove, 1);
 										}
-										return prev
+										return prev;
 									});
 									setActiveAction(null);
 								}}
@@ -418,7 +419,7 @@ export function PlayerActionInputArea({ ...props }: Props) {
 
 							{activeAction.type === "do" && (
 								<>
-									<label htmlFor="action">Action:</label>
+									<label htmlFor="action"><span className={`text-red-500`}>*</span>Action:</label>
 									<textarea
 										name="action"
 										id="action"
@@ -463,7 +464,7 @@ export function PlayerActionInputArea({ ...props }: Props) {
 										initialSelectedItem={targets.find(
 											(target) =>
 												target.id ===
-												activeAction.target,
+												activeAction.targetId,
 										)}
 										onSelectedItemChange={({
 											selectedItem,
@@ -476,7 +477,7 @@ export function PlayerActionInputArea({ ...props }: Props) {
 													) {
 														return {
 															...action,
-															target: selectedItem?.id,
+															targetId: selectedItem?.id,
 														};
 													}
 													return action;
@@ -486,7 +487,7 @@ export function PlayerActionInputArea({ ...props }: Props) {
 												if (!prev) return null;
 												return {
 													...prev,
-													target: selectedItem?.id,
+													targetId: selectedItem?.id,
 												};
 											});
 										}}
@@ -505,7 +506,7 @@ export function PlayerActionInputArea({ ...props }: Props) {
 										initialSelectedItem={targets.find(
 											(target) =>
 												target.id ===
-												activeAction.using,
+												activeAction.usingId,
 										)}
 										onSelectedItemChange={({
 											selectedItem,
@@ -518,7 +519,7 @@ export function PlayerActionInputArea({ ...props }: Props) {
 													) {
 														return {
 															...action,
-															using: selectedItem?.id,
+															usingId: selectedItem?.id,
 														};
 													}
 													return action;
@@ -528,7 +529,7 @@ export function PlayerActionInputArea({ ...props }: Props) {
 												if (!prev) return null;
 												return {
 													...prev,
-													using: selectedItem?.id,
+													usingId: selectedItem?.id,
 												};
 											});
 										}}
@@ -538,7 +539,7 @@ export function PlayerActionInputArea({ ...props }: Props) {
 
 							{activeAction.type === "say" && (
 								<>
-									<label htmlFor="dialog">Dialog:</label>
+									<label htmlFor="dialog"><span className={`text-red-500`}>*</span>Dialog:</label>
 									<textarea
 										name="dialog"
 										id="dialog"
@@ -583,7 +584,7 @@ export function PlayerActionInputArea({ ...props }: Props) {
 										initialSelectedItem={targets.find(
 											(target) =>
 												target.id ===
-												activeAction.target,
+												activeAction.targetId,
 										)}
 										onSelectedItemChange={({
 											selectedItem,
@@ -596,7 +597,7 @@ export function PlayerActionInputArea({ ...props }: Props) {
 													) {
 														return {
 															...action,
-															target: selectedItem?.id,
+															targetId: selectedItem?.id,
 														};
 													}
 													return action;
@@ -606,7 +607,7 @@ export function PlayerActionInputArea({ ...props }: Props) {
 												if (!prev) return null;
 												return {
 													...prev,
-													target: selectedItem?.id,
+													targetId: selectedItem?.id,
 												};
 											});
 										}}
@@ -672,15 +673,11 @@ export function PlayerActionInputArea({ ...props }: Props) {
 											}
 											return item.id;
 										}}
-										initialSelectedItem={
-											activeAction.targetId
-												? items.find(
-														(target) =>
-															target.id ===
-															activeAction.targetId,
-													)
-												: items?.[0]
-										}
+										initialSelectedItem={items.find(
+											(item) =>
+												item.id ===
+												activeAction.targetId,
+										)}
 										onSelectedItemChange={({
 											selectedItem,
 										}) => {
@@ -714,6 +711,7 @@ export function PlayerActionInputArea({ ...props }: Props) {
 								activeAction.type === "transform") && (
 								<>
 									<label htmlFor="description">
+										<span className={`text-red-500`}>*</span>
 										Description:
 									</label>
 									<textarea

@@ -81,8 +81,7 @@ export async function getObject<T>(
 
 export async function getAllObjectsFromStore<T>(
     storeName: string,
-    filterProperty?: keyof T,
-    filterValue?: IDBValidKey
+    filter?: (obj: T) => boolean
 ): Promise<T[]> {
     const db = await openDatabase();
     return new Promise((resolve, reject) => {
@@ -95,8 +94,8 @@ export async function getAllObjectsFromStore<T>(
             const cursor = (event.target as IDBRequest).result;
             if (cursor) {
                 const obj = cursor.value as T;
-                if (filterProperty && filterValue !== undefined) {
-                    if (obj[filterProperty] === filterValue) {
+                if (filter) {
+                    if (filter(obj)) {
                         results.push(obj);
                     }
                 } else {

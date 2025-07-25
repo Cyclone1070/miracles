@@ -1,9 +1,9 @@
 import { useRef } from "react";
-import { callGeminiApi } from "../utils/gemini";
+import { useGameManager } from "../context/GameContext";
 import { mergeClasses } from "../utils/tailwindMerge";
 import { HighlightButton } from "./HighlightButton";
-import submitSvgURL from "/submit.svg?url";
 import homeSvgURL from "/home.svg?url";
+import submitSvgURL from "/submit.svg?url";
 
 interface Props {
 	className?: string;
@@ -11,6 +11,7 @@ interface Props {
 }
 
 export function BottomBar({ ...props }: Props) {
+	const { submitPlayerAction, playerActions } = useGameManager();
 	const buttonClassNames =
 		"rounded-xl basis-0 grow h-full flex justify-center items-center gap-2 bg-(--bg) max-w-40";
 	const bottomBarRef = useRef<HTMLDivElement>(null);
@@ -38,11 +39,36 @@ export function BottomBar({ ...props }: Props) {
 			<div className={`w-18 shrink-0`}></div>
 			<HighlightButton
 				onClick={() => {
-					callGeminiApi(
-						"give me a say action with a target and an expression",
-					).then((response) => {
-						console.log("Gemini response:", response);
-					});
+					for (const action of playerActions) {
+						if (action.type === "do" && !action.action) {
+							alert("Missing requried fields in do action.");
+							return;
+						} else if (action.type === "say" && !action.dialog) {
+							alert("Missing requried fields in say action.");
+							return;
+						} else if (
+							action.type === "create" &&
+							!action.description
+						) {
+							alert("Missing requried fields in create action.");
+							return;
+						} else if (
+							action.type === "destroy" &&
+							!action.targetId
+						) {
+							alert("Missing requried fields in destroy action.");
+							return;
+						} else if (
+							action.type === "transform" &&
+							(!action.targetId || !action.description)
+						) {
+							alert(
+								"Missing requried fields in transform action.",
+							);
+							return;
+						}
+					}
+					submitPlayerAction();
 				}}
 				className={buttonClassNames}
 			>

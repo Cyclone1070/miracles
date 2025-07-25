@@ -15,18 +15,15 @@ export async function writeInitialData(): Promise<void> {
     const opening: MapTurn = {
         type: "map",
         id: 2,
-        newMapId: "heaven",
+        newMapId: "Heaven",
     }
     const intro: GameTurn = {
         type: "game",
         id: 3,
-        summary: [{
-            roomId: "heaven",
-            eventSummary: "A normal day in heaven, Lucifer appears to greet Jesus."
-        }, {
-            roomId: "Heaven Courtyard",
-            eventSummary: "Nothing of note happened."
-        }],
+        roomsEventSummary: {
+            "Heaven Courtyard": "A normal day in heaven, Lucifer appears to greet Jesus.",
+            "History Hall": "Nothing happened."
+        },
         steps: [
             {
                 type: "narration",
@@ -66,7 +63,12 @@ export async function writeInitialData(): Promise<void> {
                     }
                 ]
             }
-        ]
+        ],
+        charactersMove: [{
+            id: "Lucifer",
+            newRoomId: "Heaven Courtyard",
+            newGridPosition: { x: 7, y: 4}
+        }]
     };
     try {
         await Promise.all(gameMaps.map(map => saveMap(map)));

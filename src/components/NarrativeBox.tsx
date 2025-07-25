@@ -109,14 +109,14 @@ export function NarrativeBox({ ...props }: Props) {
 					`relative border-2 border-t-0 border-(--accent) rounded-xl text-white p-2 pt-8 pb-10 md:px-6 cursor-pointer`,
 					props.className,
 				)}
-				onClick={() => {
+				onClick={async () => {
 					const element = textContainerRef.current;
 					if (!element) return;
 					if (currentStep?.type === "choice") return;
 
 					if (isScrollEndSeen) {
 						setIsScrollEndSeen(false);
-						advanceStory();
+						await advanceStory();
 						return;
 					}
 
@@ -261,7 +261,7 @@ export function NarrativeBox({ ...props }: Props) {
 									)}
 								</div>
 							) : (
-								<span>{currentStep?.text}</span>
+								<span>{currentStep?.type !== "animation" && currentStep?.text}</span>
 							)}
 						</motion.div>
 					</AnimatePresence>

@@ -159,11 +159,11 @@ export function CharacterImages({ ...props }: Props) {
 						animate="animate"
 						exit="exit"
 						transition={{ duration: 1 }}
-						onAnimationComplete={(latest) => {
+						onAnimationComplete={async (latest) => {
 							if (latest === "animate") {
 								setLuciferAnimationSide(null);
 							} else if (latest === "exit") {
-								advanceStory();
+								await advanceStory();
 							}
 						}}
 					/>

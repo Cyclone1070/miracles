@@ -14,7 +14,7 @@ export function BgImage({ ...props }: Props) {
 				props.className,
 			)}
 		>
-			{currentMapId === "heaven" ? (
+			{currentMapId === "Heaven" ? (
 				<img
 					className="adaptive-size"
 					src="/heaven-courtyard.jpg"
