@@ -7,7 +7,7 @@ if (!GEMINI_API_KEY) {
     console.error("VITE_GEMINI_API_KEY is not defined. Please set it in your .env.local file.");
 }
 
-const MODEL_NAME = 'gemini-2.0-flash';
+const MODEL_NAME = 'gemini-2.5-flash';
 
 /**
  * Constructs the prompt for the Gemini API call.
@@ -205,7 +205,7 @@ export function buildFinalSchema(roomIds: string[], npcIds: string[], isSus: boo
             "type": "array",
             "items": {
                 "description": "A single narrative event. Must be one of DialogStep, ActionStep, or NarrationStep or HoldItAnimation.",
-                "oneOf": [
+                "anyOf": [
                     {
                         "title": "HoldItAnimation", "type": "object",
                         "description": "A special animation step for when an npc becomes suspicious of the player character.",
@@ -218,35 +218,38 @@ export function buildFinalSchema(roomIds: string[], npcIds: string[], isSus: boo
                     },
                     {
                         "title": "DialogStep", "type": "object",
+						"description": "A step representing a character speaking. All dialogs must be a DialogStep.",
                         "properties": {
                             "type": { "type": "string", "enum": ["dialog"] },
                             "text": { "type": "string", "description": "The exact words spoken by the character." },
                             "speakerId": { "type": "string", "description": "The ID of the character who is speaking." },
-                            "speakerExpression": { "type": "string", "format": "enum", "enum": ["neutral", "happy", "annoyed"], "description": "The emotional expression of the speaker. Can only be 'neutral', 'happy' or 'annoyed'. Asolutely can not be any other values. This is important. Any other values will break the game." },
+                            "speakerExpression": { "type": "string", "enum": ["neutral", "happy", "annoyed"], "description": "The emotional expression of the speaker. Can only be 'neutral', 'happy' or 'annoyed'." },
                             "listenerId": { "type": "string", "description": "Optional ID of the character being spoken to." },
-                            "listenerExpression": { "type": "string", "format": "enum", "enum": ["neutral", "happy", "annoyed"], "description": "Optional emotional expression of the listener. Can only be 'neutral', 'happy' or 'annoyed'. Asolutely can not be any other values. This is important. Any other values will break the game." }
+                            "listenerExpression": { "type": "string", "enum": ["neutral", "happy", "annoyed"], "description": "Optional emotional expression of the listener. Can only be 'neutral', 'happy' or 'annoyed'. Is required and must be present if listenerId is available." }
                         },
-                        "required": ["type", "id", "text", "speakerId", "speakerExpression"]
+                        "required": ["type", "text", "speakerId", "speakerExpression", "listenerExpression"]
                     },
                     {
                         "title": "ActionStep", "type": "object",
+						"description": "A step representing a character performing an action. All actions must be an ActionStep.",
                         "properties": {
                             "type": { "type": "string", "enum": ["action"] },
                             "text": { "type": "string", "description": "A narrative description of the character's action." },
                             "characterId": { "type": "string", "description": "The ID of the character performing the action." },
-                            "characterExpression": { "type": "string", "format": "enum", "enum": ["neutral", "happy", "annoyed"], "description": "The emotional expression of the character performing the action. Can only be 'neutral', 'happy' or 'annoyed'. Asolutely can not be any other values. This is important. Any other values will break the game." },
+                            "characterExpression": { "type": "string", "enum": ["neutral", "happy", "annoyed"], "description": "The emotional expression of the character performing the action. Can only be 'neutral', 'happy' or 'annoyed'." },
                             "targetId": { "type": "string", "description": "Optional ID of the item or character being acted upon." },
-                            "targetExpression": { "type": "string", "format": "enum", "enum": ["neutral", "happy", "annoyed"], "description": "Optional emotional expression of the target. Can only be 'neutral', 'happy' or 'annoyed'. Asolutely can not be any other values. This is important. Any other values will break the game." }
+                            "targetExpression": { "type": "string", "enum": ["neutral", "happy", "annoyed"], "description": "Optional emotional expression of the target. Can only be 'neutral', 'happy' or 'annoyed'. Is required and must be present if listenerId is available." }
                         },
-                        "required": ["type", "id", "text", "characterId", "characterExpression"]
+                        "required": ["type", "text", "characterId", "characterExpression", "targetExpression"]
                     },
                     {
                         "title": "NarrationStep", "type": "object",
+						"description": "A step representing a narrative description from the Game Master. Can not be a dialog or action.",
                         "properties": {
                             "type": { "type": "string", "enum": ["narration"] },
-                            "text": { "type": "string", "description": "Descriptive text from you, the Game Master." }
+                            "text": { "type": "string", "description": "Descriptive text from you, the Game Master. Not from any character." }
                         },
-                        "required": ["type", "id", "text"]
+                        "required": ["type", "text"]
                     }
                 ]
             }

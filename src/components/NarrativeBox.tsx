@@ -113,7 +113,7 @@ export function NarrativeBox({ ...props }: Props) {
 				)}
 				onClick={async () => {
 					if (isFetchingResponse) return;
-					if (isTurnEnd) {
+					if (isTurnEnd && currentStep?.type !== "choice") {
 						setIsActionExpanded(true);
 						return;
 					}
