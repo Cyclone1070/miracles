@@ -57,7 +57,7 @@ export function useGameHelper() {
 		useState<Record<string, string>>();
 	const [lastProcessedTurnId, setLastProcessedTurnId] = useState<number>(0);
 	const [isGameOver, setIsGameOver] = useState(false);
-	const [isObjectivesCompleted, setIsObjectivesCompleted] = useState(false);
+	const [isObjectiveCompleted, setIsObjectiveCompleted] = useState(false);
 	const shouldSaveOnExit = useRef(true);
 	// convenience derived variables
 	const currentStep =
@@ -207,9 +207,6 @@ export function useGameHelper() {
 			}
 		} else if (currentTurn?.type === "game") {
 			setLastTurnEventSummary(currentTurn.roomsEventSummary);
-			if (currentTurn.isObjectivesCompleted) {
-				setIsObjectivesCompleted(true);
-			}
 		}
 	}, [advanceTurn, currentTurn]);
 
@@ -446,7 +443,7 @@ export function useGameHelper() {
 
 	useEffect(() => {
 		async function handleObjectiveCompletion() {
-			if (isObjectivesCompleted) {
+			if (isObjectiveCompleted) {
 				if (currentDay === undefined || !currentTurn) return;
 				const nextDay = currentDay + 1;
 				try {
@@ -473,12 +470,12 @@ export function useGameHelper() {
 						error,
 					);
 				} finally {
-					setIsObjectivesCompleted(false); // Reset for the next day
+					setIsObjectiveCompleted(false); // Reset for the next day
 				}
 			}
 		}
 		handleObjectiveCompletion();
-	}, [isObjectivesCompleted, currentTurn, currentDay, advanceTurn]);
+	}, [isObjectiveCompleted, currentTurn, currentDay, advanceTurn]);
 
 	// function to load next turn
 	// can only advance story if there is a next step, return true if the player action is needed to advance the story
@@ -559,6 +556,7 @@ export function useGameHelper() {
 		saveTurn(nextTurn);
 
 		setIsFetchingResponse(false);
+		setPlayerActions([]); // Clear player actions after submission
 		advanceTurn();
 	}
 
@@ -620,7 +618,7 @@ export function useGameHelper() {
 		isGameOver,
 		setIsGameOver,
 		retryFromLastSave,
-		setIsObjectivesCompleted,
-		isObjectivesCompleted,
+		setIsObjectiveCompleted,
+		isObjectiveCompleted,
 	};
 }

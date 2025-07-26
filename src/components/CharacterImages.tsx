@@ -25,8 +25,13 @@ export function CharacterImages({ ...props }: Props) {
 		"Lucifer-neutral": luciferNeutralURL,
 		"Lucifer-annoyed": luciferAnnoyedURL,
 	};
-	const { currentStep, currentRoomId, currentMapId, advanceStory } =
-		useGameManager();
+	const {
+		currentStep,
+		currentRoomId,
+		currentMapId,
+		advanceStory,
+		currentTurn,
+	} = useGameManager();
 	const prevActingCharacterRef = useRef<string | null>(null);
 	const isLeftRef = useRef(true);
 	const lastLeftCharKeyRef = useRef<string | undefined>(undefined);
@@ -37,13 +42,24 @@ export function CharacterImages({ ...props }: Props) {
 	const [showHoldItBox, setShowHoldItBox] = useState(false);
 	const holdItSoundPlayer = useRef(new Audio(holdItSoundURL));
 
-	// Reset all trackers when entering a new room or map
+	// Reset all trackers when entering a new room or map or on a time turn
 	useEffect(() => {
 		prevActingCharacterRef.current = null;
 		isLeftRef.current = true;
 		lastLeftCharKeyRef.current = undefined;
 		lastRightCharKeyRef.current = undefined;
 	}, [currentRoomId, currentMapId]);
+
+	useEffect(() => {
+		if (currentTurn?.type === "time") {
+			prevActingCharacterRef.current = null;
+			isLeftRef.current = true;
+			lastLeftCharKeyRef.current = undefined;
+			lastRightCharKeyRef.current = undefined;
+			setLuciferAnimationSide(null);
+			setShowHoldItBox(false);
+		}
+	}, [currentTurn]);
 
 	let imgMain: string | undefined;
 	let imgTarget: string | undefined;

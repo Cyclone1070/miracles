@@ -9,11 +9,15 @@ export function DaySplashScreen() {
 	}
 
 	return (
-		<div className="absolute inset-0 bg-[--theme-bg] flex items-center justify-center z-50 text-[--theme-fg]">
+		<motion.div
+			animate={{ opacity: [0, 1, 1, 0] }}
+			transition={{ duration: 4, times: [0, 0.2, 0.8, 1] }}
+			className="absolute inset-0 bg-(--theme-bg) flex items-center justify-center z-50 text-(--text)"
+		>
 			<motion.div
-				className="text-center"
-				animate={{ opacity: [0, 1, 1, 0] }}
-				transition={{ duration: 4, times: [0, 0.2, 0.8, 1] }}
+				className="flex flex-col items-center gap-4"
+				animate={{ opacity: [1, 1, 0] }}
+				transition={{ duration: 4, times: [0, 0.8, 1] }}
 				onAnimationComplete={() => {
 					advanceTurn();
 				}}
@@ -23,6 +27,6 @@ export function DaySplashScreen() {
 					<h2 className="text-4xl">{currentTurn.title}</h2>
 				)}
 			</motion.div>
-		</div>
+		</motion.div>
 	);
 }

@@ -117,7 +117,7 @@ export interface GameTurn extends BaseTurn {
     roomsEventSummary?: Record<string, string>;
     nextTurnNpcActions?: Record<string, string>;
 	isGameOver?: boolean;
-	isObjectivesCompleted?: boolean; // Indicates if the objectives for the current turn are completed
+	isObjectiveCompleted?: boolean; // Indicates if the objectives for the current turn are completed
 }
 export type Turn = GameTurn | MapTurn | TimeTurn;
 

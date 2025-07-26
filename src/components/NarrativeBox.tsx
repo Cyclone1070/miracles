@@ -37,9 +37,18 @@ export function NarrativeBox({ ...props }: Props) {
 		currentTurn,
 		isTurnEnd,
 		setIsGameOver,
+		setIsObjectiveCompleted,
 	} = useGameManager();
 	const prevSpeakerRef = useRef<string | null>(null);
 	const isLeftRef = useRef(true);
+
+	useEffect(() => {
+		if (currentTurn?.type === "time") {
+			setIsActionExpanded(false);
+			prevSpeakerRef.current = null;
+			isLeftRef.current = true;
+		}
+	}, [currentTurn]);
 
 	let currentName: string | null = null;
 	if (currentStep?.type === "dialog") {
@@ -122,8 +131,8 @@ export function NarrativeBox({ ...props }: Props) {
 						) {
 							setIsGameOver(true);
 						}
-						if (currentTurn?.type === "game" && currentTurn?.isObjectivesCompleted) {
-							setIsObjectiveComplete(true);
+						if (currentTurn?.type === "game" && currentTurn?.isObjectiveCompleted) {
+							setIsObjectiveCompleted(true);
 						}
 						setIsActionExpanded(true);
 						return;

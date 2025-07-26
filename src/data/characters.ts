@@ -23,5 +23,17 @@ export const characters: Character[] = [
         },
         asciiChar: "L",
         colorHex: "#de4221"
+    },
+    {
+        type: "character",
+        id: "Big Shot",
+        description: "You, Jesus, inside the body of a cop. You've solved numerous tough cases in the past, earning the nick name Big Shot.",
+        gridPosition: {
+            x: 4,
+            y: 4,
+        },
+        asciiChar: "B",
+        colorHex: "#1591EA",
     }
+
 ]

@@ -11,6 +11,7 @@ export async function writeInitialData(): Promise<void> {
         type: "time",
         id: 1,
         newDay: 0,
+		title: "Daily routine."
     }
     const opening: MapTurn = {
         type: "map",
@@ -62,7 +63,7 @@ export async function writeInitialData(): Promise<void> {
             {
                 type: "dialog",
                 id: "intro_3",
-                text: "Ayooo Jessee!",
+                text: "Ayooo Jesse!",
                 speakerId: "Lucifer",
                 speakerExpression: "happy",
                 listenerId: "Jesus",

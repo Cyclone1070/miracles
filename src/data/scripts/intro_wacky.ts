@@ -11,7 +11,7 @@ const intro_wacky: GameTurn = {
         {
             type: "dialog",
             id: "intro_4",
-            text: "Yoooo! Luci my brother! How you been?",
+            text: "Luci my brother! How you been?",
             speakerId: "Jesus",
             speakerExpression: "happy",
             listenerId: "Lucifer",
@@ -44,6 +44,7 @@ const intro_wacky: GameTurn = {
             listenerId: "Jesus",
             listenerExpression: "happy"
         },
-    ]
+    ],
+    isObjectiveCompleted: true,
 }
 export default intro_wacky;

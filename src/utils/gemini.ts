@@ -216,7 +216,7 @@ export function buildFinalSchema(roomIds: string[], npcIds: string[], characterI
             type: "string", enum: ["game"]
         },
 		isObjectivesCompleted: {
-			description: "Whether the objective for the current day is completed. If true, the day will end and a new day will start. Make sure to write enough steps to wrap up the day in this turn.",
+			description: "Whether the objective for the current day is completed. If true, the day will end and a new day will start. Make sure to write enough steps to wrap up the day in this turn. Make sure to write a narrative step at the end of the turn that describes the player character completing the objective and the day is ending and the next day is on.",
 			type: "boolean",
 		},
         steps: {
