@@ -216,7 +216,7 @@ export function buildFinalSchema(roomIds: string[], npcIds: string[], characterI
             type: "string", enum: ["game"]
         },
 		isObjectivesCompleted: {
-			description: "Whether the objective for the current day is completed. Only set this flag is true if the object is completed and no one is suspicous of the player character. If true, the day will end and a new day will start. Make sure to write enough steps to wrap up the day in this turn. Make sure to write a narrative step at the end of the turn that describes the player character completing the objective and the day is ending and the next day is on.",
+			description: "Whether the objective for the current day is completed. If true, the day will end and a new day will start. Make sure to write a narrative step at the end of the turn",
 			type: "boolean",
 		},
         steps: {
@@ -363,7 +363,7 @@ export function buildFinalSchema(roomIds: string[], npcIds: string[], characterI
         finalSchema.properties.isGameOver = {
             title: "isGameOver",
             type: "boolean",
-            description: "Whether the game is over due to suspicion of the player character. If the player actions this turn aren't enough to resolve the suspicion from the previous turn, the game ends. If this is true then write enough steps to wrap up the game in this turn since there will be no next turn.",
+            description: "Whether the game is over due to suspicion of the player character. If the player actions this turn aren't enough to resolve the suspicion from the previous turn, the game ends.",
         };
         finalSchema.required.push("isGameOver");
     }

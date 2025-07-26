@@ -5,7 +5,7 @@ export const policeStationRooms: Room[] = [
         id: "Outside Street",
         description: "A city street in front of the police station. Large glass doors lead north into the Lobby.",
         connectedRooms: ["Lobby", "Parking Lot"],
-        inViewRooms: ["Lobby", "Detectives Room"],
+        inViewRooms: ["Lobby"],
         width: 29,
         height: 9,
 		charactersIdList: ["Big Shot"],
@@ -26,10 +26,8 @@ export const policeStationRooms: Room[] = [
         description: "A clean, public hallway connecting various offices. A large window looks into the Lobby. A heavy steel door at the east end, marked 'Authorized Personnel Only', leads to the Back Hallway.",
         connectedRooms: [
             "Lobby",
-            "Detectives Room",
             "Patrol Room",
             "Captain Office",
-            "Meeting Room",
             "Back Hallway"
         ],
         inViewRooms: ["Lobby", "Captain Office"],
