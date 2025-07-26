@@ -69,6 +69,17 @@ export const heavenItems: Item[] = [
     },
     {
         type: "item",
+        id: "Portrait of Allah",
+        name: "Portrait of Allah",
+        description: "From a collab event not long ago. Was pretty cool. That was before 9/11 though.",
+        gridPosition: {
+            x: 4, y: 1
+        },
+        asciiChar: `P`,
+        colorHex: "#FF9800",
+    },
+    {
+        type: "item",
         id: "Pen",
         name: "Pen",
         description: "A simple pen, endless possibilities.",

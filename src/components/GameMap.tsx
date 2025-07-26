@@ -4,6 +4,7 @@ import { useGameManager } from "../context/GameContext";
 import { mergeClasses } from "../utils/tailwindMerge";
 import { HeavenMap } from "./HeavenMap";
 import { MapRoom } from "./MapRoom";
+import { PoliceStationMap } from "./PoliceStationMap";
 import { RoomInfo } from "./RoomInfo";
 
 interface Props {
@@ -109,13 +110,23 @@ export function GameMap({ ...props }: Props) {
 									: { visibility: "visible", opacity: 1 }
 							}
 						>
-							<HeavenMap
-								isMapExpanded={isMapExpanded}
-								setActiveRoom={setActiveRoom}
-								commonTransition={commonTransition}
-								doorStyles={doorStyles}
-								roomStyles={roomStyles}
-							/>
+							{currentMapId === "Heaven" ? (
+								<HeavenMap
+									isMapExpanded={isMapExpanded}
+									setActiveRoom={setActiveRoom}
+									commonTransition={commonTransition}
+									doorStyles={doorStyles}
+									roomStyles={roomStyles}
+								/>
+							) : (
+								<PoliceStationMap
+									isMapExpanded={isMapExpanded}
+									setActiveRoom={setActiveRoom}
+									commonTransition={commonTransition}
+									doorStyles={doorStyles}
+									roomStyles={roomStyles}
+								/>
+							)}
 						</motion.div>
 					</motion.div>
 					<AnimatePresence>

@@ -17,7 +17,7 @@ export const heavenRooms: Room[] = [
         connectedRooms: ["Heaven Courtyard"],
         width: 5,
         height: 5,
-        itemsIdList: ["Portrait of Jonathan Cheesus", "Portrait of Ar En Gesus"],
+        itemsIdList: ["Portrait of Jonathan Cheesus", "Portrait of Ar En Gesus", "Portrait of Allah"],
 		charactersIdList: ["Lucifer"],
     }
 ]

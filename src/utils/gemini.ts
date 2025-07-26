@@ -17,9 +17,9 @@ const MODEL_NAME = 'gemini-2.5-flash';
  * @returns The complete prompt string.
  */
 export function constructPrompt(
-    worldState: WorldState,
-    history: Turn[],
-    playerActions: Action[]
+	worldState: WorldState & { objective?: string },
+	history: Turn[],
+	playerActions: Action[],
 ): string {
     const worldStateJson = JSON.stringify(worldState, null, 2);
     const historyJson = JSON.stringify(history, null, 2);
@@ -42,6 +42,11 @@ You are the "Game Master" for a text-based adventure game called "Miracles". You
 - Events should logically follow from the characters' actions and the current state of the world.
 - Only modify the state of characters and items that are directly involved in or affected by the turn's events. Do not change things arbitrarily.
 - **Schema Adherence is Absolute:** Every single field marked as "required" in the schema MUST be present in your response. This is not optional. Every single value with enum fields must be one of the specified values. Don't make up more values.
+${
+	worldState.objective
+		? `- **Current Objective:** ${worldState.objective}. Pay extra attention to this objective and constantly tracking whether the player has completed it or not.`
+		: ""
+}
 
 ---
 
@@ -106,7 +111,7 @@ export async function getNextTurn(
     const allTargetIds = [...allCharacterIds, ...allItemIds];
 
     // 2. Build the entire, final schema from scratch.
-    const finalSchema = buildFinalSchema(allRoomIds, allNpcIds, allCharacterIds, allTargetIds, isSus);
+    const finalSchema = buildFinalSchema(allRoomIds, allNpcIds, allCharacterIds, allTargetIds, allItemIds, isSus);
 
     console.log(finalSchema)
 
@@ -203,13 +208,17 @@ export function createNextTurnNpcActionsSchema(npcIds: string[]): object {
     return npcActionsSchema;
 }
 
-export function buildFinalSchema(roomIds: string[], npcIds: string[], characterIds: string[], targetIds: string[], isSus: boolean): object {
+export function buildFinalSchema(roomIds: string[], npcIds: string[], characterIds: string[], targetIds: string[], itemIds: string[], isSus: boolean): object {
     // This object contains all the static definitions from your schema.
     const staticProperties = {
         type: {
             description: "The type of the turn. For this schema, it must always be 'game'.",
             type: "string", enum: ["game"]
         },
+		isObjectivesCompleted: {
+			description: "Whether the objective for the current day is completed. If true, the day will end and a new day will start. Make sure to write enough steps to wrap up the day in this turn.",
+			type: "boolean",
+		},
         steps: {
             description: "A chronological array of narrative events. All text fields should be plain text. You should try to generate 10 to 16 new steps per turn, can be more if needed.",
             type: "array",
@@ -290,7 +299,7 @@ export function buildFinalSchema(roomIds: string[], npcIds: string[], characterI
             items: {
                 type: "object",
                 properties: {
-                    id: { type: "string", enum: targetIds, description: "The ID of the item being moved." },
+                    id: { type: "string", enum: itemIds, description: "The ID of the item being moved." },
                     newRoomId: { type: "string", enum: roomIds, description: "The ID of the new room." },
                     newGridPosition: { type: "object", description: "The new (x,y) coordinates.", properties: { x: { type: "number" }, y: { type: "number" } }, required: ["x", "y"] },
                     newCharacterId: { type: "string", enum: characterIds, description: "The ID of the new character carrier." }
@@ -299,7 +308,7 @@ export function buildFinalSchema(roomIds: string[], npcIds: string[], characterI
         },
         itemsDeleted: {
             description: "A list of unique IDs of items that were permanently removed.", type: "array",
-            items: { type: "string", enum: targetIds }
+            items: { type: "string", enum: itemIds}
         },
         charactersChanges: {
             description: "A list of characters whose properties have changed. ", type: "array",

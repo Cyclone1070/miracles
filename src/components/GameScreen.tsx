@@ -1,13 +1,14 @@
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { useGameManager } from "../context/GameContext";
+import { mergeClasses } from "../utils/tailwindMerge";
 import { BgImage } from "./BgImage";
 import { BottomBar } from "./BottomBar";
 import { CharacterImages } from "./CharacterImages";
-import { GameOverScreen } from "./GameOverScreen";
+import { DaySplashScreen } from "./DaySplashScreen";
 import { GameMap } from "./GameMap";
+import { GameOverScreen } from "./GameOverScreen";
 import { NarrativeBox } from "./NarrativeBox";
 import { PlayerActionInputArea } from "./PlayerActionInputArea";
-import { mergeClasses } from "../utils/tailwindMerge";
 
 interface Props {
 	className?: string;
@@ -16,7 +17,7 @@ interface Props {
 }
 
 export function GameScreen({ ...props }: Props) {
-	const { isGameOver } = useGameManager();
+	const { isGameOver, currentTurn } = useGameManager();
 	const variants = {
 		hidden: {
 			opacity: 0,
@@ -40,9 +41,10 @@ export function GameScreen({ ...props }: Props) {
 				props.className,
 			)}
 		>
-			{isGameOver && <GameOverScreen />}
 			<BgImage className={`-z-1`} />
-			<CharacterImages className={`absolute inset-0 -z-1 mb-50 md:mb-auto`} />
+			<CharacterImages
+				className={`absolute inset-0 -z-1 mb-50 md:mb-auto`}
+			/>
 
 			{/* upper part of the screen */}
 			<div className="w-full relative mb-10 flex flex-col flex-1 min-h-0 ">
@@ -54,10 +56,10 @@ export function GameScreen({ ...props }: Props) {
 				/>
 			</div>
 
-			<NarrativeBox
-				className={`w-full h-54 max-w-200`}
-			/>
-			<BottomBar setIsMainMenuOpen={props.setIsMainMenuOpen}/>
+			<NarrativeBox className={`w-full h-54 max-w-200`} />
+			<BottomBar setIsMainMenuOpen={props.setIsMainMenuOpen} />
+			{currentTurn?.type === "time" && <DaySplashScreen />}
+			{isGameOver && <GameOverScreen />}
 		</motion.div>
 	);
 }

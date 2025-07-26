@@ -83,11 +83,13 @@ export interface BaseTurn {
 export interface MapTurn extends BaseTurn {
     type: "map";
     newMapId: string; // ID of the new map to switch to
+	newRoomId?: string; // Optional, ID of the new room to switch to
 }
 export interface TimeTurn extends BaseTurn {
     type: "time";
     newDay?: number; // The new day number to set
-    newTurnLimit?: number; // The limit of turns for the new day
+	objective?: string;
+	title?: string; // Optional hint for the player
 }
 export interface GameTurn extends BaseTurn {
     type: "game";
@@ -115,6 +117,7 @@ export interface GameTurn extends BaseTurn {
     roomsEventSummary?: Record<string, string>;
     nextTurnNpcActions?: Record<string, string>;
 	isGameOver?: boolean;
+	isObjectivesCompleted?: boolean; // Indicates if the objectives for the current turn are completed
 }
 export type Turn = GameTurn | MapTurn | TimeTurn;
 
@@ -124,7 +127,6 @@ export interface SaveState {
     currentStepIndex: number;
     currentMapId?: string;
     currentDay?: number;
-    currentTurnsLeft?: number;
     currentMusic?: string;
 	lastProcessedTurnId?: number; // ID of the last processed turn
 }
@@ -182,8 +184,8 @@ export interface ProcessedCharacter extends Omit<Character, "itemsIdList"> {
 export interface WorldState {
     mapId: string;
     day: number;
-    turnsLeft: number;
     rooms: ProcessedRoom[];
     currentRoomId: string;
 	npcActions: Record<string, string>; // Actions for NPCs in the current turn
+	objective?: string; // Current objective for the player
 }

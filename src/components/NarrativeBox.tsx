@@ -122,6 +122,9 @@ export function NarrativeBox({ ...props }: Props) {
 						) {
 							setIsGameOver(true);
 						}
+						if (currentTurn?.type === "game" && currentTurn?.isObjectivesCompleted) {
+							setIsObjectiveComplete(true);
+						}
 						setIsActionExpanded(true);
 						return;
 					}

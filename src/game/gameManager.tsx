@@ -44,8 +44,8 @@ export function useGameHelper() {
 	const [currentMapId, setCurrentMapId] = useState<string>();
 	const [currentDay, setCurrentDay] = useState<number>();
 	const [currentMusic, setCurrentMusic] = useState<string>();
-	const [currentTurnsLeft, setCurrentTurnsLeft] = useState<number>();
 	const [currentRoomId, setCurrentRoom] = useState<string>();
+	const [currentObjective, setCurrentObjective] = useState<string>();
 
 	const [isFetchingResponse, setIsFetchingResponse] = useState(false);
 	const [isGameInitiating, setIsGameInitLoading] = useState(true);
@@ -57,6 +57,7 @@ export function useGameHelper() {
 		useState<Record<string, string>>();
 	const [lastProcessedTurnId, setLastProcessedTurnId] = useState<number>(0);
 	const [isGameOver, setIsGameOver] = useState(false);
+	const [isObjectivesCompleted, setIsObjectivesCompleted] = useState(false);
 	const shouldSaveOnExit = useRef(true);
 	// convenience derived variables
 	const currentStep =
@@ -86,7 +87,6 @@ export function useGameHelper() {
 				setCurrentStepIndex(currentSaveState.currentStepIndex);
 				setCurrentMapId(currentSaveState.currentMapId);
 				setCurrentDay(currentSaveState.currentDay);
-				setCurrentTurnsLeft(currentSaveState.currentTurnsLeft);
 				setCurrentMusic(currentSaveState.currentMusic);
 				setCurrentRoom(currentSaveState.currentRoomId);
 				setLastProcessedTurnId(
@@ -139,7 +139,6 @@ export function useGameHelper() {
 			currentStepIndex,
 			currentMapId,
 			currentDay: day,
-			currentTurnsLeft: 50,
 			currentMusic,
 			lastProcessedTurnId,
 		};
@@ -194,24 +193,23 @@ export function useGameHelper() {
 	useEffect(() => {
 		if (currentTurn?.type === "map") {
 			setCurrentMapId(currentTurn.newMapId);
-
+			if (currentTurn.newRoomId) {
+				setCurrentRoom(currentTurn.newRoomId);
+			}
 			advanceTurn();
 		} else if (currentTurn?.type === "time") {
-			if (currentTurn.newTurnLimit !== undefined) {
-				setCurrentTurnsLeft(currentTurn.newTurnLimit);
-			}
 			if (currentTurn.newDay !== undefined) {
 				setCurrentDay(currentTurn.newDay);
 				saveDailyState(currentTurn.newDay);
 			}
-
-			advanceTurn();
+			if (currentTurn.objective) {
+				setCurrentObjective(currentTurn.objective);
+			}
 		} else if (currentTurn?.type === "game") {
-			setCurrentTurnsLeft((prev) => {
-				if (!prev) return prev;
-				return prev - 1;
-			});
 			setLastTurnEventSummary(currentTurn.roomsEventSummary);
+			if (currentTurn.isObjectivesCompleted) {
+				setIsObjectivesCompleted(true);
+			}
 		}
 	}, [advanceTurn, currentTurn]);
 
@@ -442,14 +440,51 @@ export function useGameHelper() {
 
 	useEffect(() => {
 		if (isTurnEnd) {
-			console.log("called");
 			handleTurnEnd();
 		}
 	}, [isTurnEnd, handleTurnEnd]);
 
+	useEffect(() => {
+		async function handleObjectiveCompletion() {
+			if (isObjectivesCompleted) {
+				if (currentDay === undefined || !currentTurn) return;
+				const nextDay = currentDay + 1;
+				try {
+					const nextDayScriptModule = await import(
+						/* @vite-ignore */
+						`../data/scripts/day${nextDay}.ts`
+					);
+					const nextTurnsData = nextDayScriptModule.default;
+
+					if (Array.isArray(nextTurnsData)) {
+						let nextId = currentTurn.id + 1;
+						const turnsToSave = nextTurnsData.map((turn) => {
+							const newTurn = { ...turn, id: nextId };
+							nextId++;
+							return newTurn;
+						});
+						await Promise.all(turnsToSave.map(saveTurn));
+					}
+
+					advanceTurn();
+				} catch (error) {
+					console.error(
+						`Failed to load script for day ${nextDay}:`,
+						error,
+					);
+				} finally {
+					setIsObjectivesCompleted(false); // Reset for the next day
+				}
+			}
+		}
+		handleObjectiveCompletion();
+	}, [isObjectivesCompleted, currentTurn, currentDay, advanceTurn]);
+
 	// function to load next turn
 	// can only advance story if there is a next step, return true if the player action is needed to advance the story
 	async function advanceStory() {
+		const turns = await getAllTurns();
+		console.log("All turns:", turns);
 		if (!currentTurn || currentTurn.type !== "game") return;
 
 		const nextIndex = currentStepIndex + 1;
@@ -497,10 +532,10 @@ export function useGameHelper() {
 		const worldState: WorldState = {
 			mapId: currentMapId,
 			day: currentDay || 1,
-			turnsLeft: currentTurnsLeft || 0,
 			rooms: processedRooms,
 			currentRoomId,
 			npcActions: npcActions || {},
+			objective: currentObjective,
 		};
 		const isSus =
 			currentTurn.type === "game" &&
@@ -533,7 +568,6 @@ export function useGameHelper() {
 		currentStepIndex,
 		currentMapId,
 		currentDay,
-		currentTurnsLeft,
 		currentMusic,
 		lastProcessedTurnId,
 	});
@@ -543,7 +577,6 @@ export function useGameHelper() {
 			currentStepIndex,
 			currentMapId,
 			currentDay,
-			currentTurnsLeft,
 			currentMusic,
 			currentRoomId: currentRoomId,
 			lastProcessedTurnId,
@@ -570,8 +603,8 @@ export function useGameHelper() {
 		currentStepIndex,
 		currentMapId,
 		currentDay,
-		currentTurnsLeft,
 		currentMusic,
+		currentObjective,
 		isGameInitiating,
 		isFetchingResponse,
 		currentStep,
@@ -587,5 +620,7 @@ export function useGameHelper() {
 		isGameOver,
 		setIsGameOver,
 		retryFromLastSave,
+		setIsObjectivesCompleted,
+		isObjectivesCompleted,
 	};
 }

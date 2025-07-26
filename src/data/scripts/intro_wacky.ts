@@ -11,7 +11,7 @@ const intro_wacky: GameTurn = {
         {
             type: "dialog",
             id: "intro_4",
-            text: "Luci my brother! How you been?",
+            text: "Yoooo! Luci my brother! How you been?",
             speakerId: "Jesus",
             speakerExpression: "happy",
             listenerId: "Lucifer",
@@ -29,7 +29,7 @@ const intro_wacky: GameTurn = {
         {
             type: "dialog",
             id: "intro_6",
-            text: "So, what brings you here today? Is it about the chick winning 2 lotteries back to back the other day? Cause I wouldn't know nothing about it.",
+            text: "So, what brings you here today? If it's about the ? Cause I wouldn't know nothing about it.",
             speakerId: "Jesus",
             speakerExpression: "neutral",
             listenerId: "Lucifer",
