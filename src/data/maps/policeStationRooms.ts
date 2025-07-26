@@ -8,6 +8,8 @@ export const policeStationRooms: Room[] = [
         inViewRooms: ["Lobby", "Detectives Room"],
         width: 29,
         height: 9,
+		charactersIdList: ["Big Shot"],
+        itemsIdList: ["Streetlight", "Trash Can", "Newspaper Stand", "Bench", "Fire Hydrant", "Pothole", "Bus Stop Sign"]
     },
     {
         id: "Lobby",
@@ -16,6 +18,8 @@ export const policeStationRooms: Room[] = [
         inViewRooms: ["Outside Street", "Front Hallway"],
         width: 9,
         height: 9,
+        charactersIdList: ["Sophie"],
+        itemsIdList: ["Reception Desk", "Security Camera", "Visitor Chair", "Information Pamphlets", "Lost and Found Box", "Public Notice Board", "Water Cooler"]
     },
     {
         id: "Front Hallway",
@@ -30,7 +34,8 @@ export const policeStationRooms: Room[] = [
         ],
         inViewRooms: ["Lobby", "Captain Office"],
         width: 29,
-        height: 5
+        height: 5,
+        itemsIdList: ["Directory Board", "Fire Extinguisher", "Wall Clock", "Bench Seating", "Art Display", "Emergency Exit Sign", "Janitor's Cart"]
     },
     {
         id: "Patrol Room",
@@ -39,6 +44,7 @@ export const policeStationRooms: Room[] = [
         inViewRooms: ["Parking Lot"],
         width: 9,
         height: 9,
+        itemsIdList: ["Lockers", "Workout Bench", "Whiteboard", "Duty Roster", "First Aid Kit", "Bulletin Board", "Coffee Pot"]
     },
     {
         id: "Captain Office",
@@ -47,6 +53,8 @@ export const policeStationRooms: Room[] = [
         inViewRooms: ["Front Hallway"],
         width: 9,
         height: 9,
+        charactersIdList: ["Mark"],
+        itemsIdList: ["Captain's Desk", "Polished Sidearm", "Bookshelf", "Diplomas", "Family Photo", "Globe", "Leather Armchair"]
     },
     {
         id: "Back Hallway",
@@ -61,6 +69,7 @@ export const policeStationRooms: Room[] = [
         ],
         width: 5,
         height: 27,
+        itemsIdList: ["Utility Closet", "Maintenance Panel", "Emergency Lighting", "Security Door", "Warning Sign", "Storage Boxes", "Dust Bunnies"]
     },
     {
         id: "Parking Lot",
@@ -69,6 +78,8 @@ export const policeStationRooms: Room[] = [
         inViewRooms: ["Patrol Room", "Break Room"],
         width: 7,
         height: 32,
+		charactersIdList: ["Matt", "Elephant"],
+        itemsIdList: ["Police Cruiser", "Motorcycle", "Dumpster", "Oil Stain", "Security Gate", "Surveillance Camera", "Tire Marks"]
     },
     {
         id: "Break Room",
@@ -77,6 +88,7 @@ export const policeStationRooms: Room[] = [
         inViewRooms: ["Parking Lot"],
         width: 13,
         height: 9,
+        itemsIdList: ["Coffee Machine", "Donut Box", "Microwave", "Refrigerator", "Table and Chairs", "Sink", "Snack Basket"]
     },
     {
         id: "Security Room",
@@ -90,6 +102,8 @@ export const policeStationRooms: Room[] = [
         ],
         width: 7,
         height: 5,
+        charactersIdList: ["Gary"],
+        itemsIdList: ["Security Monitors", "Vending Machine", "Control Panel", "Headset", "Log Book", "CCTV Footage Archive", "Emergency Button"]
     },
     {
         id: "Evidence Locker",
@@ -97,6 +111,7 @@ export const policeStationRooms: Room[] = [
         connectedRooms: ["Back Hallway", "Forensics Lab"],
         width: 11,
         height: 5,
+        itemsIdList: ["Evidence Bags", "Fingerprint Kit", "Crime Scene Tape", "Forensic Tools", "Specimen Jars", "Secure Cabinet", "Label Printer"]
     },
     {
         id: "Forensics Lab",
@@ -104,6 +119,8 @@ export const policeStationRooms: Room[] = [
         connectedRooms: ["Evidence Locker"],
         width: 11,
         height: 9,
+        charactersIdList: ["Emily"],
+        itemsIdList: ["Microscope", "DNA Sequencer", "Test Tubes", "Bunsen Burner", "Chemical Cabinet", "Fume Hood", "Lab Coat", "Centrifuge"]
     },
     {
         id: "Observation Room",
@@ -112,6 +129,7 @@ export const policeStationRooms: Room[] = [
         inViewRooms: ["Interrogation Room"],
         width: 11,
         height: 9,
+        itemsIdList: ["One-Way Mirror", "Audio Recorder", "Note Pad", "Folding Chair", "Empty Coffee Cup", "Ventilation Duct", "Soundproofing Panels"]
     },
     {
         id: "Holding Cells",
@@ -119,6 +137,7 @@ export const policeStationRooms: Room[] = [
         connectedRooms: ["Back Hallway", "Interrogation Room"],
         width: 5,
         height: 11,
+        itemsIdList: ["Metal Bunk", "Toilet", "Sink", "Graffiti", "Scratch Marks", "Intercom", "Rusty Bars"]
     },
     {
         id: "Interrogation Room",
@@ -126,5 +145,6 @@ export const policeStationRooms: Room[] = [
         connectedRooms: ["Holding Cells"],
         width: 7,
         height: 5,
+        itemsIdList: ["Metal Table", "Two Chairs", "Water Pitcher", "Empty Ashtray", "Stained Floor", "Hidden Microphone", "Fluorescent Light"]
     }
 ]

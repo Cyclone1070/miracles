@@ -23,24 +23,12 @@ const day1: Turn[] = [
 		},
 		steps: [
 			{
-				type: "narration",
+				type: "dialog",
 				id: "day1_1",
-				text: "You see an elephant in the street."
-			},
-			{
-				type: "dialog",
-				id: "day1_2",
-				text: "What the hell is that doing here?",
+				text: "Elephant in the room... What the hell? That barely means anything. Well, I guess I'll have to figure it out somehow.",
 				speakerId: "Big Shot",
-				speakerExpression: "neutral"
-			},
-			{
-				type: "dialog",
-				id: "day1_3",
-				text: "I guess I should get it inside the Police Station.",
-				speakerId: "Big Shot",
-				speakerExpression: "neutral"
-			},
+				speakerExpression: "neutral",
+			}
 		],
 	}
 ]

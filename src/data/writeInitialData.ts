@@ -5,19 +5,20 @@ import { heavenItems } from "./items/heavenItems";
 import { gameMaps } from "./maps/gameMaps";
 import { heavenRooms } from "./maps/heavenRooms";
 import { policeStationRooms } from "./maps/policeStationRooms";
+import { policeStationItems } from "./items/policeStationItems";
 
 export async function writeInitialData(): Promise<void> {
     const day0: TimeTurn = {
         type: "time",
         id: 1,
         newDay: 0,
-		title: "Daily routine."
+        title: "Daily routine."
     }
     const opening: MapTurn = {
         type: "map",
         id: 2,
         newMapId: "Heaven",
-		newRoomId: "Heaven Courtyard",
+        newRoomId: "Heaven Courtyard",
     }
     const intro: GameTurn = {
         type: "game",
@@ -93,7 +94,8 @@ export async function writeInitialData(): Promise<void> {
         await Promise.all(gameMaps.map(map => saveMap(map)));
         await Promise.all(heavenRooms.map(room => saveRoom(room)));
         await Promise.all(heavenItems.map(item => saveItem(item)));
-		await Promise.all(policeStationRooms.map(room => saveRoom(room)));
+        await Promise.all(policeStationRooms.map(room => saveRoom(room)));
+		await Promise.all(policeStationItems.map(item => saveItem(item)));
         await Promise.all(characters.map(character => saveCharacter(character)));
 
         await saveTurn(day0);

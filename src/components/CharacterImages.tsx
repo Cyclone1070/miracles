@@ -3,6 +3,15 @@ import { useEffect, useRef, useState } from "react";
 import { useGameManager } from "../context/GameContext";
 import { mergeClasses } from "../utils/tailwindMerge";
 import beamURL from "/beam.webp?url";
+import bigShotAnnoyedURL from "/big-shot-annoyed.webp?url";
+import bigShotHappyURL from "/big-shot-happy.webp?url";
+import bigShotNeutralURL from "/big-shot-neutral.webp?url";
+import emilyAnnoyedURL from "/emily-annoyed.webp?url";
+import emilyHappyURL from "/emily-happy.webp?url";
+import emilyNeutralURL from "/emily-neutral.webp?url";
+import garyAnnoyedURL from "/gary-annoyed.webp?url";
+import garyHappyURL from "/gary-happy.webp?url";
+import garyNeutralURL from "/gary-neutral.webp?url";
 import holdItSoundURL from "/hold-it.mp3?url";
 import holdItURL from "/hold-it.webp?url";
 import jesusAnnoyedURL from "/jesus-annoyed.webp?url";
@@ -11,19 +20,46 @@ import jesusNeutralURL from "/jesus-neutral.webp?url";
 import luciferAnnoyedURL from "/lucifer-annoyed.webp?url";
 import luciferHappyURL from "/lucifer-happy.webp?url";
 import luciferNeutralURL from "/lucifer-neutral.webp?url";
+import markAnnoyedURL from "/mark-annoyed.webp?url";
+import markHappyURL from "/mark-happy.webp?url";
+import markNeutralURL from "/mark-neutral.webp?url";
+import mattAnnoyedURL from "/matt-annoyed.webp?url";
+import mattHappyURL from "/matt-happy.webp?url";
+import mattNeutralURL from "/matt-neutral.webp?url";
+import sophieAnnoyedURL from "/sophie-annoyed.webp?url";
+import sophieHappyURL from "/sophie-happy.webp?url";
+import sophieNeutralURL from "/sophie-neutral.webp?url";
 
 interface Props {
 	className?: string;
 }
 
 export function CharacterImages({ ...props }: Props) {
-	const svgMap: Record<string, string> = {
+	const imageMap: Record<string, string> = {
 		"Jesus-happy": jesusHappyURL,
 		"Jesus-neutral": jesusNeutralURL,
 		"Jesus-annoyed": jesusAnnoyedURL,
 		"Lucifer-happy": luciferHappyURL,
 		"Lucifer-neutral": luciferNeutralURL,
 		"Lucifer-annoyed": luciferAnnoyedURL,
+		"Big Shot-happy": bigShotHappyURL,
+		"Big Shot-neutral": bigShotNeutralURL,
+		"Big Shot-annoyed": bigShotAnnoyedURL,
+		"Mark-happy": markHappyURL,
+		"Mark-neutral": markNeutralURL,
+		"Mark-annoyed": markAnnoyedURL,
+		"Matt-happy": mattHappyURL,
+		"Matt-neutral": mattNeutralURL,
+		"Matt-annoyed": mattAnnoyedURL,
+		"Emily-happy": emilyHappyURL,
+		"Emily-neutral": emilyNeutralURL,
+		"Emily-annoyed": emilyAnnoyedURL,
+		"Sophie-happy": sophieHappyURL,
+		"Sophie-neutral": sophieNeutralURL,
+		"Sophie-annoyed": sophieAnnoyedURL,
+		"Gary-happy": garyHappyURL,
+		"Gary-neutral": garyNeutralURL,
+		"Gary-annoyed": garyAnnoyedURL,
 	};
 	const {
 		currentStep,
@@ -161,7 +197,7 @@ export function CharacterImages({ ...props }: Props) {
 
 		return (
 			<AnimatePresence>
-				{key && svgMap[key] && !shouldAnimate ? (
+				{key && imageMap[key] && !shouldAnimate ? (
 					<img
 						className={mergeClasses(
 							`drop-shadow-xl drop-shadow-black grow basis-0 max-w-1/2 md:max-w-100`,
@@ -169,7 +205,7 @@ export function CharacterImages({ ...props }: Props) {
 							(isFadingBoth || isTarget) && fadeClass,
 							side === "right" && "transform scale-x-[-1]",
 						)}
-						src={svgMap[key]}
+						src={imageMap[key]}
 					/>
 				) : (
 					<div className={`grow basis-0 max-w-1/2 md:max-w-100`} />
