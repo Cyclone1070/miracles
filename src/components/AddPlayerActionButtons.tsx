@@ -16,7 +16,11 @@ interface Props {
 	setIsActionExpanded: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export function AddPlayerActionButtons({ ...props }: Props) {
+export function AddPlayerActionButtons({
+	addActionButtonRef,
+	isActionExpanded,
+	setIsActionExpanded,
+}: Props) {
 	const { setPlayerActions, currentMapId } = useGameManager();
 	const iconVariants = {
 		visible: {
@@ -38,18 +42,18 @@ export function AddPlayerActionButtons({ ...props }: Props) {
 				event.target instanceof HTMLElement &&
 				!event.target.closest("[data-add-button-none-close-click]")
 			) {
-				props.setIsActionExpanded(false);
+				setIsActionExpanded(false);
 			}
 		};
 
-		if (props.isActionExpanded) {
+		if (isActionExpanded) {
 			document.addEventListener("mousedown", handleClickOutside);
 		}
 
 		return () => {
 			document.removeEventListener("mousedown", handleClickOutside);
 		};
-	}, [props, props.isActionExpanded]);
+	}, [isActionExpanded, setIsActionExpanded]);
 	return (
 		<>
 			<motion.div
@@ -63,7 +67,7 @@ export function AddPlayerActionButtons({ ...props }: Props) {
 					},
 				}}
 				transition={{ ease: "easeInOut", duration: 0.3 }}
-				animate={props.isActionExpanded ? "visible" : "hidden"}
+				animate={isActionExpanded ? "visible" : "hidden"}
 				onClick={(e) => {
 					e.stopPropagation();
 				}}
@@ -83,7 +87,7 @@ export function AddPlayerActionButtons({ ...props }: Props) {
 						},
 					}}
 					transition={{ ease: "easeInOut", duration: 0.3 }}
-					animate={props.isActionExpanded ? "visible" : "hidden"}
+					animate={isActionExpanded ? "visible" : "hidden"}
 					onClick={(e) => {
 						e.stopPropagation();
 					}}
@@ -138,7 +142,7 @@ export function AddPlayerActionButtons({ ...props }: Props) {
 						},
 					}}
 					transition={{ ease: "easeInOut", duration: 0.3 }}
-					animate={props.isActionExpanded ? "visible" : "hidden"}
+					animate={isActionExpanded ? "visible" : "hidden"}
 					onClick={(e) => {
 						e.stopPropagation();
 					}}
@@ -185,23 +189,23 @@ export function AddPlayerActionButtons({ ...props }: Props) {
 				<HighlightButton
 					data-add-button-none-close-click
 					data-textbox-none-close-click
-					ref={props.addActionButtonRef}
+					ref={addActionButtonRef}
 					onClick={(e) => {
 						e.stopPropagation();
-						props.setIsActionExpanded((prev) => !prev);
+						setIsActionExpanded((prev) => !prev);
 					}}
 					className={`w-14 h-14 rounded-full flex justify-center items-center`}
 				>
 					<motion.img
 						variants={iconVariants}
-						animate={props.isActionExpanded ? "hidden" : "visible"}
+						animate={isActionExpanded ? "hidden" : "visible"}
 						className={`h-7 absolute`}
 						src={actionSvgURL}
 						alt="action icon"
 					/>
 					<motion.img
 						variants={iconVariants}
-						animate={props.isActionExpanded ? "visible" : "hidden"}
+						animate={isActionExpanded ? "visible" : "hidden"}
 						className={`absolute h-7`}
 						src={closeSvgURL}
 						alt="close icon"

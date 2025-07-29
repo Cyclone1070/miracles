@@ -7,7 +7,7 @@ interface Props {
 	setIsMainMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export function MainMenu({ ...props }: Props) {
+export function MainMenu({ setIsMainMenuOpen }: Props) {
 	const [isHelpVisible, setIsHelpVisible] = useState(false);
 	// 1. Initialize state lazily from localStorage only on the first render.
 	const [currentAccent, setCurrentAccent] = useState(() =>
@@ -58,7 +58,7 @@ export function MainMenu({ ...props }: Props) {
 					text-2xl p-3 px-5
 					md:text-3xl md:p-3 md:px-6`}
 					onClick={() => {
-						props.setIsMainMenuOpen(false);
+						setIsMainMenuOpen(false);
 					}}
 				>
 					Play!

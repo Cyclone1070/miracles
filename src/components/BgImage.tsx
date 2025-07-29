@@ -19,7 +19,7 @@ interface Props {
 	className?: string;
 }
 
-export function BgImage({ ...props }: Props) {
+export function BgImage({ className }: Props) {
 	const { currentRoomId } = useGameManager();
 
 	const roomImageMap: Record<string, string> = {
@@ -46,7 +46,7 @@ export function BgImage({ ...props }: Props) {
 		<div
 			className={mergeClasses(
 				`absolute inset-0 flex justify-center items-center`,
-				props.className,
+				className,
 			)}
 		>
 			{imageUrl && (

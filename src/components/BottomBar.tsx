@@ -10,7 +10,7 @@ interface Props {
 	setIsMainMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export function BottomBar({ ...props }: Props) {
+export function BottomBar({ className, setIsMainMenuOpen }: Props) {
 	const { submitPlayerAction, playerActions, isTurnEnd, currentStep} = useGameManager();
 	const buttonClassNames =
 		"rounded-xl basis-0 grow h-full flex justify-center items-center gap-2 bg-(--bg) max-w-40";
@@ -20,13 +20,13 @@ export function BottomBar({ ...props }: Props) {
 			ref={bottomBarRef}
 			className={mergeClasses(
 				`w-full h-10 m-1 rounded-t-xl flex items-center justify-center`,
-				props.className,
+				className,
 			)}
 		>
 			<HighlightButton
 				className={buttonClassNames}
 				onClick={() => {
-					props.setIsMainMenuOpen((prev) => !prev);
+					setIsMainMenuOpen((prev) => !prev);
 				}}
 			>
 				<img

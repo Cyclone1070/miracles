@@ -13,8 +13,17 @@ interface Props<T> {
 	required?: boolean;
 }
 
-export function Combobox<T>({ ...props }: Props<T>) {
-	const [inputItems, setInputItems] = useState(props.items);
+export function Combobox<T>({
+	items,
+	itemToString,
+	onSelectedItemChange,
+	initialSelectedItem,
+	className,
+	placeholder,
+	label,
+	required,
+}: Props<T>) {
+	const [inputItems, setInputItems] = useState(items);
 
 	const {
 		isOpen,
@@ -31,27 +40,26 @@ export function Combobox<T>({ ...props }: Props<T>) {
 	} = useCombobox({
 		onInputValueChange({ inputValue }) {
 			setInputItems(
-				props.items.filter((item) =>
-					props
-						.itemToString(item)
+				items.filter((item) =>
+					itemToString(item)
 						.toLowerCase()
 						.includes(inputValue?.toLowerCase() ?? ""),
 				),
 			);
 		},
 		items: inputItems,
-		itemToString: props.itemToString,
-		initialSelectedItem: props.initialSelectedItem,
-		onSelectedItemChange: props.onSelectedItemChange,
+		itemToString: itemToString,
+		initialSelectedItem: initialSelectedItem,
+		onSelectedItemChange: onSelectedItemChange,
 	});
 
 	return (
 		<>
 			<label {...getLabelProps()}>
-				{props.required && <span className={`text-red-500`}>*</span>}
-				{props.label}
+				{required && <span className={`text-red-500`}>*</span>}
+				{label}
 			</label>
-			<div className={`relative ${props.className}`}>
+			<div className={`relative ${className}`}>
 				<div className="relative rounded-md w-full">
 					<input
 						{...getInputProps({
@@ -67,7 +75,7 @@ export function Combobox<T>({ ...props }: Props<T>) {
 								}
 							},
 							onBlur() {
-								if (inputValue === "" && !props.required) {
+								if (inputValue === "" && !required) {
 									console.log("Resetting input value");
 									reset();
 								} else if (selectedItem) {
@@ -83,7 +91,7 @@ export function Combobox<T>({ ...props }: Props<T>) {
 							},
 						})}
 						className="w-full rounded-md px-2 border-2 border-(--accent)"
-						placeholder={props.placeholder}
+						placeholder={placeholder}
 					/>
 					{inputValue !== "" && (
 						<img
@@ -110,10 +118,10 @@ export function Combobox<T>({ ...props }: Props<T>) {
 									`text-left shadow-none rounded-none p-2 cursor-pointer ` +
 									`${highlightedIndex === index ? "bg-(--accent)" : ""}`
 								}
-								key={`${props.itemToString(item)}${index}`}
+								key={`${itemToString(item)}${index}`}
 								{...getItemProps({ item, index })}
 							>
-								{props.itemToString(item)}
+								{itemToString(item)}
 							</div>
 						))}
 				</div>

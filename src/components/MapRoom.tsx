@@ -25,7 +25,14 @@ interface Props {
 	setInspectId?: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-export function MapRoom({ ...props }: Props) {
+export function MapRoom({
+	className,
+	roomId,
+	transition,
+	onClick,
+	style,
+	setInspectId,
+}: Props) {
 	const [items, setItems] = useState<Item[]>();
 	const [characters, setCharacters] = useState<Character[]>();
 	const [roomInfo, setRoomInfo] = useState<Room>();
@@ -37,12 +44,12 @@ export function MapRoom({ ...props }: Props) {
 	useEffect(() => {
 		async function fetchData() {
 			try {
-				const fetchedRoomInfo: Room = await loadRoom(props.roomId);
+				const fetchedRoomInfo: Room = await loadRoom(roomId);
 				const fetchedItems: Item[] = await getAllItemsInRoom(
-					props.roomId,
+					roomId,
 				);
 				const fetchedCharacters: Character[] =
-					await getAllCharactersInRoom(props.roomId);
+					await getAllCharactersInRoom(roomId);
 
 				setRoomInfo(fetchedRoomInfo);
 				setItems(fetchedItems);
@@ -53,7 +60,7 @@ export function MapRoom({ ...props }: Props) {
 			}
 		}
 		fetchData();
-	}, [props.roomId, isTurnEndHandling]);
+	}, [roomId, isTurnEndHandling]);
 
 	// calculate font size based on cell size
 	useLayoutEffect(() => {
@@ -71,15 +78,15 @@ export function MapRoom({ ...props }: Props) {
 		<motion.div
 			data-map-none-close-click
 			ref={gridRef}
-			layoutId={props.roomId}
-			transition={props.transition}
-			onClick={props.onClick}
+			layoutId={roomId}
+			transition={transition}
+			onClick={onClick}
 			className={mergeClasses(
 				`bg-(--bg) border-4 border-(--accent) grid text-white`,
-				props.className,
+				className,
 			)}
 			style={{
-				...props.style,
+				...style,
 				gridTemplateColumns: `repeat(${roomInfo?.width ?? 1}, minmax(0, 1fr))`,
 				gridTemplateRows: `repeat(${roomInfo?.height ?? 1}, minmax(0, 1fr))`,
 			}}
@@ -90,11 +97,11 @@ export function MapRoom({ ...props }: Props) {
 				}
 				return (
 					<HighlightButton
-						disabled={props.onClick !== undefined}
+						disabled={onClick !== undefined}
 						key={items.id}
 						onClick={() => {
-							if (props.setInspectId) {
-								props.setInspectId(items.id);
+							if (setInspectId) {
+								setInspectId(items.id);
 							}
 						}}
 						className={`col-span-1 row-span-1 flex justify-center items-center w-full h-full bg-transparent shadow-none font-bold`}
@@ -110,11 +117,11 @@ export function MapRoom({ ...props }: Props) {
 			})}
 			{characters?.map((character) => (
 				<HighlightButton
-					disabled={props.onClick !== undefined}
+					disabled={onClick !== undefined}
 					key={character.id}
 					onClick={() => {
-						if (props.setInspectId) {
-							props.setInspectId(character.id);
+						if (setInspectId) {
+							setInspectId(character.id);
 						}
 					}}
 					className={`col-span-1 row-span-1 flex justify-center items-center rounded-sm w-full h-full bg-transparent shadow-none`}

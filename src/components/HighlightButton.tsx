@@ -14,14 +14,20 @@ interface Props {
 	disabled?: boolean;
 }
 
-export function HighlightButton({ ...props }: Props) {
+export function HighlightButton({
+	className,
+	children,
+	onClick,
+	onMouseLeave,
+	ref,
+	disabled,
+}: Props) {
 	const [isActive, setIsActive] = React.useState(false);
 	const { darkMode } = useTheme();
 
 	return (
 		<button
-			{...props}
-			ref={props.ref}
+			ref={ref}
 			/* set to active on click */
 			onMouseDown={() => {
 				setIsActive(true);
@@ -31,7 +37,7 @@ export function HighlightButton({ ...props }: Props) {
 			}}
 			onMouseLeave={(e) => {
 				setIsActive(false);
-				if (props.onMouseLeave) props.onMouseLeave(e);
+				if (onMouseLeave) onMouseLeave(e);
 			}}
 			onTouchStart={() => {
 				setIsActive(true);
@@ -39,16 +45,16 @@ export function HighlightButton({ ...props }: Props) {
 			onTouchEnd={() => {
 				setIsActive(false);
 			}}
-			onClick={props.onClick}
+			onClick={onClick}
 			className={mergeClasses(
 				"cursor-pointer p-2 relative bg-(--accent) text-white rounded-md shadow-md/25",
-				`${props.disabled && "pointer-events-none"}`,
-				props.className,
+				`${disabled && "pointer-events-none"}`,
+				className,
 			)}
 		>
 			{/* darken background overlay */}
-			{props.children}
-			{!props.disabled && (
+			{children}
+			{!disabled && (
 				<motion.div
 					variants={{
 						default: { opacity: 0 },

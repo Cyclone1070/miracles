@@ -11,7 +11,7 @@ interface Props {
 	className?: string;
 }
 
-export function GameMap({ ...props }: Props) {
+export function GameMap({ className }: Props) {
 	const { currentMapId } = useGameManager();
 	const [isMapExpanded, setIsMapExpanded] = useState(false);
 	const [inspectId, setInspectId] = useState<string | null>(null);
@@ -69,7 +69,7 @@ export function GameMap({ ...props }: Props) {
 				<div
 					className={mergeClasses(
 						`relative flex justify-center items-center`,
-						props.className,
+						className,
 					)}
 				>
 					{/* map viewport */}

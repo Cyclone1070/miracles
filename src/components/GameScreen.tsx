@@ -16,7 +16,10 @@ interface Props {
 	setIsMainMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export function GameScreen({ ...props }: Props) {
+export function GameScreen({
+	className,
+	setIsMainMenuOpen,
+}: Props) {
 	const { isGameOver, currentTurn } = useGameManager();
 	const variants = {
 		hidden: {
@@ -38,7 +41,7 @@ export function GameScreen({ ...props }: Props) {
 			exit="hidden"
 			className={mergeClasses(
 				`flex flex-col p-6 pb-0 items-center gap-2`,
-				props.className,
+				className,
 			)}
 		>
 			<BgImage className={`-z-1`} />
@@ -57,7 +60,7 @@ export function GameScreen({ ...props }: Props) {
 			</div>
 
 			<NarrativeBox className={`w-full h-54 max-w-200`} />
-			<BottomBar setIsMainMenuOpen={props.setIsMainMenuOpen} />
+			<BottomBar setIsMainMenuOpen={setIsMainMenuOpen} />
 			{currentTurn?.type === "time" && <DaySplashScreen />}
 			{isGameOver && <GameOverScreen />}
 		</motion.div>

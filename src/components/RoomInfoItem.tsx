@@ -18,21 +18,31 @@ interface Props {
 	setInspectId?: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-export function RoomInfoItem({ ...props }: Props) {
+export function RoomInfoItem({
+	className,
+	id,
+	asciiChar,
+	colorHex,
+	description,
+	state,
+	isItem,
+	inspectId,
+	setInspectId,
+}: Props) {
 	const [items, setItems] = useState<Item[]>([]);
 	const [isExpanded, setIsExpanded] = useState(false);
 	const { npcActions, isTurnEndHandling } = useGameManager();
-	if (props.inspectId === props.id && !isExpanded) {
+	if (inspectId === id && !isExpanded) {
 		setIsExpanded(true);
 	}
 	useEffect(() => {
-		if (props.isItem) return;
+		if (isItem) return;
 
 		async function fetchItems() {
 			try {
-				if (!props.isItem) {
+				if (!isItem) {
 					// If it's not an item, we can fetch items the character inventory
-					const fetchedItems = await getAllItemsInCharacter(props.id);
+					const fetchedItems = await getAllItemsInCharacter(id);
 					setItems(fetchedItems);
 				}
 			} catch (error) {
@@ -40,35 +50,35 @@ export function RoomInfoItem({ ...props }: Props) {
 			}
 		}
 		fetchItems();
-	}, [props.id, props.isItem, isTurnEndHandling]);
+	}, [id, isItem, isTurnEndHandling]);
 
 	return (
-		<div className={mergeClasses(`flex flex-col`, props.className)}>
+		<div className={mergeClasses(`flex flex-col`, className)}>
 			<HighlightButton
 				className={`flex rounded-sm p-2 cursor-pointer bg-transparent shadow-none text-left`}
-				key={props.id}
+				key={id}
 				onClick={() => {
 					setIsExpanded((prev) => !prev);
-					if (props.inspectId === props.id) {
-						props.setInspectId?.(null);
+					if (inspectId === id) {
+						setInspectId?.(null);
 					}
 				}}
 			>
 				<div
 					className={
 						`w-6 h-6 rounded-sm flex justify-center items-center ` +
-						`${props.isItem && "font-bold"}`
+						`${isItem && "font-bold"}`
 					}
 					style={
-						props.isItem
-							? { color: props.colorHex }
-							: { backgroundColor: props.colorHex }
+						isItem
+							? { color: colorHex }
+							: { backgroundColor: colorHex }
 					}
 				>
-					{props.asciiChar}
+					{asciiChar}
 				</div>
 				<span>:&nbsp;</span>
-				<span>{props.id}</span>
+				<span>{id}</span>
 			</HighlightButton>
 			<AnimatePresence>
 				{isExpanded && (
@@ -80,25 +90,25 @@ export function RoomInfoItem({ ...props }: Props) {
 						className={`pl-12 overflow-hidden`}
 					>
 						<div className="text-sm text-(--text-secondary)">
-							{props.description}
+							{description}
 						</div>
-						{props.state && (
+						{state && (
 							<>
 								<div className="text-sm text-(--text) underline mt-2">
 									State:
 								</div>
 								<div className="text-sm text-(--text-secondary)">
-									{props.state}
+									{state}
 								</div>
 							</>
 						)}
-						{!props.isItem && npcActions && props.id in npcActions && (
+						{!isItem && npcActions && id in npcActions && (
 							<>
 								<div className="text-sm text-(--text) underline mt-2">
 									Next Action:
 								</div>
 								<div className="text-sm text-(--text-secondary)">
-									{npcActions[props.id]}
+									{npcActions[id]}
 								</div>
 							</>
 						)}

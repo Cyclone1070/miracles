@@ -13,7 +13,7 @@ interface Props {
 	children?: React.ReactNode;
 }
 
-export function NarrativeBox({ ...props }: Props) {
+export function NarrativeBox({ className, children }: Props) {
 	// Refs for narrativeBg calculation
 	const nameBoxRef = useRef<HTMLDivElement>(null);
 	const nameBoxContainerRef = useRef<HTMLDivElement>(null);
@@ -119,7 +119,7 @@ export function NarrativeBox({ ...props }: Props) {
 				ref={narrativeBoxRef}
 				className={mergeClasses(
 					`relative border-2 border-t-0 border-(--accent) rounded-xl text-white p-2 pt-8 pb-10 md:px-6 cursor-pointer`,
-					props.className,
+					className,
 				)}
 				onClick={async () => {
 					if (currentStep?.type === "animation") return
@@ -330,7 +330,7 @@ export function NarrativeBox({ ...props }: Props) {
 					setIsActionExpanded={setIsActionExpanded}
 				/>
 
-				{props.children}
+				{children}
 			</div>
 		</>
 	);

@@ -25,7 +25,13 @@ interface Props {
 	>;
 }
 
-export function RoomInfo({ ...props }: Props) {
+export function RoomInfo({
+	className,
+	roomId,
+	inspectId,
+	setInspectId,
+	setActiveRoom,
+}: Props) {
 	const [characters, setCharacters] = useState<Character[]>();
 	const [items, setItems] = useState<Item[]>();
 	const [roomInfo, setRoomInfo] = useState<Room>();
@@ -41,16 +47,16 @@ export function RoomInfo({ ...props }: Props) {
 	// fetching useEffect
 	useEffect(() => {
 		async function fetchData() {
-			if (!props.roomId || !currentRoomId) {
+			if (!roomId || !currentRoomId) {
 				return;
 			}
 
 			try {
-				const fetchedRoomInfo: Room = await loadRoom(props.roomId);
+				const fetchedRoomInfo: Room = await loadRoom(roomId);
 				const fetchedCharacters: Character[] =
-					await getAllCharactersInRoom(props.roomId);
+					await getAllCharactersInRoom(roomId);
 				const fetchedItems: Item[] = await getAllItemsInRoom(
-					props.roomId,
+					roomId,
 				);
 				const currentRoom: Room = await loadRoom(currentRoomId);
 				setCurrentRoomInfo(currentRoom);
@@ -64,13 +70,13 @@ export function RoomInfo({ ...props }: Props) {
 			}
 		}
 		fetchData();
-	}, [currentRoomId, props.roomId, isTurnEndHandling]);
+	}, [currentRoomId, roomId, isTurnEndHandling]);
 
 	return (
 		<div
 			className={mergeClasses(
 				`p-4 text-white flex flex-col gap-4`,
-				props.className,
+				className,
 			)}
 		>
 			{roomInfo ? (
@@ -80,7 +86,7 @@ export function RoomInfo({ ...props }: Props) {
 					>
 						<h2 className="text-2xl font-bold">{roomInfo.id}</h2>
 						{currentRoomInfo?.connectedRooms?.includes(
-							props.roomId,
+							roomId,
 						) && (
 							<HighlightButton
 								onClick={() => {
@@ -112,11 +118,11 @@ export function RoomInfo({ ...props }: Props) {
 														: "Big Shot",
 												expression: "neutral",
 												type: "move",
-												destinationId: props.roomId,
+												destinationId: roomId,
 											},
 										];
 									});
-									props.setActiveRoom(null);
+									setActiveRoom(null);
 								}}
 								className={`shrink-0`}
 							>
@@ -128,11 +134,11 @@ export function RoomInfo({ ...props }: Props) {
 						{roomInfo.description}
 					</p>
 					{eventSummary &&
-						props.roomId in eventSummary && (
+						roomId in eventSummary && (
 							<>
 								<h3 className="text-xl underline">Event summary:</h3>
 								<div className="text-sm text-(--text-secondary)">
-									{eventSummary[props.roomId]}
+									{eventSummary[roomId]}
 								</div>
 							</>
 						)}
@@ -142,8 +148,8 @@ export function RoomInfo({ ...props }: Props) {
 							<div className={`flex flex-col gap-3`}>
 								{items.map((item) => (
 									<RoomInfoItem
-										inspectId={props.inspectId}
-										setInspectId={props.setInspectId}
+										inspectId={inspectId}
+										setInspectId={setInspectId}
 										key={item.id}
 										id={item.id}
 										description={item.description}
@@ -163,8 +169,8 @@ export function RoomInfo({ ...props }: Props) {
 							<div className={`flex flex-col gap-3`}>
 								{characters.map((character) => (
 									<RoomInfoItem
-										inspectId={props.inspectId}
-										setInspectId={props.setInspectId}
+										inspectId={inspectId}
+										setInspectId={setInspectId}
 										key={character.id}
 										id={character.id}
 										description={character.description}

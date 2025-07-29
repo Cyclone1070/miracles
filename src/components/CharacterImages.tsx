@@ -34,7 +34,7 @@ interface Props {
 	className?: string;
 }
 
-export function CharacterImages({ ...props }: Props) {
+export function CharacterImages({ className }: Props) {
 	const imageMap: Record<string, string> = {
 		"Jesus-happy": jesusHappyURL,
 		"Jesus-neutral": jesusNeutralURL,
@@ -249,7 +249,7 @@ export function CharacterImages({ ...props }: Props) {
 		<div
 			className={mergeClasses(
 				`flex justify-between items-end`,
-				props.className,
+				className,
 			)}
 		>
 			{showHoldItBox && (

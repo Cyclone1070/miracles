@@ -21,7 +21,7 @@ interface Props {
 	className?: string;
 }
 
-export function PlayerActionInputArea({ ...props }: Props) {
+export function PlayerActionInputArea({ className }: Props) {
 	const ANIMATION_DURATION_MS = 150;
 	const [activeAction, setActiveAction] = useState<Action | null>(null);
 	const [characters, setCharacters] = useState<Character[]>();
@@ -97,7 +97,7 @@ export function PlayerActionInputArea({ ...props }: Props) {
 		<div
 			className={mergeClasses(
 				`flex gap-2 m-auto max-w-100 justify-center text-white`,
-				props.className,
+				className,
 			)}
 		>
 			<AnimatePresence>
